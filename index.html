@@ -586,10 +586,14 @@
     .dash-side{width:100%; flex-direction:row; overflow-x:auto; padding:14px;}
     .dash-brand{display:none;}
     .dash-nav{flex-direction:row;}
+    .dash-nav-btn{width:auto; flex-shrink:0; white-space:nowrap;}
+    #dashboard-exit{margin-top:0 !important; flex-shrink:0; white-space:nowrap; width:auto;}
     .dash-main{padding:24px 18px;}
-    .dt-row{grid-template-columns:1fr; gap:6px;}
-    .dt-actions{justify-content:flex-start;}
+    .dt-row{grid-template-columns:1fr !important; gap:6px;}
+    .dt-actions{justify-content:flex-start; flex-wrap:wrap;}
     .form-grid{grid-template-columns:1fr;}
+    .promo-tool{flex-direction:column; align-items:stretch;}
+    .promo-tool .field{min-width:0;}
   }
 
   .toast{
@@ -627,6 +631,22 @@
     .cta-row{width:100%;}
     .cta-row .btn{flex:1; justify-content:center;}
   }
+  @media (max-width:480px){
+    .nav{padding:13px 16px;}
+    .nav-actions{gap:8px;}
+    .logo{font-size:1.05rem; gap:7px;}
+    .logo .mark{width:28px; height:28px;}
+    .icon-btn{padding:8px; gap:0;}
+    .btn-label{display:none;}
+    .cart-count{top:-6px; right:-6px;}
+    .modal{padding:22px 18px;}
+    .plate{padding:16px;}
+    .drawer{max-width:100%;}
+    .dash-nav-btn svg{margin-right:0;}
+    .section{padding:56px 0;}
+    .card-body{padding:16px;}
+    .cta-band{padding:30px 22px; flex-direction:column; align-items:flex-start;}
+  }
 </style>
 </head>
 <body>
@@ -644,15 +664,15 @@
     <div class="nav-actions">
       <button class="icon-btn" id="dashboard-btn" aria-label="Dashboard administrateur" style="display:none; border-color:var(--accent-2); color:var(--accent-2);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-        Dashboard
+        <span class="btn-label">Dashboard</span>
       </button>
       <button class="icon-btn" id="account-btn" aria-label="Mon compte">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        Compte
+        <span class="btn-label">Compte</span>
       </button>
       <button class="icon-btn" id="cart-btn" aria-label="Panier">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
-        Panier
+        <span class="btn-label">Panier</span>
         <span class="cart-count" id="cart-count">0</span>
       </button>
       <button class="burger" id="burger-btn" aria-label="Menu" aria-expanded="false">
@@ -1151,8 +1171,8 @@
           <input type="hidden" id="ab-id">
           <div class="field" style="flex:2;">
             <label>Image *</label>
-            <div style="display:flex; gap:8px;">
-              <input type="url" id="ab-image" placeholder="https://…" style="flex:1;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="ab-image" placeholder="https://…" style="flex:1; min-width:160px;">
               <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
                 Téléverser
                 <input type="file" id="ab-image-file" accept="image/*" style="display:none;">
@@ -1762,7 +1782,7 @@
     if(currentUser){
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        ${currentUser.name.split(' ')[0]}
+        <span class="btn-label">${currentUser.name.split(' ')[0]}</span>
       `;
       document.getElementById('account-name').textContent = currentUser.name;
       document.getElementById('account-email').textContent = currentUser.email;
@@ -1787,7 +1807,7 @@
     } else {
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        Compte
+        <span class="btn-label">Compte</span>
       `;
       document.getElementById('auth-block').style.display = 'block';
       document.getElementById('account-panel').classList.remove('active');
