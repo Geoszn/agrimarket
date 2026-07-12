@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AgriMarket — Tracteurs, camions & matériel professionnel</title>
+<meta name="description" content="AgriMarket — tracteurs, camions et matériel agricole neuf et d'occasion, inspectés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.">
+<meta name="theme-color" content="#14171a">
+<meta property="og:title" content="AgriMarket — Tracteurs, camions & matériel professionnel">
+<meta property="og:description" content="Matériel agricole et poids lourds inspectés, neufs et d'occasion. Consultez le catalogue et recevez une offre sous 24h.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2314171a'/%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='%23e8590c'/%3E%3Cdefs%3E%3Cpattern id='s' width='11.3' height='11.3' patternTransform='rotate(45)' patternUnits='userSpaceOnUse'%3E%3Crect width='5.65' height='11.3' fill='%23000000' opacity='0.22'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='url(%23s)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +25,7 @@
     --accent-hover: #ff6a1a;
     --accent-2: #f2c230;
     --accent-deep: #6e2b0e;
-    --radius: 2px;
+    --radius: 4px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -39,6 +45,32 @@
   }
   .reveal{opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease;}
   .reveal.in-view{opacity:1; transform:translateY(0);}
+
+  /* ===== ANIMATION D'OUVERTURE ===== */
+  #intro-overlay{
+    position:fixed; inset:0; z-index:500;
+    background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+    transition:opacity .5s ease, visibility .5s ease;
+  }
+  #intro-overlay.intro-hide{opacity:0; visibility:hidden; pointer-events:none;}
+  .intro-mark{
+    width:60px; height:60px; border-radius:6px; background:var(--accent);
+    background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,0.25) 6px 12px);
+    animation: introPop .7s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  .intro-word{
+    font-family:'Oswald'; font-weight:700; font-size:1.3rem; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text); opacity:0; animation: introFadeUp .6s ease .3s both;
+  }
+  .intro-word span{color:var(--accent-2);}
+  .intro-tread{width:110px; height:4px; overflow:hidden; border-radius:2px; opacity:0; animation: introFadeUp .6s ease .5s both;}
+  .intro-tread div{width:100%; height:100%; background-image: repeating-linear-gradient(115deg, var(--accent) 0 10px, var(--accent-deep) 10px 20px);}
+  @keyframes introPop{ from{transform:scale(0.4); opacity:0;} to{transform:scale(1); opacity:1;} }
+  @keyframes introFadeUp{ from{transform:translateY(10px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  @media (prefers-reduced-motion: reduce){
+    #intro-overlay{display:none !important;}
+  }
   @media (prefers-reduced-motion: reduce){
     .reveal{opacity:1; transform:none; transition:none;}
   }
@@ -152,10 +184,11 @@
   }
   .btn-primary{background:var(--accent); color:#14171a;}
   .btn-primary:hover{background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 8px 22px rgba(232,89,12,0.32);}
+  .btn:active{transform:translateY(0) scale(0.98);}
   .btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed; transform:none; box-shadow:none;}
   .btn:disabled:hover{background:var(--surface); transform:none; box-shadow:none;}
   .btn-ghost{border-color:var(--line); color:var(--text);}
-  .btn-ghost:hover{border-color:var(--text-mute);}
+  .btn-ghost:hover{border-color:var(--text-mute); background:rgba(255,255,255,0.03); transform:translateY(-1px);}
   .stat-row{display:flex; gap:36px; flex-wrap:wrap;}
   .stat b{
     display:block; font-family:'Oswald'; font-size:1.7rem; color:var(--text);
@@ -254,20 +287,24 @@
   .search-sort-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:22px;}
   .search-box{
     flex:1; min-width:220px; display:flex; align-items:center; gap:10px;
-    background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:0 14px;
-    color:var(--text-mute);
+    background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:0 14px;
+    color:var(--text-mute); transition:border-color .15s, box-shadow .15s; height:46px;
   }
   .search-box input{
-    flex:1; background:none; border:none; color:var(--text); padding:12px 0;
+    flex:1; background:none; border:none; color:var(--text); padding:12px 0; height:100%;
     font-family:'Barlow'; font-size:0.92rem;
   }
   .search-box input:focus{outline:none;}
-  .search-box:focus-within{border-color:var(--accent);}
+  .search-box:hover{border-color:#4a5157;}
+  .search-box:focus-within{border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
   #catalog-sort{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
-    padding:0 14px; border-radius:2px; font-family:'Oswald'; font-size:0.82rem;
-    text-transform:uppercase; letter-spacing:0.03em; min-width:200px;
+    padding:0 16px; border-radius:5px; font-family:'Oswald'; font-size:0.82rem;
+    text-transform:uppercase; letter-spacing:0.03em; min-width:200px; height:46px;
+    transition:border-color .15s; cursor:pointer;
   }
+  #catalog-sort:hover{border-color:#4a5157;}
+  #catalog-sort:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
   .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:34px;}
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-mute);
@@ -314,6 +351,13 @@
     box-shadow:0 2px 6px rgba(0,0,0,0.3);
   }
   .badge.promo{background:var(--accent); color:#14171a;}
+  .card-wl-btn{
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:30px; height:30px; border-radius:50%; background:rgba(20,23,26,0.7); border:1px solid var(--line);
+    color:#fff; display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .card-wl-btn:hover{border-color:var(--accent);}
+  .card-wl-btn.active{color:var(--accent); border-color:var(--accent); background:rgba(232,89,12,0.15);}
   .badge.sold{background:#3a4147; color:#c7cdc9;}
   .badge.reserved{background:var(--accent-2); color:#14171a;}
   .card.unavailable .card-media{opacity:0.55;}
@@ -341,6 +385,24 @@
   .add-btn.added{background:#3a5a3a; border-color:#3a5a3a; color:#eaffea;}
   .add-btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed;}
   .add-btn:disabled:hover{background:var(--surface); border-color:var(--line); color:var(--text-mute);}
+
+  /* ===== MARQUES ===== */
+  .brand-grid{display:grid; grid-template-columns:repeat(5, 1fr); gap:18px;}
+  .brand-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:4px;
+    padding:26px 16px; display:flex; flex-direction:column; align-items:center; gap:12px;
+    transition:.2s; text-align:center;
+  }
+  .brand-card:hover{border-color:var(--accent); transform:translateY(-3px); box-shadow:0 12px 24px rgba(0,0,0,0.3);}
+  .brand-icon{
+    width:56px; height:56px; border-radius:50%; background:var(--bg); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;
+  }
+  .brand-icon img{width:100%; height:100%; object-fit:cover;}
+  .brand-icon span{font-family:'Oswald'; font-weight:700; font-size:1.1rem; color:var(--accent-2);}
+  .brand-card .brand-name{font-family:'Oswald'; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.03em;}
+  @media (max-width:900px){ .brand-grid{grid-template-columns:repeat(3, 1fr);} }
+  @media (max-width:560px){ .brand-grid{grid-template-columns:repeat(2, 1fr);} }
 
   /* ===== TRUST STRIP ===== */
   .trust{background:var(--bg-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
@@ -397,8 +459,16 @@
     display:none; align-items:center; justify-content:center;
     z-index:200; padding:20px;
   }
-  .overlay.open{display:flex;}
+  .overlay.open{display:flex; animation:overlayFade .2s ease both;}
   .overlay.drawer-overlay{justify-content:flex-end; align-items:stretch; padding:0;}
+  .overlay.open .modal{animation:modalPop .22s cubic-bezier(.2,.8,.3,1.1) both;}
+  .overlay.drawer-overlay.open .drawer{animation:drawerSlide .28s cubic-bezier(.2,.8,.3,1) both;}
+  @keyframes overlayFade{ from{opacity:0;} to{opacity:1;} }
+  @keyframes modalPop{ from{opacity:0; transform:translateY(10px) scale(0.97);} to{opacity:1; transform:translateY(0) scale(1);} }
+  @keyframes drawerSlide{ from{transform:translateX(24px); opacity:0.4;} to{transform:translateX(0); opacity:1;} }
+  @media (prefers-reduced-motion: reduce){
+    .overlay.open, .overlay.open .modal, .overlay.drawer-overlay.open .drawer{animation:none;}
+  }
 
   /* ===== MODAL (compte) ===== */
   .modal{
@@ -420,18 +490,28 @@
   .form-view.active{display:flex;}
   .field label{
     display:block; font-family:'IBM Plex Mono'; font-size:0.7rem; color:var(--text-mute);
-    text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:0.06em; margin-bottom:7px; transition:color .15s;
   }
-  .field input{
+  .field:focus-within label{color:var(--accent-2);}
+  .field input, .field textarea{
     width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
-    padding:11px 13px; border-radius:2px; font-family:'Barlow'; font-size:0.92rem;
+    padding:12px 14px; border-radius:5px; font-family:'Barlow'; font-size:0.92rem;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25);
+    transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus{border-color:var(--accent);}
+  .field input::placeholder, .field textarea::placeholder{color:#5a615e;}
+  .field input:hover, .field textarea:hover{border-color:#4a5157;}
+  .field input:focus, .field textarea:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);
+  }
   .form-error{
     background:rgba(232,89,12,0.12); border:1px solid var(--accent-deep); color:#ffb98c;
-    font-size:0.8rem; padding:9px 12px; border-radius:2px; display:none;
+    font-size:0.8rem; padding:9px 12px; border-radius:5px; display:none;
   }
   .form-error.show{display:block;}
+  .coupon-field:hover{border-color:#4a5157;}
+  .coupon-field:focus{outline:none; border-color:var(--accent); box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);}
   .modal h3{font-size:1.1rem; margin-bottom:4px;}
   .modal .sub{color:var(--text-mute); font-size:0.82rem; margin-bottom:20px;}
   .btn-block{width:100%; justify-content:center; margin-top:6px;}
@@ -518,7 +598,7 @@
   .confirm-order{max-width:460px; text-align:left;}
 
   /* ===== FICHE DÉTAIL PRODUIT ===== */
-  .pd-modal{max-width:840px; padding:28px;}
+  .pd-modal{max-width:900px; padding:28px; max-height:88vh; overflow-y:auto;}
   .pd-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px;}
   .pd-gallery{display:flex; flex-direction:column; gap:10px;}
   .pd-main-image{
@@ -536,12 +616,70 @@
   .pd-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
   .pd-thumb:hover{opacity:0.9;}
   .pd-thumb.active{opacity:1; border-color:var(--accent);}
-  .pd-info{display:flex; flex-direction:column; gap:14px;}
-  .pd-info h2{font-size:1.5rem; line-height:1.15;}
+  .pd-info{display:flex; flex-direction:column; gap:14px; position:relative;}
+  .pd-info h2{font-size:1.5rem; line-height:1.15; padding-right:36px;}
   .pd-description{color:var(--text-mute); font-size:0.9rem; line-height:1.6; white-space:pre-line;}
+  .pd-wishlist-btn{
+    position:absolute; top:0; right:0; background:var(--surface); border:1px solid var(--line);
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:var(--text-mute); transition:.15s;
+  }
+  .pd-wishlist-btn:hover{border-color:var(--accent);}
+  .pd-wishlist-btn.active{background:rgba(232,89,12,0.15); border-color:var(--accent); color:var(--accent);}
+  .pd-rating{display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-mute); cursor:pointer;}
+  .pd-rating .stars{color:var(--accent-2); letter-spacing:1px;}
+  .pd-tabs-divider{border-top:1px solid var(--line); margin-top:26px; padding-top:26px;}
+  .pd-section-title{font-family:'Oswald'; font-size:1rem; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:14px;}
+
+  /* Calculateur de financement */
+  .finance-calc{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:20px;}
+  .finance-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:16px;}
+  .finance-grid label{display:block; font-family:'IBM Plex Mono'; font-size:0.68rem; color:var(--text-mute); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;}
+  .finance-grid input{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:9px 11px; border-radius:2px; font-family:'Barlow'; font-size:0.9rem;
+  }
+  .finance-result{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+    border-top:1px dashed var(--line); padding-top:14px;
+  }
+  .finance-result .fr-label{font-size:0.78rem; color:var(--text-mute);}
+  .finance-result .fr-value{font-family:'Oswald'; font-size:1.6rem; font-weight:700; color:var(--accent-2);}
+  .finance-note{font-size:0.7rem; color:var(--text-mute); margin-top:10px; line-height:1.5;}
+
+  /* Avis clients */
+  .review-summary{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .review-avg{font-family:'Oswald'; font-size:2.2rem; font-weight:700;}
+  .review-list{display:flex; flex-direction:column; gap:12px; margin-bottom:22px;}
+  .review-item{background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:14px;}
+  .review-item .stars{color:var(--accent-2); letter-spacing:1px; font-size:0.85rem;}
+  .review-item .rv-name{font-family:'Oswald'; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em;}
+  .review-item .rv-date{color:var(--text-mute); font-size:0.72rem; font-family:'IBM Plex Mono';}
+  .review-item p{color:var(--text-mute); font-size:0.86rem; margin-top:8px; line-height:1.5;}
+  .review-form{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:18px;}
+  .star-picker{display:flex; gap:6px; margin-bottom:14px;}
+  .star-picker button{background:none; border:none; font-size:1.5rem; color:var(--line); cursor:pointer; transition:.1s;}
+  .star-picker button.active{color:var(--accent-2);}
+
+  /* Produits similaires */
+  .similar-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;}
+  .similar-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:3px; overflow:hidden;
+    cursor:pointer; transition:.15s;
+  }
+  .similar-card:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .similar-card .sc-media{aspect-ratio:4/3; background:linear-gradient(155deg, #2b3136, #1b1f22); display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .similar-card .sc-media img{width:100%; height:100%; object-fit:cover;}
+  .similar-card .sc-media svg{width:55%; height:55%;}
+  .similar-card .sc-body{padding:10px 12px;}
+  .similar-card .sc-name{font-size:0.8rem; font-weight:600; margin-bottom:4px; line-height:1.3;}
+  .similar-card .sc-price{font-family:'Oswald'; font-size:0.85rem; color:var(--accent-2);}
+  @media (max-width:700px){ .similar-grid{grid-template-columns:repeat(2, 1fr);} }
+
   @media (max-width:700px){
     .pd-grid{grid-template-columns:1fr; gap:20px;}
     .pd-modal{padding:20px;}
+    .finance-grid{grid-template-columns:1fr;}
   }
   .confirm-order .check{
     width:52px; height:52px; border-radius:50%; background:rgba(90,180,90,0.15); border:1px solid #3a5a3a;
@@ -580,6 +718,18 @@
   }
   .dash-panel-head h2{font-size:1.5rem; margin-bottom:6px;}
   .dash-panel-head p{color:var(--text-mute); font-size:0.88rem;}
+  .stat-cards{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
+  .stat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .stat-card .stat-card-label{font-family:'Oswald'; font-size:0.72rem; text-transform:uppercase; color:var(--text-mute); letter-spacing:0.05em;}
+  .stat-card .stat-card-value{font-family:'Oswald'; font-size:1.8rem; font-weight:700;}
+  .stat-card .stat-card-sub{font-family:'IBM Plex Mono'; font-size:0.7rem; color:var(--text-mute);}
+  .stat-card.accent{border-color:var(--accent);}
+  .stat-card.accent .stat-card-value{color:var(--accent-2);}
+  @media (max-width:900px){ .stat-cards{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:480px){ .stat-cards{grid-template-columns:1fr;} }
   .dash-subhead{font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-mute); margin:30px 0 14px; font-family:'Oswald';}
   .dash-subhead:first-of-type{margin-top:0;}
 
@@ -615,8 +765,11 @@
   .pill.status-echoue{background:rgba(255,60,60,0.15); color:#ff6b6b;}
   .status-select{
     background:var(--bg); border:1px solid var(--line); color:var(--text);
-    padding:7px 10px; border-radius:2px; font-family:'IBM Plex Mono'; font-size:0.74rem;
+    padding:7px 10px; border-radius:4px; font-family:'IBM Plex Mono'; font-size:0.74rem;
+    cursor:pointer; transition:border-color .15s;
   }
+  .status-select:hover{border-color:#4a5157;}
+  .status-select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
 
   .dash-form{max-width:640px;}
   .pf-img-thumb{
@@ -643,14 +796,25 @@
   .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;}
   .form-grid .field select{
     width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
-    padding:11px 13px; border-radius:2px; font-family:'Barlow'; font-size:0.92rem;
+    padding:12px 14px; border-radius:5px; font-family:'Barlow'; font-size:0.92rem;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25); transition:border-color .15s, box-shadow .15s; cursor:pointer;
+  }
+  .form-grid .field select:hover{border-color:#4a5157;}
+  .form-grid .field select:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);
   }
   .dash-textarea{
     width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
-    padding:12px 14px; border-radius:2px; font-family:'Barlow'; font-size:0.9rem;
-    line-height:1.6; resize:vertical;
+    padding:12px 14px; border-radius:5px; font-family:'Barlow'; font-size:0.9rem;
+    line-height:1.6; resize:vertical; box-shadow:inset 0 1px 2px rgba(0,0,0,0.25);
+    transition:border-color .15s, box-shadow .15s;
   }
-  .dash-textarea:focus{border-color:var(--accent);}
+  .dash-textarea:hover{border-color:#4a5157;}
+  .dash-textarea:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);
+  }
 
   /* ===== PAGE LÉGALE (vue publique) ===== */
   .legal-modal{max-width:640px; max-height:80vh; overflow-y:auto;}
@@ -737,28 +901,42 @@
 </head>
 <body>
 
+<div id="intro-overlay" aria-hidden="true">
+  <div class="intro-mark"></div>
+  <div class="intro-word">AGRI<span>MARKET</span></div>
+  <div class="intro-tread"><div></div></div>
+</div>
+
 <header>
   <div class="nav">
     <a href="#" class="logo" id="site-logo"><span class="mark"></span><span id="logo-text">AGRI<span>MARKET</span></span></a>
     <nav class="links">
-      <a href="#" class="active">Accueil</a>
-      <a href="#catalogue">Catalogue</a>
-      <a href="#tracteurs">Tracteurs</a>
-      <a href="#camions">Camions</a>
-      <a href="#contact">Contact</a>
+      <a href="#" class="active" data-i18n="nav_home">Accueil</a>
+      <a href="#catalogue" data-i18n="nav_catalog">Catalogue</a>
+      <a href="#marques" data-i18n="nav_brands">Marques</a>
+      <a href="#contact" data-i18n="nav_contact">Contact</a>
     </nav>
     <div class="nav-actions">
+      <button class="icon-btn" id="lang-toggle" aria-label="Switch language">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="btn-label" id="lang-toggle-label">EN</span>
+      </button>
       <button class="icon-btn" id="dashboard-btn" aria-label="Dashboard administrateur" style="display:none; border-color:var(--accent-2); color:var(--accent-2);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
         <span class="btn-label">Dashboard</span>
       </button>
       <button class="icon-btn" id="account-btn" aria-label="Mon compte">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        <span class="btn-label">Compte</span>
+        <span class="btn-label" id="account-btn-label" data-i18n="nav_account">Compte</span>
+      </button>
+      <button class="icon-btn" id="wishlist-btn" aria-label="Liste de souhaits">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <span class="btn-label" data-i18n="nav_wishlist">Envies</span>
+        <span class="cart-count" id="wishlist-count">0</span>
       </button>
       <button class="icon-btn" id="cart-btn" aria-label="Panier">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
-        <span class="btn-label">Panier</span>
+        <span class="btn-label" data-i18n="nav_cart">Panier</span>
         <span class="cart-count" id="cart-count">0</span>
       </button>
       <button class="burger" id="burger-btn" aria-label="Menu" aria-expanded="false">
@@ -774,27 +952,28 @@
 <section class="hero">
   <div class="hero-grid">
     <div>
-      <div class="eyebrow">Matériel professionnel inspecté</div>
-      <h1>Du champ au chantier,<br><em>l'équipement qui tient.</em></h1>
-      <p class="lead">AgriMarket réunit tracteurs, camions et engins d'occasion et neufs, contrôlés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.</p>
+      <div class="eyebrow" data-i18n="hero_eyebrow">Matériel professionnel inspecté</div>
+      <h1 data-i18n-html="hero_title">Du champ au chantier,<br><em>l'équipement qui tient.</em></h1>
+      <p class="lead" data-i18n="hero_lead">AgriMarket réunit tracteurs, camions et engins d'occasion et neufs, contrôlés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.</p>
       <div class="cta-row">
         <a href="#catalogue" class="btn btn-primary">
-          Voir le catalogue
+          <span data-i18n="hero_cta_catalog">Voir le catalogue</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
-        <a href="#contact" class="btn btn-ghost">Nous contacter</a>
+        <a href="#" id="hero-contact-btn" class="btn btn-ghost" data-i18n="hero_cta_contact">Nous contacter</a>
       </div>
       <div class="stat-row">
-        <div class="stat"><b>240+</b><span>Véhicules disponibles</span></div>
-        <div class="stat"><b>12</b><span>Régions livrées</span></div>
-        <div class="stat"><b>98%</b><span>Clients satisfaits</span></div>
+        <div class="stat"><b>240+</b><span data-i18n="hero_stat_vehicles">Véhicules disponibles</span></div>
+        <div class="stat"><b>12</b><span data-i18n="hero_stat_regions">Régions livrées</span></div>
+        <div class="stat"><b>98%</b><span data-i18n="hero_stat_happy">Clients satisfaits</span></div>
       </div>
     </div>
 
     <div class="hero-art">
       <div class="plate">
         <span class="rivet r1"></span><span class="rivet r2"></span><span class="rivet r3"></span><span class="rivet r4"></span>
-        <svg viewBox="0 0 480 340" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <img id="hero-photo" alt="AgriMarket" style="display:none; width:100%; aspect-ratio:480/340; object-fit:cover; border-radius:4px;">
+        <svg id="hero-illustration" viewBox="0 0 480 340" width="100%" xmlns="http://www.w3.org/2000/svg">
           <!-- ground -->
           <rect x="0" y="270" width="480" height="70" fill="#1b1f22"/>
           <g stroke="#3a4147" stroke-width="2">
@@ -831,11 +1010,6 @@
             <line x1="390" y1="100" x2="420" y2="90"/>
           </g>
         </svg>
-        <div class="spec-row" style="margin-top:6px;">
-          <span>SÉRIE&nbsp;<b>AM-4400</b></span>
-          <span>PUISSANCE&nbsp;<b>140 CH</b></span>
-          <span>ÉTAT&nbsp;<b>NEUF</b></span>
-        </div>
       </div>
     </div>
   </div>
@@ -860,35 +1034,35 @@
   <div class="wrap">
     <div class="section-head">
       <div>
-        <div class="eyebrow">Catalogue</div>
-        <h2>Matériel disponible</h2>
+        <div class="eyebrow" data-i18n="catalog_eyebrow">Catalogue</div>
+        <h2 data-i18n="catalog_title">Matériel disponible</h2>
       </div>
-      <p>Chaque fiche affiche l'état, la puissance et l'année. Ajoutez au panier pour recevoir une offre détaillée, sans engagement.</p>
+      <p data-i18n="catalog_intro">Chaque fiche affiche l'état, la puissance et l'année. Ajoutez au panier pour recevoir une offre détaillée, sans engagement.</p>
     </div>
 
     <div class="search-sort-row">
       <div class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="catalog-search" placeholder="Rechercher un article (ex : tracteur 140 CH)…">
+        <input type="text" id="catalog-search" data-i18n-placeholder="catalog_search_ph" placeholder="Rechercher un article (ex : tracteur 140 CH)…">
       </div>
       <select id="catalog-sort">
-        <option value="default">Trier : pertinence</option>
-        <option value="price-asc">Prix croissant</option>
-        <option value="price-desc">Prix décroissant</option>
-        <option value="recent">Plus récent</option>
+        <option value="default" data-i18n="sort_default">Trier : pertinence</option>
+        <option value="price-asc" data-i18n="sort_price_asc">Prix croissant</option>
+        <option value="price-desc" data-i18n="sort_price_desc">Prix décroissant</option>
+        <option value="recent" data-i18n="sort_recent">Plus récent</option>
       </select>
     </div>
 
     <div class="filters" id="filters">
-      <button class="filter-btn active" data-cat="all">Tous</button>
-      <button class="filter-btn" data-cat="tracteur">Tracteurs</button>
-      <button class="filter-btn" data-cat="camion">Camions</button>
-      <button class="filter-btn" data-cat="moissonneuse">Moissonneuses</button>
-      <button class="filter-btn" data-cat="remorque">Remorques</button>
+      <button class="filter-btn active" data-cat="all" data-i18n="filter_all">Tous</button>
+      <button class="filter-btn" data-cat="tracteur" data-i18n="filter_tractors">Tracteurs</button>
+      <button class="filter-btn" data-cat="camion" data-i18n="filter_trucks">Camions</button>
+      <button class="filter-btn" data-cat="moissonneuse" data-i18n="filter_harvesters">Moissonneuses</button>
+      <button class="filter-btn" data-cat="remorque" data-i18n="filter_trailers">Remorques</button>
     </div>
 
     <div class="grid" id="product-grid"></div>
-    <p class="dt-empty" id="catalog-empty" style="display:none;">Aucun article ne correspond à ta recherche.</p>
+    <p class="dt-empty" id="catalog-empty" style="display:none;" data-i18n="catalog_empty">Aucun article ne correspond à ta recherche.</p>
   </div>
 </section>
 
@@ -898,33 +1072,47 @@
     <div class="trust-grid">
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
-        <div><h4>Inspection 150 points</h4><p>Chaque véhicule est vérifié avant mise en ligne.</p></div>
+        <div><h4 data-i18n="trust1_title">Inspection 150 points</h4><p data-i18n="trust1_text">Chaque véhicule est vérifié avant mise en ligne.</p></div>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="15" height="11" rx="1"/><path d="M16 10h4l3 3v4h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18.5" cy="19" r="2"/></svg>
-        <div><h4>Livraison nationale</h4><p>Transport organisé jusqu'à votre exploitation.</p></div>
+        <div><h4 data-i18n="trust2_title">Livraison nationale</h4><p data-i18n="trust2_text">Transport organisé jusqu'à votre exploitation.</p></div>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <div><h4>Financement</h4><p>Solutions de paiement adaptées aux professionnels.</p></div>
+        <div><h4 data-i18n="trust3_title">Financement</h4><p data-i18n="trust3_text">Solutions de paiement adaptées aux professionnels.</p></div>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.9-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <div><h4>Garantie & SAV</h4><p>Un conseiller vous accompagne après la vente.</p></div>
+        <div><h4 data-i18n="trust4_title">Garantie & SAV</h4><p data-i18n="trust4_text">Un conseiller vous accompagne après la vente.</p></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- ===== MARQUES ===== -->
+<section class="section" id="marques" style="display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow" data-i18n="brands_eyebrow">Partenaires</div>
+        <h2 data-i18n="brands_title">Les marques que nous proposons</h2>
+      </div>
+      <p data-i18n="brands_intro">Un réseau de constructeurs sélectionnés pour leur fiabilité.</p>
+    </div>
+    <div class="brand-grid" id="brand-grid"></div>
+  </div>
+</section>
 
 <!-- ===== CTA BAND ===== -->
 <section class="section">
   <div class="wrap">
     <div class="cta-band">
       <div>
-        <h3>Une pièce ou un modèle précis ?</h3>
-        <p>Notre équipe peut localiser un véhicule spécifique dans notre réseau de partenaires en 48h.</p>
+        <h3 data-i18n="ctaband_title">Une pièce ou un modèle précis ?</h3>
+        <p data-i18n="ctaband_text">Notre équipe peut localiser un véhicule spécifique dans notre réseau de partenaires en 48h.</p>
       </div>
-      <a href="#contact" class="btn btn-primary">Faire une demande</a>
+      <a href="#" id="ctaband-contact-btn" class="btn btn-primary" data-i18n="ctaband_btn">Faire une demande</a>
     </div>
   </div>
 </section>
@@ -936,28 +1124,28 @@
     <div class="footer-grid">
       <div>
         <a href="#" class="logo"><span class="mark"></span><span id="logo-text-footer">AGRI<span>MARKET</span></span></a>
-        <p>Plateforme professionnelle de vente de tracteurs, camions et matériel agricole neuf et d'occasion.</p>
+        <p data-i18n="footer_about">Plateforme professionnelle de vente de tracteurs, camions et matériel agricole neuf et d'occasion.</p>
       </div>
       <div>
-        <h5>Catalogue</h5>
+        <h5 data-i18n="footer_catalog_head">Catalogue</h5>
         <ul>
-          <li><a href="#catalogue">Tracteurs</a></li>
-          <li><a href="#catalogue">Camions</a></li>
-          <li><a href="#catalogue">Moissonneuses</a></li>
-          <li><a href="#catalogue">Remorques</a></li>
+          <li><a href="#catalogue" data-i18n="filter_tractors">Tracteurs</a></li>
+          <li><a href="#catalogue" data-i18n="filter_trucks">Camions</a></li>
+          <li><a href="#catalogue" data-i18n="filter_harvesters">Moissonneuses</a></li>
+          <li><a href="#catalogue" data-i18n="filter_trailers">Remorques</a></li>
         </ul>
       </div>
       <div>
-        <h5>Assistance</h5>
+        <h5 data-i18n="footer_support_head">Assistance</h5>
         <ul>
-          <li><a href="#">Mon compte</a></li>
-          <li><a href="#">Suivi de commande</a></li>
-          <li><a href="#">Financement</a></li>
-          <li><a href="#">Garantie</a></li>
+          <li><a href="#" data-i18n="nav_account">Mon compte</a></li>
+          <li><a href="#" data-i18n="footer_tracking">Suivi de commande</a></li>
+          <li><a href="#" data-i18n="trust3_title">Financement</a></li>
+          <li><a href="#" data-i18n="footer_warranty">Garantie</a></li>
         </ul>
       </div>
       <div>
-        <h5>Contact</h5>
+        <h5 data-i18n="footer_contact_head">Contact</h5>
         <ul>
           <li id="contact-email-display">contact@agrimarket.fr</li>
           <li id="contact-phone-display">+33 1 23 45 67 89</li>
@@ -966,12 +1154,12 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 AgriMarket. Tous droits réservés.</span>
+      <span>© 2026 AgriMarket. <span data-i18n="footer_rights">Tous droits réservés.</span></span>
       <span>
-        <a data-legal="about">À propos</a> ·
-        <a data-legal="cgu">CGU</a> ·
-        <a data-legal="privacy">Confidentialité</a> ·
-        <a data-legal="cookies">Cookies</a>
+        <a data-legal="about" data-i18n="legal_about">À propos</a> ·
+        <a data-legal="cgu" data-i18n="legal_cgu">CGU</a> ·
+        <a data-legal="privacy" data-i18n="legal_privacy">Confidentialité</a> ·
+        <a data-legal="cookies" data-i18n="legal_cookies">Cookies</a>
       </span>
     </div>
   </div>
@@ -987,40 +1175,40 @@
     <!-- non connecté -->
     <div id="auth-block">
       <div class="tabs" id="auth-tabs">
-        <button class="tab-btn active" data-tab="login">Connexion</button>
-        <button class="tab-btn" data-tab="register">Créer un compte</button>
+        <button class="tab-btn active" data-tab="login" data-i18n="tab_login">Connexion</button>
+        <button class="tab-btn" data-tab="register" data-i18n="tab_register">Créer un compte</button>
       </div>
 
       <form class="form-view active" id="login-form">
-        <h3>Bon retour</h3>
-        <p class="sub">Connectez-vous pour suivre vos commandes.</p>
+        <h3 data-i18n="login_title">Bon retour</h3>
+        <p class="sub" data-i18n="login_sub">Connectez-vous pour suivre vos commandes.</p>
         <div class="form-error" id="login-error"></div>
-        <div class="field"><label>Email</label><input type="email" id="login-email" required></div>
-        <div class="field"><label>Mot de passe</label><input type="password" id="login-password" required></div>
-        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
-        <a href="#" id="forgot-password-link" style="align-self:flex-end; font-size:0.78rem; color:var(--text-mute); text-decoration:underline; margin-top:-4px;">Mot de passe oublié ?</a>
+        <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="login-email" required></div>
+        <div class="field"><label data-i18n="field_password">Mot de passe</label><input type="password" id="login-password" required></div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="login_btn">Se connecter</button>
+        <a href="#" id="forgot-password-link" style="align-self:flex-end; font-size:0.78rem; color:var(--text-mute); text-decoration:underline; margin-top:-4px;" data-i18n="forgot_link">Mot de passe oublié ?</a>
       </form>
 
       <form class="form-view" id="forgot-form">
-        <h3>Réinitialiser le mot de passe</h3>
-        <p class="sub">Renseigne ton email et choisis un nouveau mot de passe.</p>
+        <h3 data-i18n="forgot_title">Réinitialiser le mot de passe</h3>
+        <p class="sub" data-i18n="forgot_sub">Renseigne ton email et choisis un nouveau mot de passe.</p>
         <div class="form-error" id="forgot-error"></div>
-        <div class="field"><label>Email</label><input type="email" id="forgot-email" required></div>
-        <div class="field"><label>Nouveau mot de passe</label><input type="password" id="forgot-password" required minlength="4"></div>
-        <div class="field"><label>Confirmer le nouveau mot de passe</label><input type="password" id="forgot-password-confirm" required minlength="4"></div>
-        <button type="submit" class="btn btn-primary btn-block">Réinitialiser</button>
-        <a href="#" id="back-to-login-link" style="align-self:center; font-size:0.78rem; color:var(--text-mute); text-decoration:underline;">Retour à la connexion</a>
+        <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="forgot-email" required></div>
+        <div class="field"><label data-i18n="field_new_password">Nouveau mot de passe</label><input type="password" id="forgot-password" required minlength="4"></div>
+        <div class="field"><label data-i18n="field_confirm_new_password">Confirmer le nouveau mot de passe</label><input type="password" id="forgot-password-confirm" required minlength="4"></div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="forgot_btn">Réinitialiser</button>
+        <a href="#" id="back-to-login-link" style="align-self:center; font-size:0.78rem; color:var(--text-mute); text-decoration:underline;" data-i18n="back_to_login">Retour à la connexion</a>
       </form>
 
       <form class="form-view" id="register-form">
-        <h3>Créer un compte</h3>
-        <p class="sub">Gratuit — pour passer commande et suivre son historique.</p>
+        <h3 data-i18n="register_title">Créer un compte</h3>
+        <p class="sub" data-i18n="register_sub">Gratuit — pour passer commande et suivre son historique.</p>
         <div class="form-error" id="register-error"></div>
-        <div class="field"><label>Nom complet</label><input type="text" id="register-name" required></div>
-        <div class="field"><label>Email</label><input type="email" id="register-email" required></div>
-        <div class="field"><label>Mot de passe</label><input type="password" id="register-password" required minlength="4"></div>
-        <div class="field"><label>Confirmer le mot de passe</label><input type="password" id="register-password-confirm" required minlength="4"></div>
-        <button type="submit" class="btn btn-primary btn-block">Créer mon compte</button>
+        <div class="field"><label data-i18n="field_fullname">Nom complet</label><input type="text" id="register-name" required></div>
+        <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="register-email" required></div>
+        <div class="field"><label data-i18n="field_password">Mot de passe</label><input type="password" id="register-password" required minlength="4"></div>
+        <div class="field"><label data-i18n="field_confirm_password">Confirmer le mot de passe</label><input type="password" id="register-password-confirm" required minlength="4"></div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="register_btn">Créer mon compte</button>
       </form>
     </div>
 
@@ -1061,7 +1249,7 @@
 <div class="overlay drawer-overlay" id="cart-overlay">
   <div class="drawer">
     <div class="drawer-head">
-      <h3>Votre panier</h3>
+      <h3 data-i18n="cart_title">Votre panier</h3>
       <button class="modal-close" id="cart-close" style="position:static;" aria-label="Fermer">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -1069,16 +1257,16 @@
     <div class="drawer-body" id="cart-body"></div>
     <div class="drawer-footer">
       <div style="display:flex; gap:8px;">
-        <input type="text" id="coupon-input" placeholder="Code coupon" style="flex:1; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:10px 12px; border-radius:2px; font-family:'IBM Plex Mono'; font-size:0.82rem; text-transform:uppercase;">
-        <button class="btn btn-ghost" id="apply-coupon-btn" style="padding:10px 16px;">Appliquer</button>
+        <input type="text" id="coupon-input" data-i18n-placeholder="coupon_ph" placeholder="Code coupon" class="coupon-field" style="flex:1; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:11px 13px; border-radius:5px; font-family:'IBM Plex Mono'; font-size:0.82rem; text-transform:uppercase; box-shadow:inset 0 1px 2px rgba(0,0,0,0.25); transition:border-color .15s, box-shadow .15s;">
+        <button class="btn btn-ghost" id="apply-coupon-btn" style="padding:10px 16px;" data-i18n="coupon_apply">Appliquer</button>
       </div>
       <div id="coupon-feedback" style="font-size:0.76rem; display:none;"></div>
       <div class="total-row">
-        <span class="label">Total estimé</span>
+        <span class="label" data-i18n="cart_total_label">Total estimé</span>
         <span class="amount" id="cart-total">0 €</span>
       </div>
-      <p class="drawer-note">Le prix est indicatif. La validation transmet votre demande à notre équipe, qui vous recontacte pour finaliser la vente — aucun paiement n'est prélevé ici.</p>
-      <button class="btn btn-primary btn-block" id="validate-cart-btn">Valider la commande</button>
+      <p class="drawer-note" data-i18n="cart_note">Le prix est indicatif. La validation transmet votre demande à notre équipe, qui vous recontacte pour finaliser la vente — aucun paiement n'est prélevé ici.</p>
+      <button class="btn btn-primary btn-block" id="validate-cart-btn" data-i18n="cart_validate">Valider la commande</button>
     </div>
   </div>
 </div>
@@ -1114,8 +1302,12 @@
         <div class="pd-thumbs" id="pd-thumbs"></div>
       </div>
       <div class="pd-info">
+        <button class="pd-wishlist-btn" id="pd-wishlist-btn" aria-label="Ajouter à la liste de souhaits">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </button>
         <div class="cat-tag" id="pd-cat"></div>
         <h2 id="pd-name"></h2>
+        <div class="pd-rating" id="pd-rating-summary"></div>
         <div class="spec-row" id="pd-specs"></div>
         <p class="pd-description" id="pd-description"></p>
         <div class="price-row" style="margin-top:auto;">
@@ -1124,10 +1316,60 @@
         <button class="btn btn-primary btn-block" id="pd-add-btn">Ajouter au panier</button>
       </div>
     </div>
+
+    <div class="pd-tabs-divider">
+      <div class="pd-section-title" data-i18n="finance_title">Calculateur de financement</div>
+      <div class="finance-calc">
+        <div class="finance-grid">
+          <div>
+            <label data-i18n="finance_downpayment">Apport (€)</label>
+            <input type="number" id="fc-downpayment" min="0" value="0">
+          </div>
+          <div>
+            <label data-i18n="finance_months">Durée (mois)</label>
+            <input type="number" id="fc-months" min="1" value="36">
+          </div>
+          <div>
+            <label data-i18n="finance_rate">Taux annuel (%)</label>
+            <input type="number" id="fc-rate" min="0" step="0.1" value="5.9">
+          </div>
+        </div>
+        <div class="finance-result">
+          <span class="fr-label" data-i18n="finance_monthly_label">Mensualité estimée</span>
+          <span class="fr-value" id="fc-monthly">— € / mois</span>
+        </div>
+        <p class="finance-note" data-i18n="finance_note">Simulation indicative sans valeur contractuelle. Le financement définitif dépend de l'organisme de crédit et de votre dossier. Contactez-nous pour une offre personnalisée.</p>
+      </div>
+    </div>
+
+    <div class="pd-tabs-divider">
+      <div class="pd-section-title" data-i18n="reviews_title">Avis clients</div>
+      <div class="review-summary" id="pd-review-summary"></div>
+      <div class="review-list" id="pd-review-list"></div>
+      <div id="pd-review-form-wrap"></div>
+    </div>
+
+    <div class="pd-tabs-divider" id="pd-similar-wrap" style="display:none;">
+      <div class="pd-section-title" data-i18n="similar_title">Voir aussi dans cette catégorie</div>
+      <div class="similar-grid" id="pd-similar-grid"></div>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ===== WISHLIST (tiroir) ===== -->
+<div class="overlay drawer-overlay" id="wishlist-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3 data-i18n="wishlist_title">Ma liste de souhaits</h3>
+      <button class="modal-close" id="wishlist-close" style="position:static;" aria-label="Fermer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="wishlist-body"></div>
+  </div>
+</div>
 
 <!-- ===== DASHBOARD ADMIN ===== -->
 <div class="overlay" id="dashboard-overlay">
@@ -1141,9 +1383,17 @@
         </div>
       </div>
       <nav class="dash-nav">
-        <button class="dash-nav-btn active" data-panel="products">
+        <button class="dash-nav-btn active" data-panel="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Vue d'ensemble
+        </button>
+        <button class="dash-nav-btn" data-panel="products">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Articles
+        </button>
+        <button class="dash-nav-btn" data-panel="brands">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18 9 9 0 0 1 0-18z"/><circle cx="12" cy="12" r="3"/></svg>
+          Marques
         </button>
         <button class="dash-nav-btn" data-panel="promos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6L18.4 22 12 17.3 5.6 22 8 13.8 2 9.2h7.6z"/></svg>
@@ -1157,9 +1407,17 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L22 8H6"/></svg>
           Commandes
         </button>
+        <button class="dash-nav-btn" data-panel="reviews">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.3L22 9.3l-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 7.1-1z"/></svg>
+          Avis
+        </button>
         <button class="dash-nav-btn" data-panel="clients">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Clients
+        </button>
+        <button class="dash-nav-btn" data-panel="messages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v13H7l-3 3V4z"/></svg>
+          Messages
         </button>
         <button class="dash-nav-btn" data-panel="appearance">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20 5 5 0 0 0 0-10h5"/></svg>
@@ -1175,13 +1433,45 @@
     </aside>
 
     <div class="dash-main">
+      <!-- VUE D'ENSEMBLE -->
+      <section class="dash-panel active" id="panel-overview">
+        <div class="dash-panel-head">
+          <div><h2>Vue d'ensemble</h2><p>Aperçu rapide de l'activité de la boutique.</p></div>
+        </div>
+        <div class="stat-cards" id="overview-stats"></div>
+      </section>
+
       <!-- ARTICLES -->
-      <section class="dash-panel active" id="panel-products">
+      <section class="dash-panel" id="panel-products">
         <div class="dash-panel-head">
           <div><h2>Articles</h2><p>Ajoutez, modifiez ou retirez du matériel du catalogue public.</p></div>
           <button class="btn btn-primary" id="new-product-btn">+ Ajouter un article</button>
         </div>
         <div class="dash-table" id="products-table"></div>
+      </section>
+
+      <!-- MARQUES -->
+      <section class="dash-panel" id="panel-brands">
+        <div class="dash-panel-head">
+          <div><h2>Marques</h2><p>Gérez les constructeurs mis en avant sur la page d'accueil.</p></div>
+        </div>
+        <form class="promo-tool" id="brand-form">
+          <input type="hidden" id="br-id">
+          <div class="field" style="flex:1.4;"><label>Nom de la marque *</label><input type="text" id="br-name" required></div>
+          <div class="field" style="flex:2;">
+            <label>Icône</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="br-icon" placeholder="https://… (ou laissez vide)" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="br-icon-file" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="br-submit-btn">Ajouter la marque</button>
+          <button type="button" class="btn btn-ghost" id="br-cancel-btn" style="display:none;">Annuler</button>
+        </form>
+        <div class="dash-table" id="brands-admin-table"></div>
       </section>
 
       <!-- FORMULAIRE PRODUIT (add/edit) -->
@@ -1298,12 +1588,58 @@
         <div class="dash-table" id="admin-orders-table"></div>
       </section>
 
+      <!-- AVIS -->
+      <section class="dash-panel" id="panel-reviews">
+        <div class="dash-panel-head">
+          <div><h2>Avis clients</h2><p>Approuvez, modifiez ou supprimez les avis avant leur publication.</p></div>
+        </div>
+        <div class="filters" style="margin-bottom:20px;">
+          <button class="filter-btn active" data-review-filter="pending">En attente</button>
+          <button class="filter-btn" data-review-filter="approved">Publiés</button>
+          <button class="filter-btn" data-review-filter="all">Tous</button>
+        </div>
+        <div class="dash-table" id="reviews-table"></div>
+      </section>
+
+      <!-- MODAL ÉDITION AVIS (inline) -->
+      <div class="overlay" id="edit-review-overlay">
+        <div class="modal">
+          <button class="modal-close" id="edit-review-close" aria-label="Fermer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <h3>Modifier l'avis</h3>
+          <form id="edit-review-form" style="display:flex; flex-direction:column; gap:14px; margin-top:16px;">
+            <input type="hidden" id="er-id">
+            <div class="field">
+              <label>Note (1 à 5)</label>
+              <select id="er-rating">
+                <option value="5">5 étoiles</option>
+                <option value="4">4 étoiles</option>
+                <option value="3">3 étoiles</option>
+                <option value="2">2 étoiles</option>
+                <option value="1">1 étoile</option>
+              </select>
+            </div>
+            <div class="field"><label>Commentaire</label><textarea id="er-comment" rows="4" class="dash-textarea"></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
+          </form>
+        </div>
+      </div>
+
       <!-- CLIENTS -->
       <section class="dash-panel" id="panel-clients">
         <div class="dash-panel-head">
           <div><h2>Comptes clients</h2><p>Modifiez, bloquez ou supprimez les comptes enregistrés sur le site.</p></div>
         </div>
         <div class="dash-table" id="clients-table"></div>
+      </section>
+
+      <!-- MESSAGES -->
+      <section class="dash-panel" id="panel-messages">
+        <div class="dash-panel-head">
+          <div><h2>Messages</h2><p>Demandes envoyées via le formulaire de contact du site.</p></div>
+        </div>
+        <div class="dash-table" id="messages-table"></div>
       </section>
 
       <!-- APPARENCE -->
@@ -1326,6 +1662,23 @@
             </div>
           </div>
           <button type="submit" class="btn btn-primary">Mettre à jour le logo</button>
+        </form>
+
+        <h3 class="dash-subhead">Image de la page d'accueil</h3>
+        <p class="dash-hint">Remplace l'illustration du tracteur en haut du site par une vraie photo. Format conseillé : proche de 480 × 340 (paysage). Laisse vide pour garder l'illustration.</p>
+        <form class="promo-tool" id="hero-image-form">
+          <div class="field" style="flex:2;">
+            <label>Photo d'accueil</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="hero-image-input" placeholder="https://…" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="hero-image-file" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Mettre à jour</button>
+          <button type="button" class="btn btn-ghost" id="hero-image-clear">Retirer (garder l'illustration)</button>
         </form>
 
         <h3 class="dash-subhead">Informations de contact</h3>
@@ -1415,6 +1768,64 @@
   </div>
 </div>
 
+<!-- ===== DÉTAIL COMMANDE (client) ===== -->
+<div class="overlay" id="order-detail-overlay">
+  <div class="modal legal-modal">
+    <button class="modal-close" id="order-detail-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+      <h3 id="od-id" style="margin-bottom:0;">—</h3>
+      <span class="ostatus" id="od-status" style="position:static; float:none;">—</span>
+    </div>
+    <p class="sub" id="od-date" style="margin-bottom:20px;">—</p>
+    <div class="order-item" id="od-items" style="padding:16px;"></div>
+    <div style="margin-top:16px; display:flex; flex-direction:column; gap:6px; font-size:0.85rem;">
+      <div style="display:flex; justify-content:space-between;" id="od-subtotal-row">
+        <span style="color:var(--text-mute);">Sous-total</span><span id="od-subtotal">—</span>
+      </div>
+      <div style="display:flex; justify-content:space-between;" id="od-coupon-row">
+        <span style="color:var(--text-mute);">Coupon</span><span id="od-coupon">—</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-family:'Oswald'; font-size:1.15rem; font-weight:700; border-top:1px solid var(--line); padding-top:10px; margin-top:4px;">
+        <span>Total</span><span id="od-total">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FORMULAIRE DE CONTACT ===== -->
+<div class="overlay" id="contact-modal-overlay">
+  <div class="modal" id="contact-modal-box">
+    <button class="modal-close" id="contact-modal-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3 data-i18n="contact_title">Une question ? Écrivez-nous</h3>
+    <p class="sub" data-i18n="contact_sub">Un modèle précis, une pièce, une demande de devis — on vous répond rapidement.</p>
+    <form id="contact-message-form" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="field"><label data-i18n="field_fullname">Nom complet</label><input type="text" id="cm-name" required></div>
+      <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="cm-email" required></div>
+      <div class="field"><label data-i18n="contact_message_label">Message</label><textarea id="cm-message" class="dash-textarea" rows="4" required></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block" data-i18n="contact_send">Envoyer le message</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CONFIRMATION CONTACT ===== -->
+<div class="overlay" id="contact-confirm-overlay">
+  <div class="modal confirm-order">
+    <button class="modal-close" id="contact-confirm-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="check">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7fd17f" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h3 data-i18n="contact_sent_title">Message envoyé</h3>
+    <p class="sub" data-i18n="contact_sent_sub">Merci, notre équipe vous répond généralement sous 24h.</p>
+    <button class="btn btn-primary btn-block" id="contact-confirm-ok" style="margin-top:20px;" data-i18n="contact_done">Terminé</button>
+  </div>
+</div>
+
 <!-- ===== PAGE LÉGALE (vue publique) ===== -->
 <div class="overlay" id="legal-overlay">
   <div class="modal legal-modal">
@@ -1427,6 +1838,146 @@
 </div>
 
 <script>
+  /* ---- Animation d'ouverture (une fois par session) ---- */
+  (function(){
+    const overlay = document.getElementById('intro-overlay');
+    if(!overlay) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let alreadyShown = false;
+    try{ alreadyShown = sessionStorage.getItem('agrimarket_intro_shown') === '1'; }catch(e){}
+    if(reduce || alreadyShown){
+      overlay.style.display = 'none';
+      return;
+    }
+    try{ sessionStorage.setItem('agrimarket_intro_shown', '1'); }catch(e){}
+    setTimeout(() => {
+      overlay.classList.add('intro-hide');
+      setTimeout(() => { overlay.style.display = 'none'; }, 550);
+    }, 1300);
+  })();
+
+  /* =========================================================
+     LANGUE (FR / EN) — traduit l'interface statique du site.
+     Le contenu rédigé par l'admin (articles, avis, pages
+     légales) reste dans la langue où il a été écrit.
+  ========================================================= */
+  const I18N = {
+    fr: {
+      nav_home:'Accueil', nav_catalog:'Catalogue', nav_brands:'Marques', nav_contact:'Contact',
+      nav_account:'Compte', nav_wishlist:'Envies', nav_cart:'Panier',
+      hero_eyebrow:'Matériel professionnel inspecté',
+      hero_title:'Du champ au chantier,<br><em>l\'équipement qui tient.</em>',
+      hero_lead:'AgriMarket réunit tracteurs, camions et engins d\'occasion et neufs, contrôlés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s\'occupe du reste.',
+      hero_cta_catalog:'Voir le catalogue', hero_cta_contact:'Nous contacter',
+      hero_stat_vehicles:'Véhicules disponibles', hero_stat_regions:'Régions livrées', hero_stat_happy:'Clients satisfaits',
+      catalog_eyebrow:'Catalogue', catalog_title:'Matériel disponible',
+      catalog_intro:'Chaque fiche affiche l\'état, la puissance et l\'année. Ajoutez au panier pour recevoir une offre détaillée, sans engagement.',
+      catalog_search_ph:'Rechercher un article (ex : tracteur 140 CH)…',
+      sort_default:'Trier : pertinence', sort_price_asc:'Prix croissant', sort_price_desc:'Prix décroissant', sort_recent:'Plus récent',
+      filter_all:'Tous', filter_tractors:'Tracteurs', filter_trucks:'Camions', filter_harvesters:'Moissonneuses', filter_trailers:'Remorques',
+      catalog_empty:'Aucun article ne correspond à ta recherche.',
+      trust1_title:'Inspection 150 points', trust1_text:'Chaque véhicule est vérifié avant mise en ligne.',
+      trust2_title:'Livraison nationale', trust2_text:'Transport organisé jusqu\'à votre exploitation.',
+      trust3_title:'Financement', trust3_text:'Solutions de paiement adaptées aux professionnels.',
+      trust4_title:'Garantie & SAV', trust4_text:'Un conseiller vous accompagne après la vente.',
+      brands_eyebrow:'Partenaires', brands_title:'Les marques que nous proposons', brands_intro:'Un réseau de constructeurs sélectionnés pour leur fiabilité.',
+      ctaband_title:'Une pièce ou un modèle précis ?', ctaband_text:'Notre équipe peut localiser un véhicule spécifique dans notre réseau de partenaires en 48h.', ctaband_btn:'Faire une demande',
+      footer_about:'Plateforme professionnelle de vente de tracteurs, camions et matériel agricole neuf et d\'occasion.',
+      footer_catalog_head:'Catalogue', footer_support_head:'Assistance', footer_contact_head:'Contact',
+      footer_tracking:'Suivi de commande', footer_warranty:'Garantie', footer_rights:'Tous droits réservés.',
+      legal_about:'À propos', legal_cgu:'CGU', legal_privacy:'Confidentialité', legal_cookies:'Cookies',
+      tab_login:'Connexion', tab_register:'Créer un compte',
+      login_title:'Bon retour', login_sub:'Connectez-vous pour suivre vos commandes.', login_btn:'Se connecter',
+      forgot_link:'Mot de passe oublié ?', forgot_title:'Réinitialiser le mot de passe',
+      forgot_sub:'Renseigne ton email et choisis un nouveau mot de passe.', forgot_btn:'Réinitialiser', back_to_login:'Retour à la connexion',
+      register_title:'Créer un compte', register_sub:'Gratuit — pour passer commande et suivre son historique.', register_btn:'Créer mon compte',
+      field_email:'Email', field_password:'Mot de passe', field_new_password:'Nouveau mot de passe',
+      field_confirm_new_password:'Confirmer le nouveau mot de passe', field_fullname:'Nom complet', field_confirm_password:'Confirmer le mot de passe',
+      cart_title:'Votre panier', coupon_ph:'Code coupon', coupon_apply:'Appliquer',
+      cart_total_label:'Total estimé', cart_note:'Le prix est indicatif. La validation transmet votre demande à notre équipe, qui vous recontacte pour finaliser la vente — aucun paiement n\'est prélevé ici.',
+      cart_validate:'Valider la commande', cart_empty:'Votre panier est vide.<br>Ajoutez du matériel depuis le catalogue.',
+      wishlist_title:'Ma liste de souhaits', wishlist_empty:'Ta liste de souhaits est vide.<br>Clique sur le ♥ d\'un article pour l\'ajouter.',
+      finance_title:'Calculateur de financement', finance_downpayment:'Apport (€)', finance_months:'Durée (mois)', finance_rate:'Taux annuel (%)',
+      finance_monthly_label:'Mensualité estimée',
+      finance_note:'Simulation indicative sans valeur contractuelle. Le financement définitif dépend de l\'organisme de crédit et de votre dossier. Contactez-nous pour une offre personnalisée.',
+      reviews_title:'Avis clients', similar_title:'Voir aussi dans cette catégorie',
+      btn_add_to_cart:'Ajouter au panier', btn_sold:'Vendu', btn_reserved:'Réservé', btn_added:'Ajouté ✓',
+      btn_view:'Voir', btn_remove:'Retirer',
+      contact_title:'Une question ? Écrivez-nous', contact_sub:'Un modèle précis, une pièce, une demande de devis — on vous répond rapidement.',
+      contact_message_label:'Message', contact_send:'Envoyer le message',
+      contact_sent_title:'Message envoyé', contact_sent_sub:'Merci, notre équipe vous répond généralement sous 24h.', contact_done:'Terminé',
+    },
+    en: {
+      nav_home:'Home', nav_catalog:'Catalog', nav_brands:'Brands', nav_contact:'Contact',
+      nav_account:'Account', nav_wishlist:'Wishlist', nav_cart:'Cart',
+      hero_eyebrow:'Professionally inspected equipment',
+      hero_title:'From the field to the site,<br><em>equipment that lasts.</em>',
+      hero_lead:'AgriMarket brings together new and used tractors, trucks and machinery, inspected and ready to work. Browse the catalog, add to cart, we take care of the rest.',
+      hero_cta_catalog:'View the catalog', hero_cta_contact:'Contact us',
+      hero_stat_vehicles:'Vehicles available', hero_stat_regions:'Regions served', hero_stat_happy:'Satisfied customers',
+      catalog_eyebrow:'Catalog', catalog_title:'Available equipment',
+      catalog_intro:'Each listing shows the condition, power and year. Add to cart to receive a detailed offer, no commitment.',
+      catalog_search_ph:'Search an item (e.g. tractor 140 HP)…',
+      sort_default:'Sort: relevance', sort_price_asc:'Price: low to high', sort_price_desc:'Price: high to low', sort_recent:'Most recent',
+      filter_all:'All', filter_tractors:'Tractors', filter_trucks:'Trucks', filter_harvesters:'Harvesters', filter_trailers:'Trailers',
+      catalog_empty:'No items match your search.',
+      trust1_title:'150-point inspection', trust1_text:'Every vehicle is checked before being listed.',
+      trust2_title:'Nationwide delivery', trust2_text:'Transport organized to your site.',
+      trust3_title:'Financing', trust3_text:'Payment solutions suited to professionals.',
+      trust4_title:'Warranty & support', trust4_text:'An advisor supports you after the sale.',
+      brands_eyebrow:'Partners', brands_title:'The brands we offer', brands_intro:'A network of manufacturers selected for their reliability.',
+      ctaband_title:'Looking for a specific part or model?', ctaband_text:'Our team can locate a specific vehicle within our partner network in 48h.', ctaband_btn:'Make a request',
+      footer_about:'Professional platform for selling new and used tractors, trucks and farm equipment.',
+      footer_catalog_head:'Catalog', footer_support_head:'Support', footer_contact_head:'Contact',
+      footer_tracking:'Order tracking', footer_warranty:'Warranty', footer_rights:'All rights reserved.',
+      legal_about:'About', legal_cgu:'Terms', legal_privacy:'Privacy', legal_cookies:'Cookies',
+      tab_login:'Sign in', tab_register:'Create account',
+      login_title:'Welcome back', login_sub:'Sign in to track your orders.', login_btn:'Sign in',
+      forgot_link:'Forgot password?', forgot_title:'Reset password',
+      forgot_sub:'Enter your email and choose a new password.', forgot_btn:'Reset', back_to_login:'Back to sign in',
+      register_title:'Create an account', register_sub:'Free — to place orders and track your history.', register_btn:'Create my account',
+      field_email:'Email', field_password:'Password', field_new_password:'New password',
+      field_confirm_new_password:'Confirm new password', field_fullname:'Full name', field_confirm_password:'Confirm password',
+      cart_title:'Your cart', coupon_ph:'Coupon code', coupon_apply:'Apply',
+      cart_total_label:'Estimated total', cart_note:'The price shown is indicative. Submitting sends your request to our team, who will contact you to finalize the sale — no payment is taken here.',
+      cart_validate:'Submit order', cart_empty:'Your cart is empty.<br>Add equipment from the catalog.',
+      wishlist_title:'My wishlist', wishlist_empty:'Your wishlist is empty.<br>Click the ♥ on an item to add it.',
+      finance_title:'Financing calculator', finance_downpayment:'Down payment (€)', finance_months:'Term (months)', finance_rate:'Annual rate (%)',
+      finance_monthly_label:'Estimated monthly payment',
+      finance_note:'Indicative simulation, not contractually binding. Final financing depends on the lender and your application. Contact us for a personalized offer.',
+      reviews_title:'Customer reviews', similar_title:'You might also like',
+      btn_add_to_cart:'Add to cart', btn_sold:'Sold', btn_reserved:'Reserved', btn_added:'Added ✓',
+      btn_view:'View', btn_remove:'Remove',
+      contact_title:'Have a question? Write to us', contact_sub:'A specific model, a part, a quote request — we reply quickly.',
+      contact_message_label:'Message', contact_send:'Send message',
+      contact_sent_title:'Message sent', contact_sent_sub:'Thanks, our team usually replies within 24h.', contact_done:'Done',
+    }
+  };
+  let currentLang = 'fr';
+  function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.fr[key] || key; }
+
+  function applyLang(){
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.getElementById('lang-toggle-label').textContent = currentLang === 'fr' ? 'EN' : 'FR';
+    // re-render dynamic pieces that contain hardcoded strings
+    if(typeof renderCatalog === 'function') renderCatalog();
+    if(typeof refreshCartUI === 'function') refreshCartUI();
+    if(typeof refreshWishlistUI === 'function') refreshWishlistUI();
+    if(typeof refreshAccountUI === 'function') refreshAccountUI();
+  }
+  document.getElementById('lang-toggle').addEventListener('click', () => {
+    currentLang = currentLang === 'fr' ? 'en' : 'fr';
+    try{ localStorage.setItem('agrimarket_lang', currentLang); }catch(e){}
+    applyLang();
+  });
+  try{
+    const savedLang = localStorage.getItem('agrimarket_lang');
+    if(savedLang === 'en' || savedLang === 'fr') currentLang = savedLang;
+  }catch(e){}
+
   /* =========================================================
      COMPATIBILITÉ HORS CLAUDE.AI
      window.storage n'existe que dans l'environnement des
@@ -1565,6 +2116,39 @@
     return map[status] || 'status-recu';
   }
 
+  /* ---- Détail complet d'une commande (vue client) ---- */
+  function openOrderDetail(orderId, orders){
+    const o = orders.find(x => x.id === orderId);
+    if(!o) return;
+    document.getElementById('od-id').textContent = o.id;
+    const statusEl = document.getElementById('od-status');
+    statusEl.textContent = o.status;
+    statusEl.className = 'ostatus ' + statusClass(o.status);
+    statusEl.style.cssText = 'position:static; float:none;';
+    document.getElementById('od-date').textContent = new Date(o.createdAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    document.getElementById('od-items').innerHTML = o.items.map(i => `
+      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--line);">
+        <span>${i.qty} × ${esc(i.name)}</span>
+        <span style="color:var(--text-mute);">${fmt(i.price * i.qty)}</span>
+      </div>
+    `).join('');
+
+    const subtotal = o.subtotal != null ? o.subtotal : o.total;
+    document.getElementById('od-subtotal').textContent = fmt(subtotal);
+    document.getElementById('od-coupon-row').style.display = o.coupon ? 'flex' : 'none';
+    if(o.coupon) document.getElementById('od-coupon').textContent = esc(o.coupon);
+    document.getElementById('od-total').textContent = fmt(o.total);
+
+    document.getElementById('order-detail-overlay').classList.add('open');
+  }
+  document.getElementById('order-detail-close').addEventListener('click', () => {
+    document.getElementById('order-detail-overlay').classList.remove('open');
+  });
+  document.getElementById('order-detail-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'order-detail-overlay') e.currentTarget.classList.remove('open');
+  });
+
   /* ---- Upload d'image -> compression -> data URL (stockable comme texte) ---- */
   function compressImageFile(file, maxDim = 900, quality = 0.72){
     return new Promise((resolve, reject) => {
@@ -1603,9 +2187,10 @@
     return { cls: '', label: p.state };
   }
 
-  function renderCatalog(cat){
+  async function renderCatalog(cat){
     if(cat !== undefined) catalogState.cat = cat;
     const search = catalogState.search.trim().toLowerCase();
+    const wl = await getWishlist();
 
     let list = products.filter(p =>
       (catalogState.cat === 'all' || p.cat === catalogState.cat) &&
@@ -1622,6 +2207,7 @@
     list.forEach(p => {
         const unavailable = p.status === 'vendu' || p.status === 'reserve';
         const badge = statusBadge(p);
+        const inWishlist = wl.includes(p.id);
         const card = document.createElement('div');
         card.className = 'card reveal' + (unavailable ? ' unavailable' : '');
         card.style.cursor = 'pointer';
@@ -1629,6 +2215,9 @@
         card.innerHTML = `
           <div class="card-media">
             <span class="badge ${badge.cls}">${badge.label}</span>
+            <button class="card-wl-btn ${inWishlist ? 'active' : ''}" data-action="card-wl" data-id="${p.id}" aria-label="Liste de souhaits">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="${inWishlist ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            </button>
             ${mediaFor(p)}
           </div>
           <div class="card-body">
@@ -1645,7 +2234,7 @@
                 ${fmt(p.price)}<br><small>Prix indicatif HT</small>
               </div>
             </div>
-            <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? 'Vendu' : 'Réservé') : 'Ajouter au panier'}</button>
+            <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>
           </div>
         `;
         grid.appendChild(card);
@@ -1655,13 +2244,21 @@
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         await addToCart(Number(btn.dataset.id));
-        btn.textContent = 'Ajouté ✓';
+        btn.textContent = t('btn_added');
         btn.classList.add('added');
-        setTimeout(() => { btn.textContent = 'Ajouter au panier'; btn.classList.remove('added'); }, 1200);
+        setTimeout(() => { btn.textContent = t('btn_add_to_cart'); btn.classList.remove('added'); }, 1200);
       });
     });
     grid.querySelectorAll('.add-btn[disabled]').forEach(btn => {
       btn.addEventListener('click', (e) => e.stopPropagation());
+    });
+    grid.querySelectorAll('[data-action="card-wl"]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const isIn = await toggleWishlist(Number(btn.dataset.id));
+        btn.classList.toggle('active', isIn);
+        btn.querySelector('svg').setAttribute('fill', isIn ? 'currentColor' : 'none');
+      });
     });
 
     grid.querySelectorAll('.card').forEach(card => {
@@ -1681,7 +2278,7 @@
   });
 
   /* ---- Fiche détail produit ---- */
-  function openProductDetail(id){
+  async function openProductDetail(id){
     const p = productById(id);
     if(!p) return;
     const images = (Array.isArray(p.images) && p.images.length) ? p.images : (p.image ? [p.image] : []);
@@ -1705,7 +2302,7 @@
     const pdBtn = document.getElementById('pd-add-btn');
     pdBtn.dataset.id = p.id;
     pdBtn.disabled = unavailable;
-    pdBtn.textContent = unavailable ? (p.status === 'vendu' ? 'Vendu' : 'Réservé') : 'Ajouter au panier';
+    pdBtn.textContent = unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart');
 
     const mainBox = document.getElementById('pd-main-image');
     const thumbsBox = document.getElementById('pd-thumbs');
@@ -1723,7 +2320,62 @@
     });
     showImage(0);
 
+    /* Wishlist */
+    const wl = await getWishlist();
+    const wlBtn = document.getElementById('pd-wishlist-btn');
+    wlBtn.classList.toggle('active', wl.includes(p.id));
+    wlBtn.onclick = async () => {
+      const isIn = await toggleWishlist(p.id);
+      wlBtn.classList.toggle('active', isIn);
+      showToast(isIn ? 'Ajouté à ta liste de souhaits.' : 'Retiré de ta liste de souhaits.');
+    };
+
+    /* Calculateur de financement */
+    const dp = document.getElementById('fc-downpayment');
+    const mo = document.getElementById('fc-months');
+    const rt = document.getElementById('fc-rate');
+    dp.value = 0;
+    function computeMonthly(){
+      const principal = Math.max(0, p.price - (Number(dp.value) || 0));
+      const months = Math.max(1, Number(mo.value) || 1);
+      const annualRate = Number(rt.value) || 0;
+      const r = annualRate / 100 / 12;
+      const monthly = r === 0 ? principal / months : principal * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
+      document.getElementById('fc-monthly').textContent = fmt(Math.round(monthly)) + ' / mois';
+    }
+    dp.oninput = computeMonthly;
+    mo.oninput = computeMonthly;
+    rt.oninput = computeMonthly;
+    computeMonthly();
+
+    /* Avis clients */
+    await renderProductReviews(p);
+
+    /* Produits similaires */
+    const similarWrap = document.getElementById('pd-similar-wrap');
+    const similarGrid = document.getElementById('pd-similar-grid');
+    const similar = products.filter(x => x.cat === p.cat && x.id !== p.id && x.status !== 'vendu').slice(0, 3);
+    if(similar.length === 0){
+      similarWrap.style.display = 'none';
+    } else {
+      similarWrap.style.display = 'block';
+      similarGrid.innerHTML = similar.map(sp => `
+        <div class="similar-card" data-id="${sp.id}">
+          <div class="sc-media">${mediaFor(sp)}</div>
+          <div class="sc-body">
+            <div class="sc-name">${esc(sp.name)}</div>
+            <div class="sc-price">${fmt(sp.price)}</div>
+          </div>
+        </div>
+      `).join('');
+      similarGrid.querySelectorAll('.similar-card').forEach(card => {
+        card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
+      });
+    }
+
     document.getElementById('product-detail-overlay').classList.add('open');
+    document.getElementById('product-detail-overlay').scrollTop = 0;
+    document.querySelector('.pd-modal').scrollTop = 0;
   }
   document.getElementById('product-detail-close').addEventListener('click', () => {
     document.getElementById('product-detail-overlay').classList.remove('open');
@@ -1735,9 +2387,79 @@
     const p = productById(Number(e.target.dataset.id));
     if(!p || p.status === 'vendu' || p.status === 'reserve') return;
     await addToCart(Number(e.target.dataset.id));
-    e.target.textContent = 'Ajouté ✓';
-    setTimeout(() => { e.target.textContent = 'Ajouter au panier'; }, 1200);
+    e.target.textContent = t('btn_added');
+    setTimeout(() => { e.target.textContent = t('btn_add_to_cart'); }, 1200);
   });
+
+  /* ---- Avis clients (vue publique + soumission) ---- */
+  async function renderProductReviews(p){
+    const all = await loadReviews();
+    const approved = all.filter(r => r.productId === p.id && r.status === 'approved');
+    const avg = approved.length ? (approved.reduce((s,r) => s + r.rating, 0) / approved.length) : 0;
+
+    document.getElementById('pd-rating-summary').innerHTML = approved.length
+      ? `<span class="stars">${starsHtml(Math.round(avg))}</span> ${avg.toFixed(1)} / 5 · ${approved.length} avis`
+      : `<span style="color:var(--text-mute);">Aucun avis pour le moment</span>`;
+
+    document.getElementById('pd-review-summary').innerHTML = approved.length ? `
+      <div class="review-avg">${avg.toFixed(1)}</div>
+      <div>
+        <div class="stars" style="font-size:1.1rem;">${starsHtml(Math.round(avg))}</div>
+        <div style="color:var(--text-mute);font-size:0.8rem;">${approved.length} avis</div>
+      </div>
+    ` : `<p style="color:var(--text-mute);font-size:0.88rem;">Sois le premier à donner ton avis sur cet article.</p>`;
+
+    document.getElementById('pd-review-list').innerHTML = approved.length ? approved.slice().reverse().map(r => `
+      <div class="review-item">
+        <div class="stars">${starsHtml(r.rating)}</div>
+        <span class="rv-name">${esc(r.userName)}</span> · <span class="rv-date">${new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
+        <p>${esc(r.comment)}</p>
+      </div>
+    `).join('') : '';
+
+    const wrap = document.getElementById('pd-review-form-wrap');
+    if(!currentUser){
+      wrap.innerHTML = `<p style="color:var(--text-mute);font-size:0.85rem;">Connecte-toi pour laisser un avis sur cet article.</p>`;
+      return;
+    }
+    const existing = all.find(r => r.productId === p.id && r.userId === currentUser.id);
+    if(existing){
+      wrap.innerHTML = `<p style="color:var(--text-mute);font-size:0.85rem;">Tu as déjà laissé un avis sur cet article${existing.status==='pending' ? ' (en attente de validation)' : ''}.</p>`;
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="review-form">
+        <div class="pd-section-title" style="font-size:0.85rem;">Laisser un avis</div>
+        <div class="star-picker" id="pd-star-picker">
+          ${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}">★</button>`).join('')}
+        </div>
+        <textarea id="pd-review-comment" class="dash-textarea" rows="3" placeholder="Ton expérience avec cet article..."></textarea>
+        <button class="btn btn-primary" id="pd-review-submit" style="margin-top:12px;">Envoyer l'avis</button>
+        <p class="finance-note">Ton avis sera visible publiquement après validation par notre équipe.</p>
+      </div>
+    `;
+    let chosenRating = 0;
+    const starBtns = wrap.querySelectorAll('#pd-star-picker button');
+    starBtns.forEach(b => {
+      b.addEventListener('click', () => {
+        chosenRating = Number(b.dataset.n);
+        starBtns.forEach(sb => sb.classList.toggle('active', Number(sb.dataset.n) <= chosenRating));
+      });
+    });
+    document.getElementById('pd-review-submit').addEventListener('click', async () => {
+      const comment = document.getElementById('pd-review-comment').value.trim();
+      if(!chosenRating){ showToast('Choisis une note en étoiles.'); return; }
+      if(!comment){ showToast('Écris un petit commentaire.'); return; }
+      const list = await loadReviews();
+      list.push({
+        id: 'rev' + Date.now(), productId: p.id, userId: currentUser.id, userName: currentUser.name,
+        rating: chosenRating, comment, status: 'pending', createdAt: new Date().toISOString()
+      });
+      await saveReviews(list);
+      showToast('Merci ! Ton avis sera publié après validation.');
+      await renderProductReviews(p);
+    });
+  }
 
   document.getElementById('filters').addEventListener('click', (e) => {
     if(!e.target.classList.contains('filter-btn')) return;
@@ -1816,6 +2538,14 @@
   async function setCart(list){
     try{ await window.storage.set(CART_KEY, JSON.stringify(list), false); }catch(e){ console.error(e); }
   }
+  const WISHLIST_STORAGE_KEY = 'agrimarket_wishlist';
+  async function getWishlist(){
+    try{ const r = await window.storage.get(WISHLIST_STORAGE_KEY, false); return r ? JSON.parse(r.value) : []; }
+    catch(e){ return []; }
+  }
+  async function setWishlist(list){
+    try{ await window.storage.set(WISHLIST_STORAGE_KEY, JSON.stringify(list), false); }catch(e){ console.error(e); }
+  }
 
   let currentUser = null; // {id, name, email}
 
@@ -1860,7 +2590,7 @@
 
     const body = document.getElementById('cart-body');
     if(cart.length === 0){
-      body.innerHTML = '<div class="cart-empty">Votre panier est vide.<br>Ajoutez du matériel depuis le catalogue.</div>';
+      body.innerHTML = `<div class="cart-empty">${t('cart_empty')}</div>`;
       document.getElementById('cart-total').textContent = fmt(0);
       return;
     }
@@ -1879,7 +2609,7 @@
               <button class="qty-btn" data-action="dec" data-id="${p.id}">−</button>
               <span>${line.qty}</span>
               <button class="qty-btn" data-action="inc" data-id="${p.id}">+</button>
-              <button class="remove-line" data-action="remove" data-id="${p.id}">Retirer</button>
+              <button class="remove-line" data-action="remove" data-id="${p.id}">${t('btn_remove')}</button>
             </div>
           </div>
         </div>
@@ -1913,6 +2643,131 @@
   document.getElementById('cart-overlay').addEventListener('click', (e) => {
     if(e.target.id === 'cart-overlay') e.currentTarget.classList.remove('open');
   });
+
+  /* ---------- WISHLIST ---------- */
+  async function toggleWishlist(productId){
+    let list = await getWishlist();
+    if(list.includes(productId)) list = list.filter(id => id !== productId);
+    else list.push(productId);
+    await setWishlist(list);
+    await refreshWishlistUI();
+    return list.includes(productId);
+  }
+  async function refreshWishlistUI(){
+    const list = await getWishlist();
+    document.getElementById('wishlist-count').textContent = list.length;
+    const body = document.getElementById('wishlist-body');
+    if(list.length === 0){
+      body.innerHTML = `<div class="cart-empty">${t('wishlist_empty')}</div>`;
+      return;
+    }
+    body.innerHTML = list.map(id => {
+      const p = productById(id);
+      if(!p) return '';
+      return `
+        <div class="cart-line">
+          <div class="thumb">${mediaFor(p)}</div>
+          <div class="cart-line-info">
+            <h5>${esc(p.name)}</h5>
+            <span class="unit">${fmt(p.price)}</span>
+            <div class="qty-row">
+              <button class="qty-btn" style="width:auto; padding:0 10px;" data-action="wl-view" data-id="${p.id}">${t('btn_view')}</button>
+              <button class="remove-line" data-action="wl-remove" data-id="${p.id}">${t('btn_remove')}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    body.querySelectorAll('[data-action="wl-remove"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await toggleWishlist(Number(btn.dataset.id));
+      });
+    });
+    body.querySelectorAll('[data-action="wl-view"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('wishlist-overlay').classList.remove('open');
+        openProductDetail(Number(btn.dataset.id));
+      });
+    });
+  }
+  document.getElementById('wishlist-btn').addEventListener('click', () => {
+    document.getElementById('wishlist-overlay').classList.add('open');
+  });
+  document.getElementById('wishlist-close').addEventListener('click', () => {
+    document.getElementById('wishlist-overlay').classList.remove('open');
+  });
+  document.getElementById('wishlist-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'wishlist-overlay') e.currentTarget.classList.remove('open');
+  });
+
+  /* ---------- FORMULAIRE DE CONTACT ---------- */
+  function openContactModal(){
+    if(currentUser){
+      document.getElementById('cm-name').value = currentUser.name;
+      document.getElementById('cm-email').value = currentUser.email;
+    }
+    document.getElementById('contact-modal-overlay').classList.add('open');
+  }
+  document.getElementById('hero-contact-btn').addEventListener('click', (e) => { e.preventDefault(); openContactModal(); });
+  document.getElementById('ctaband-contact-btn').addEventListener('click', (e) => { e.preventDefault(); openContactModal(); });
+  document.getElementById('contact-modal-close').addEventListener('click', () => {
+    document.getElementById('contact-modal-overlay').classList.remove('open');
+  });
+  document.getElementById('contact-modal-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'contact-modal-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('contact-message-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('cm-name').value.trim();
+    const email = document.getElementById('cm-email').value.trim();
+    const message = document.getElementById('cm-message').value.trim();
+    if(!name || !email || !message) return;
+    const list = await loadMessages();
+    list.unshift({ id: 'MSG-' + Date.now().toString().slice(-8), name, email, message, createdAt: new Date().toISOString(), read:false });
+    await saveMessages(list);
+    document.getElementById('contact-message-form').reset();
+    document.getElementById('contact-modal-overlay').classList.remove('open');
+    document.getElementById('contact-confirm-overlay').classList.add('open');
+  });
+  document.getElementById('contact-confirm-close').addEventListener('click', () => {
+    document.getElementById('contact-confirm-overlay').classList.remove('open');
+  });
+  document.getElementById('contact-confirm-ok').addEventListener('click', () => {
+    document.getElementById('contact-confirm-overlay').classList.remove('open');
+  });
+  document.getElementById('contact-confirm-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'contact-confirm-overlay') e.currentTarget.classList.remove('open');
+  });
+
+  /* ---- Messages (admin) ---- */
+  async function renderAdminMessages(){
+    const list = await loadMessages();
+    const table = document.getElementById('messages-table');
+    if(list.length === 0){
+      table.innerHTML = `<div class="dt-empty">Aucun message reçu pour le moment.</div>`;
+      return;
+    }
+    table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:1.4fr 2fr auto;"><span>De</span><span>Message</span><span></span></div>` +
+      list.map(m => `
+        <div class="dt-row" style="grid-template-columns:1.4fr 2fr auto; align-items:flex-start;">
+          <span class="dt-name">${esc(m.name)}<br><span class="dt-sub">${esc(m.email)}</span><br><span class="dt-sub">${new Date(m.createdAt).toLocaleDateString('fr-FR')}</span></span>
+          <span class="dt-sub" style="white-space:normal;">${esc(m.message)}</span>
+          <span class="dt-actions">
+            <a class="dt-btn" href="mailto:${encodeURIComponent(m.email)}">Répondre</a>
+            <button class="dt-btn danger" data-action="delete-message" data-id="${m.id}">Supprimer</button>
+          </span>
+        </div>
+      `).join('');
+    table.querySelectorAll('[data-action="delete-message"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        let l = await loadMessages();
+        l = l.filter(m => m.id !== btn.dataset.id);
+        await saveMessages(l);
+        await renderAdminMessages();
+        showToast('Message supprimé.');
+      });
+    });
+  }
 
   document.getElementById('validate-cart-btn').addEventListener('click', async () => {
     let cart = await getCart();
@@ -2216,13 +3071,16 @@
       list.innerHTML = orders.length === 0
         ? '<div class="no-orders">Aucune commande pour le moment.</div>'
         : orders.map(o => `
-            <div class="order-item">
+            <div class="order-item" data-order-id="${o.id}" style="cursor:pointer;">
               <span class="oid">${o.id}</span>
               <span class="ostatus ${statusClass(o.status)}">${o.status}</span>
               <div style="margin-top:6px;">${o.items.length} article(s) — ${fmt(o.total)}</div>
               <div style="color:var(--text-mute); font-size:0.72rem; margin-top:2px;">${new Date(o.createdAt).toLocaleDateString('fr-FR')}</div>
             </div>
           `).join('');
+      list.querySelectorAll('.order-item').forEach(el => {
+        el.addEventListener('click', () => openOrderDetail(el.dataset.orderId, orders));
+      });
 
       document.getElementById('auth-block').style.display = 'none';
       document.getElementById('account-panel').classList.add('active');
@@ -2230,7 +3088,7 @@
     } else {
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        <span class="btn-label">Compte</span>
+        <span class="btn-label">${t('nav_account')}</span>
       `;
       document.getElementById('auth-block').style.display = 'block';
       document.getElementById('account-panel').classList.remove('active');
@@ -2245,6 +3103,34 @@
   const PRODUCTS_KEY = 'agrimarket_products';
   const SITE_KEY = 'agrimarket_site';
   const COUPONS_KEY = 'agrimarket_coupons';
+  const BRANDS_KEY = 'agrimarket_brands';
+  const REVIEWS_KEY = 'agrimarket_reviews';
+  const WISHLIST_KEY = 'agrimarket_wishlist';
+  const MESSAGES_KEY = 'agrimarket_messages';
+
+  async function loadMessages(){
+    try{ const r = await window.storage.get(MESSAGES_KEY, true); return r ? JSON.parse(r.value) : []; }
+    catch(e){ return []; }
+  }
+  async function saveMessages(list){
+    try{ await window.storage.set(MESSAGES_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+
+  async function loadBrands(){
+    try{ const r = await window.storage.get(BRANDS_KEY, true); return r ? JSON.parse(r.value) : []; }
+    catch(e){ return []; }
+  }
+  async function saveBrands(list){
+    try{ await window.storage.set(BRANDS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+  async function loadReviews(){
+    try{ const r = await window.storage.get(REVIEWS_KEY, true); return r ? JSON.parse(r.value) : []; }
+    catch(e){ return []; }
+  }
+  async function saveReviews(list){
+    try{ await window.storage.set(REVIEWS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+  let brands = [];
 
   async function loadProducts(){
     try{
@@ -2284,7 +3170,7 @@
   };
 
   let siteConfig = {
-    logoText: 'AGRI MARKET', logoImage: '', banners: DEFAULT_BANNERS, adBanners: [],
+    logoText: 'AGRI MARKET', logoImage: '', heroImage: '', banners: DEFAULT_BANNERS, adBanners: [],
     contactEmail: 'contact@agrimarket.fr', contactPhone: '+33 1 23 45 67 89', contactHours: 'Lun–Ven, 8h–18h',
     pages: { ...DEFAULT_PAGES }
   };
@@ -2306,6 +3192,17 @@
         el.style.backgroundImage = '';
       }
     });
+
+    const heroPhoto = document.getElementById('hero-photo');
+    const heroSvg = document.getElementById('hero-illustration');
+    if(siteConfig.heroImage){
+      heroPhoto.src = siteConfig.heroImage;
+      heroPhoto.style.display = 'block';
+      heroSvg.style.display = 'none';
+    } else {
+      heroPhoto.style.display = 'none';
+      heroSvg.style.display = 'block';
+    }
 
     document.getElementById('contact-email-display').textContent = siteConfig.contactEmail;
     document.getElementById('contact-phone-display').textContent = siteConfig.contactPhone;
@@ -2377,15 +3274,165 @@
     try{ await window.storage.set(COUPONS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
   }
 
+  /* ---- VUE D'ENSEMBLE ---- */
+  async function renderOverviewStats(){
+    const orders = await getOrders();
+    const users = await getUsers();
+    const reviews = await loadReviews();
+    const revenue = orders.filter(o => o.status !== 'annulé' && o.status !== 'échoué').reduce((s,o) => s + o.total, 0);
+    const pendingReviews = reviews.filter(r => r.status === 'pending').length;
+    const counts = {};
+    ORDER_STATUSES.forEach(s => counts[s] = 0);
+    orders.forEach(o => { if(counts[o.status] !== undefined) counts[o.status]++; });
+
+    document.getElementById('overview-stats').innerHTML = `
+      <div class="stat-card accent">
+        <span class="stat-card-label">Chiffre d'affaires (hors annulé/échoué)</span>
+        <span class="stat-card-value">${fmt(revenue)}</span>
+        <span class="stat-card-sub">${orders.length} commande(s) au total</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-label">Articles au catalogue</span>
+        <span class="stat-card-value">${products.length}</span>
+        <span class="stat-card-sub">${products.filter(p=>p.status==='vendu').length} vendu(s) · ${products.filter(p=>p.status==='reserve').length} réservé(s)</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-label">Comptes clients</span>
+        <span class="stat-card-value">${users.length}</span>
+        <span class="stat-card-sub">${users.filter(u=>u.blocked).length} bloqué(s)</span>
+      </div>
+      <div class="stat-card ${pendingReviews ? 'accent' : ''}">
+        <span class="stat-card-label">Avis en attente</span>
+        <span class="stat-card-value">${pendingReviews}</span>
+        <span class="stat-card-sub">${reviews.length} avis au total</span>
+      </div>
+      ${ORDER_STATUSES.map(s => `
+        <div class="stat-card">
+          <span class="stat-card-label">Commandes · ${s}</span>
+          <span class="stat-card-value">${counts[s]}</span>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  /* ---- MARQUES (admin) ---- */
+  function brandInitial(name){ return (name || '?').trim().charAt(0).toUpperCase(); }
+
+  async function renderAdminBrands(){
+    brands = await loadBrands();
+    const table = document.getElementById('brands-admin-table');
+    if(brands.length === 0){
+      table.innerHTML = `<div class="dt-empty">Aucune marque ajoutée pour le moment.</div>`;
+      applyBrandsPublic();
+      return;
+    }
+    table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:2.4fr 1fr auto;"><span>Marque</span><span></span><span></span></div>` +
+      brands.map(b => `
+        <div class="dt-row" style="grid-template-columns:2.4fr 1fr auto;">
+          <span class="dt-name" style="display:flex; align-items:center; gap:10px;">
+            <span style="width:36px;height:36px;border-radius:50%;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${b.icon ? `<img src="${b.icon}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : `<span style="font-family:'Oswald';color:var(--accent-2);font-size:0.85rem;">${brandInitial(b.name)}</span>`}
+            </span>
+            <span>${esc(b.name)}</span>
+          </span>
+          <span></span>
+          <span class="dt-actions">
+            <button class="dt-btn" data-action="edit-brand" data-id="${b.id}">Modifier</button>
+            <button class="dt-btn danger" data-action="delete-brand" data-id="${b.id}">Supprimer</button>
+          </span>
+        </div>
+      `).join('');
+
+    table.querySelectorAll('[data-action="edit-brand"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const b = brands.find(x => x.id === btn.dataset.id);
+        document.getElementById('br-id').value = b.id;
+        document.getElementById('br-name').value = b.name;
+        document.getElementById('br-icon').value = b.icon || '';
+        document.getElementById('br-submit-btn').textContent = 'Mettre à jour';
+        document.getElementById('br-cancel-btn').style.display = 'inline-flex';
+      });
+    });
+    table.querySelectorAll('[data-action="delete-brand"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Supprimer cette marque ?')) return;
+        brands = brands.filter(b => b.id !== btn.dataset.id);
+        await saveBrands(brands);
+        await renderAdminBrands();
+        showToast('Marque supprimée.');
+      });
+    });
+    applyBrandsPublic();
+  }
+
+  document.getElementById('br-icon-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await compressImageFile(file, 400, 0.75);
+      document.getElementById('br-icon').value = dataUrl;
+      showToast('Icône chargée depuis l\'appareil.');
+    }catch(err){ showToast('Impossible de lire ce fichier.'); }
+  });
+
+  document.getElementById('br-cancel-btn').addEventListener('click', () => {
+    document.getElementById('brand-form').reset();
+    document.getElementById('br-id').value = '';
+    document.getElementById('br-submit-btn').textContent = 'Ajouter la marque';
+    document.getElementById('br-cancel-btn').style.display = 'none';
+  });
+
+  document.getElementById('brand-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('br-id').value;
+    const name = document.getElementById('br-name').value.trim();
+    const icon = document.getElementById('br-icon').value.trim();
+    if(!name) return;
+    if(id){
+      const b = brands.find(x => x.id === id);
+      Object.assign(b, { name, icon });
+      showToast('Marque mise à jour.');
+    } else {
+      brands.push({ id: 'brand' + Date.now(), name, icon });
+      showToast('Marque ajoutée.');
+    }
+    await saveBrands(brands);
+    e.target.reset();
+    document.getElementById('br-id').value = '';
+    document.getElementById('br-submit-btn').textContent = 'Ajouter la marque';
+    document.getElementById('br-cancel-btn').style.display = 'none';
+    await renderAdminBrands();
+  });
+
+  /* ---- MARQUES (vue publique) ---- */
+  function applyBrandsPublic(){
+    const section = document.getElementById('marques');
+    const grid = document.getElementById('brand-grid');
+    if(!brands.length){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    grid.innerHTML = brands.map(b => `
+      <div class="brand-card">
+        <div class="brand-icon">
+          ${b.icon ? `<img src="${esc(b.icon)}" alt="${esc(b.name)}" onerror="this.parentElement.innerHTML='<span>${brandInitial(b.name)}</span>'">` : `<span>${brandInitial(b.name)}</span>`}
+        </div>
+        <span class="brand-name">${esc(b.name)}</span>
+      </div>
+    `).join('');
+  }
+
   /* ---- navigation dashboard ---- */
   document.getElementById('dashboard-btn').addEventListener('click', async () => {
     document.getElementById('account-overlay').classList.remove('open');
     document.getElementById('dashboard-overlay').classList.add('open');
+    await renderOverviewStats();
     await renderAdminProducts();
+    await renderAdminBrands();
     await renderAdminPromos();
     await renderAdminCoupons();
     await renderAdminOrders();
+    await renderAdminReviews();
     await renderAdminClients();
+    await renderAdminMessages();
     renderAppearanceForm();
     renderAdminAdBanners();
   });
@@ -2753,10 +3800,114 @@
     });
   }
 
+  /* ---- AVIS (admin) ---- */
+  let reviewFilter = 'pending';
+  function starsHtml(rating){
+    return '★★★★★☆☆☆☆☆'.slice(5 - rating, 10 - rating);
+  }
+  async function renderAdminReviews(){
+    const all = await loadReviews();
+    const table = document.getElementById('reviews-table');
+    const list = reviewFilter === 'all' ? all : all.filter(r => r.status === reviewFilter);
+    if(list.length === 0){
+      table.innerHTML = `<div class="dt-empty">Aucun avis ${reviewFilter === 'pending' ? 'en attente' : reviewFilter === 'approved' ? 'publié' : ''} pour le moment.</div>`;
+      return;
+    }
+    table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:1.4fr 2fr 0.8fr auto;"><span>Client / Article</span><span>Commentaire</span><span>Statut</span><span></span></div>` +
+      list.map(r => {
+        const p = productById(r.productId);
+        return `
+        <div class="dt-row" style="grid-template-columns:1.4fr 2fr 0.8fr auto;">
+          <span class="dt-name">${esc(r.userName)}<br><span class="dt-sub">${esc(p ? p.name : 'Article supprimé')}</span></span>
+          <span class="dt-sub" style="color:var(--accent-2);">${starsHtml(r.rating)}</span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="dt-row" style="grid-template-columns:1.4fr 2fr 0.8fr auto; padding-top:0;">
+          <span></span>
+          <span class="dt-sub" style="white-space:normal;">${esc(r.comment)}</span>
+          <span><span class="pill ${r.status==='approved' ? 'on' : 'off'}">${r.status === 'approved' ? 'Publié' : 'En attente'}</span></span>
+          <span class="dt-actions">
+            ${r.status !== 'approved' ? `<button class="dt-btn" data-action="approve-review" data-id="${r.id}">Approuver</button>` : `<button class="dt-btn" data-action="unpublish-review" data-id="${r.id}">Dépublier</button>`}
+            <button class="dt-btn" data-action="edit-review" data-id="${r.id}">Modifier</button>
+            <button class="dt-btn danger" data-action="delete-review" data-id="${r.id}">Supprimer</button>
+          </span>
+        </div>
+      `;
+      }).join('');
+
+    table.querySelectorAll('[data-action="approve-review"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const list2 = await loadReviews();
+        const r = list2.find(x => x.id === btn.dataset.id);
+        r.status = 'approved';
+        await saveReviews(list2);
+        await renderAdminReviews();
+        showToast('Avis publié.');
+      });
+    });
+    table.querySelectorAll('[data-action="unpublish-review"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const list2 = await loadReviews();
+        const r = list2.find(x => x.id === btn.dataset.id);
+        r.status = 'pending';
+        await saveReviews(list2);
+        await renderAdminReviews();
+        showToast('Avis dépublié.');
+      });
+    });
+    table.querySelectorAll('[data-action="delete-review"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Supprimer définitivement cet avis ?')) return;
+        let list2 = await loadReviews();
+        list2 = list2.filter(x => x.id !== btn.dataset.id);
+        await saveReviews(list2);
+        await renderAdminReviews();
+        showToast('Avis supprimé.');
+      });
+    });
+    table.querySelectorAll('[data-action="edit-review"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const list2 = await loadReviews();
+        const r = list2.find(x => x.id === btn.dataset.id);
+        document.getElementById('er-id').value = r.id;
+        document.getElementById('er-rating').value = r.rating;
+        document.getElementById('er-comment').value = r.comment;
+        document.getElementById('edit-review-overlay').classList.add('open');
+      });
+    });
+  }
+  document.querySelectorAll('[data-review-filter]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('[data-review-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      reviewFilter = btn.dataset.reviewFilter;
+      await renderAdminReviews();
+    });
+  });
+  document.getElementById('edit-review-close').addEventListener('click', () => {
+    document.getElementById('edit-review-overlay').classList.remove('open');
+  });
+  document.getElementById('edit-review-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'edit-review-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('edit-review-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const list2 = await loadReviews();
+    const r = list2.find(x => x.id === document.getElementById('er-id').value);
+    r.rating = Number(document.getElementById('er-rating').value);
+    r.comment = document.getElementById('er-comment').value.trim();
+    await saveReviews(list2);
+    document.getElementById('edit-review-overlay').classList.remove('open');
+    await renderAdminReviews();
+    showToast('Avis mis à jour.');
+  });
+
   /* ---- APPARENCE ---- */
   function renderAppearanceForm(){
     document.getElementById('logo-text-input').value = siteConfig.logoText;
     document.getElementById('logo-image-input').value = siteConfig.logoImage;
+    document.getElementById('hero-image-input').value = siteConfig.heroImage || '';
     document.getElementById('contact-email-input').value = siteConfig.contactEmail;
     document.getElementById('contact-phone-input').value = siteConfig.contactPhone;
     document.getElementById('contact-hours-input').value = siteConfig.contactHours;
@@ -2818,6 +3969,32 @@
     }catch(err){
       showToast('Impossible de lire ce fichier.');
     }
+  });
+
+  document.getElementById('hero-image-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await compressImageFile(file, 1200, 0.78);
+      document.getElementById('hero-image-input').value = dataUrl;
+      showToast('Photo chargée — clique "Mettre à jour" pour l\'appliquer.');
+    }catch(err){
+      showToast('Impossible de lire ce fichier.');
+    }
+  });
+  document.getElementById('hero-image-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.heroImage = document.getElementById('hero-image-input').value.trim();
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast(siteConfig.heroImage ? 'Photo d\'accueil mise à jour.' : 'Illustration par défaut restaurée.');
+  });
+  document.getElementById('hero-image-clear').addEventListener('click', async () => {
+    siteConfig.heroImage = '';
+    document.getElementById('hero-image-input').value = '';
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast('Illustration par défaut restaurée.');
   });
 
   document.getElementById('contact-form').addEventListener('submit', async (e) => {
@@ -3097,14 +4274,18 @@
   (async function init(){
     await loadProducts();
     const site = await loadSite();
-    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
+    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
     siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
     if(!Array.isArray(siteConfig.adBanners)) siteConfig.adBanners = [];
     applySiteConfig();
     renderCatalog('all');
+    brands = await loadBrands();
+    applyBrandsPublic();
     currentUser = await getSession();
     await refreshAccountUI();
     await refreshCartUI();
+    await refreshWishlistUI();
+    applyLang();
   })();
 </script>
 
