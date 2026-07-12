@@ -152,6 +152,8 @@
   }
   .btn-primary{background:var(--accent); color:#14171a;}
   .btn-primary:hover{background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 8px 22px rgba(232,89,12,0.32);}
+  .btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn:disabled:hover{background:var(--surface); transform:none; box-shadow:none;}
   .btn-ghost{border-color:var(--line); color:var(--text);}
   .btn-ghost:hover{border-color:var(--text-mute);}
   .stat-row{display:flex; gap:36px; flex-wrap:wrap;}
@@ -249,6 +251,23 @@
   .section-head p{color:var(--text-mute); max-width:420px; font-size:0.95rem;}
 
   /* ===== FILTERS ===== */
+  .search-sort-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:22px;}
+  .search-box{
+    flex:1; min-width:220px; display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:0 14px;
+    color:var(--text-mute);
+  }
+  .search-box input{
+    flex:1; background:none; border:none; color:var(--text); padding:12px 0;
+    font-family:'Barlow'; font-size:0.92rem;
+  }
+  .search-box input:focus{outline:none;}
+  .search-box:focus-within{border-color:var(--accent);}
+  #catalog-sort{
+    background:var(--surface); border:1px solid var(--line); color:var(--text);
+    padding:0 14px; border-radius:2px; font-family:'Oswald'; font-size:0.82rem;
+    text-transform:uppercase; letter-spacing:0.03em; min-width:200px;
+  }
   .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:34px;}
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-mute);
@@ -295,6 +314,10 @@
     box-shadow:0 2px 6px rgba(0,0,0,0.3);
   }
   .badge.promo{background:var(--accent); color:#14171a;}
+  .badge.sold{background:#3a4147; color:#c7cdc9;}
+  .badge.reserved{background:var(--accent-2); color:#14171a;}
+  .card.unavailable .card-media{opacity:0.55;}
+  .card.unavailable h3{color:var(--text-mute);}
   .card-body{padding:20px; display:flex; flex-direction:column; gap:12px; flex:1;}
   .card-body h3{font-size:1.05rem; letter-spacing:0.01em;}
   .cat-tag{font-family:'IBM Plex Mono'; font-size:0.7rem; color:var(--accent-2); letter-spacing:0.04em;}
@@ -316,6 +339,8 @@
   }
   .add-btn:hover{background:var(--accent); border-color:var(--accent); color:#14171a;}
   .add-btn.added{background:#3a5a3a; border-color:#3a5a3a; color:#eaffea;}
+  .add-btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed;}
+  .add-btn:disabled:hover{background:var(--surface); border-color:var(--line); color:var(--text-mute);}
 
   /* ===== TRUST STRIP ===== */
   .trust{background:var(--bg-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
@@ -841,6 +866,19 @@
       <p>Chaque fiche affiche l'état, la puissance et l'année. Ajoutez au panier pour recevoir une offre détaillée, sans engagement.</p>
     </div>
 
+    <div class="search-sort-row">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="catalog-search" placeholder="Rechercher un article (ex : tracteur 140 CH)…">
+      </div>
+      <select id="catalog-sort">
+        <option value="default">Trier : pertinence</option>
+        <option value="price-asc">Prix croissant</option>
+        <option value="price-desc">Prix décroissant</option>
+        <option value="recent">Plus récent</option>
+      </select>
+    </div>
+
     <div class="filters" id="filters">
       <button class="filter-btn active" data-cat="all">Tous</button>
       <button class="filter-btn" data-cat="tracteur">Tracteurs</button>
@@ -850,6 +888,7 @@
     </div>
 
     <div class="grid" id="product-grid"></div>
+    <p class="dt-empty" id="catalog-empty" style="display:none;">Aucun article ne correspond à ta recherche.</p>
   </div>
 </section>
 
@@ -1055,7 +1094,10 @@
     </div>
     <h3>Commande transmise</h3>
     <p class="sub" id="confirm-order-sub">Un conseiller AgriMarket vous recontacte sous 24h pour finaliser la vente.</p>
+    <p class="dash-hint" style="margin-top:16px; margin-bottom:6px;">Email envoyé à notre équipe :</p>
     <div class="email-preview" id="email-preview"></div>
+    <p class="dash-hint" style="margin-top:16px; margin-bottom:6px;">Email de confirmation envoyé à votre adresse :</p>
+    <div class="email-preview" id="client-email-preview"></div>
     <button class="btn btn-primary btn-block" id="confirm-order-ok" style="margin-top:20px;">Terminé</button>
   </div>
 </div>
@@ -1168,6 +1210,14 @@
                 <option value="OCCASION">Occasion</option>
               </select>
             </div>
+            <div class="field">
+              <label>Disponibilité</label>
+              <select id="pf-status">
+                <option value="disponible">Disponible</option>
+                <option value="reserve">Réservé</option>
+                <option value="vendu">Vendu</option>
+              </select>
+            </div>
             <div class="field"><label>Puissance / caractéristique</label><input type="text" id="pf-power" placeholder="ex : 140 CH"></div>
             <div class="field"><label>Année</label><input type="text" id="pf-year" placeholder="ex : 2024"></div>
             <div class="field"><label>Usage (heures / km)</label><input type="text" id="pf-usage" placeholder="ex : 120 h"></div>
@@ -1233,6 +1283,7 @@
           </div>
           <div class="field"><label>Valeur</label><input type="number" id="coupon-value" min="1" required></div>
           <div class="field"><label>Expiration (optionnel)</label><input type="date" id="coupon-expiry"></div>
+          <div class="field"><label>Utilisations max (optionnel)</label><input type="number" id="coupon-max-uses" min="1" placeholder="illimité"></div>
           <button type="submit" class="btn btn-primary">Générer le coupon</button>
           <button type="button" class="btn btn-ghost" id="coupon-random">Code aléatoire</button>
         </form>
@@ -1543,18 +1594,41 @@
   const grid = document.getElementById('product-grid');
   const productById = (id) => products.find(p => p.id === Number(id));
 
-  function renderCatalog(filter){
+  let catalogState = { cat: 'all', search: '', sort: 'default' };
+
+  function statusBadge(p){
+    if(p.status === 'vendu') return { cls: 'sold', label: 'VENDU' };
+    if(p.status === 'reserve') return { cls: 'reserved', label: 'RÉSERVÉ' };
+    if(p.old) return { cls: 'promo', label: 'PROMO' };
+    return { cls: '', label: p.state };
+  }
+
+  function renderCatalog(cat){
+    if(cat !== undefined) catalogState.cat = cat;
+    const search = catalogState.search.trim().toLowerCase();
+
+    let list = products.filter(p =>
+      (catalogState.cat === 'all' || p.cat === catalogState.cat) &&
+      (!search || p.name.toLowerCase().includes(search))
+    );
+
+    if(catalogState.sort === 'price-asc') list = [...list].sort((a,b) => a.price - b.price);
+    else if(catalogState.sort === 'price-desc') list = [...list].sort((a,b) => b.price - a.price);
+    else if(catalogState.sort === 'recent') list = [...list].sort((a,b) => b.id - a.id);
+
     grid.innerHTML = '';
-    products
-      .filter(p => filter==='all' || p.cat===filter)
-      .forEach(p => {
+    document.getElementById('catalog-empty').style.display = list.length === 0 ? 'block' : 'none';
+
+    list.forEach(p => {
+        const unavailable = p.status === 'vendu' || p.status === 'reserve';
+        const badge = statusBadge(p);
         const card = document.createElement('div');
-        card.className = 'card reveal';
+        card.className = 'card reveal' + (unavailable ? ' unavailable' : '');
         card.style.cursor = 'pointer';
         card.dataset.id = p.id;
         card.innerHTML = `
           <div class="card-media">
-            <span class="badge ${p.old ? 'promo' : ''}">${p.old ? 'PROMO' : p.state}</span>
+            <span class="badge ${badge.cls}">${badge.label}</span>
             ${mediaFor(p)}
           </div>
           <div class="card-body">
@@ -1571,13 +1645,13 @@
                 ${fmt(p.price)}<br><small>Prix indicatif HT</small>
               </div>
             </div>
-            <button class="add-btn" data-id="${p.id}">Ajouter au panier</button>
+            <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? 'Vendu' : 'Réservé') : 'Ajouter au panier'}</button>
           </div>
         `;
         grid.appendChild(card);
       });
 
-    grid.querySelectorAll('.add-btn').forEach(btn => {
+    grid.querySelectorAll('.add-btn:not([disabled])').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         await addToCart(Number(btn.dataset.id));
@@ -1586,6 +1660,9 @@
         setTimeout(() => { btn.textContent = 'Ajouter au panier'; btn.classList.remove('added'); }, 1200);
       });
     });
+    grid.querySelectorAll('.add-btn[disabled]').forEach(btn => {
+      btn.addEventListener('click', (e) => e.stopPropagation());
+    });
 
     grid.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
@@ -1593,6 +1670,15 @@
 
     grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
   }
+
+  document.getElementById('catalog-search').addEventListener('input', (e) => {
+    catalogState.search = e.target.value;
+    renderCatalog();
+  });
+  document.getElementById('catalog-sort').addEventListener('change', (e) => {
+    catalogState.sort = e.target.value;
+    renderCatalog();
+  });
 
   /* ---- Fiche détail produit ---- */
   function openProductDetail(id){
@@ -1615,7 +1701,11 @@
       ${p.old ? `<span class="old-price">${fmt(p.old)}</span>` : ''}
       ${fmt(p.price)}<br><small>Prix indicatif HT</small>
     `;
-    document.getElementById('pd-add-btn').dataset.id = p.id;
+    const unavailable = p.status === 'vendu' || p.status === 'reserve';
+    const pdBtn = document.getElementById('pd-add-btn');
+    pdBtn.dataset.id = p.id;
+    pdBtn.disabled = unavailable;
+    pdBtn.textContent = unavailable ? (p.status === 'vendu' ? 'Vendu' : 'Réservé') : 'Ajouter au panier';
 
     const mainBox = document.getElementById('pd-main-image');
     const thumbsBox = document.getElementById('pd-thumbs');
@@ -1642,6 +1732,8 @@
     if(e.target.id === 'product-detail-overlay') e.currentTarget.classList.remove('open');
   });
   document.getElementById('pd-add-btn').addEventListener('click', async (e) => {
+    const p = productById(Number(e.target.dataset.id));
+    if(!p || p.status === 'vendu' || p.status === 'reserve') return;
     await addToCart(Number(e.target.dataset.id));
     e.target.textContent = 'Ajouté ✓';
     setTimeout(() => { e.target.textContent = 'Ajouter au panier'; }, 1200);
@@ -1823,8 +1915,26 @@
   });
 
   document.getElementById('validate-cart-btn').addEventListener('click', async () => {
-    const cart = await getCart();
+    let cart = await getCart();
     if(cart.length === 0){ showToast('Votre panier est vide.'); return; }
+
+    const unavailableNames = [];
+    const stillOk = cart.filter(l => {
+      const p = productById(l.productId);
+      if(!p || p.status === 'vendu' || p.status === 'reserve'){
+        if(p) unavailableNames.push(p.name);
+        return false;
+      }
+      return true;
+    });
+    if(unavailableNames.length){
+      cart = stillOk;
+      await setCart(cart);
+      await refreshCartUI();
+      showToast(`Retiré du panier (indisponible) : ${unavailableNames.join(', ')}`);
+      if(cart.length === 0) return;
+    }
+
     if(!currentUser){
       document.getElementById('cart-overlay').classList.remove('open');
       openAccountModal();
@@ -1839,10 +1949,20 @@
     let total = subtotal;
     let couponLabel = '';
     if(appliedCoupon){
-      total = appliedCoupon.type === 'percent'
-        ? Math.round(subtotal * (1 - appliedCoupon.value/100))
-        : Math.max(0, subtotal - appliedCoupon.value);
-      couponLabel = `${appliedCoupon.code} (${appliedCoupon.type === 'percent' ? '-' + appliedCoupon.value + '%' : '-' + fmt(appliedCoupon.value)})`;
+      const freshCoupons = await loadCoupons();
+      const freshCoupon = freshCoupons.find(c => c.code === appliedCoupon.code);
+      const exhausted = freshCoupon && freshCoupon.maxUses && (freshCoupon.usedCount || 0) >= freshCoupon.maxUses;
+      if(!freshCoupon || !freshCoupon.active || exhausted){
+        appliedCoupon = null;
+        showToast('Le coupon appliqué n\'est plus valide, il a été retiré de la commande.');
+      } else {
+        total = freshCoupon.type === 'percent'
+          ? Math.round(subtotal * (1 - freshCoupon.value/100))
+          : Math.max(0, subtotal - freshCoupon.value);
+        couponLabel = `${freshCoupon.code} (${freshCoupon.type === 'percent' ? '-' + freshCoupon.value + '%' : '-' + fmt(freshCoupon.value)})`;
+        freshCoupon.usedCount = (freshCoupon.usedCount || 0) + 1;
+        await saveCoupons(freshCoupons);
+      }
     }
     const order = {
       id: 'CMD-' + Date.now().toString().slice(-8),
@@ -1873,6 +1993,16 @@
       items.map(i => `&nbsp;&nbsp;• ${i.qty} × ${i.name} — ${fmt(i.price)}`).join('<br>') +
       (couponLabel ? `<br><br><b>Coupon :</b> ${couponLabel}<br><b>Sous-total :</b> ${fmt(subtotal)}` : '') +
       `<br><br><b>Total :</b> ${fmt(total)}`;
+    document.getElementById('client-email-preview').innerHTML =
+      `<b>À :</b> ${esc(order.userEmail)}<br>` +
+      `<b>Objet :</b> Confirmation de votre commande ${order.id}<br><br>` +
+      `Bonjour ${esc(order.userName.split(' ')[0])},<br><br>` +
+      `Nous avons bien reçu votre demande de commande. Voici le récapitulatif :<br><br>` +
+      items.map(i => `&nbsp;&nbsp;• ${i.qty} × ${esc(i.name)} — ${fmt(i.price)}`).join('<br>') +
+      (couponLabel ? `<br><br><b>Coupon :</b> ${esc(couponLabel)}<br><b>Sous-total :</b> ${fmt(subtotal)}` : '') +
+      `<br><br><b>Total :</b> ${fmt(total)}<br><br>` +
+      `Un conseiller vous recontactera prochainement pour finaliser la vente. Vous pouvez suivre le statut de cette commande à tout moment depuis votre espace "Mon compte".<br><br>` +
+      `— L'équipe ${esc(siteConfig.logoText || 'AgriMarket')}`;
     document.getElementById('confirm-order-overlay').classList.add('open');
   });
 
@@ -2075,7 +2205,7 @@
     if(currentUser){
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        <span class="btn-label">${currentUser.name.split(' ')[0]}</span>
+        <span class="btn-label">${esc(currentUser.name.split(' ')[0])}</span>
       `;
       document.getElementById('account-name').textContent = currentUser.name;
       document.getElementById('account-email').textContent = currentUser.email;
@@ -2282,13 +2412,13 @@
   /* ---- ARTICLES ---- */
   async function renderAdminProducts(){
     const table = document.getElementById('products-table');
-    let rows = `<div class="dt-row dt-head"><span>Article</span><span>Catégorie</span><span>Prix</span><span>État</span><span></span></div>`;
+    let rows = `<div class="dt-row dt-head" style="grid-template-columns:2fr 0.9fr 0.9fr 0.9fr 0.9fr auto;"><span>Article</span><span>Catégorie</span><span>Prix</span><span>État</span><span>Dispo.</span><span></span></div>`;
     if(products.length === 0){
       table.innerHTML = rows + `<div class="dt-empty">Aucun article. Ajoutez-en un pour commencer.</div>`;
       return;
     }
     rows += products.map(p => `
-      <div class="dt-row">
+      <div class="dt-row" style="grid-template-columns:2fr 0.9fr 0.9fr 0.9fr 0.9fr auto;">
         <span class="dt-name" style="display:flex; align-items:center; gap:10px;">
           <span style="width:44px;height:32px;flex-shrink:0;border-radius:2px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;">
             ${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : `<span style="font-size:0.55rem;color:var(--text-mute);font-family:'IBM Plex Mono';">—</span>`}
@@ -2298,6 +2428,7 @@
         <span>${p.cat}</span>
         <span>${p.old ? `<s style="color:var(--text-mute)">${fmt(p.old)}</s><br>` : ''}${fmt(p.price)}</span>
         <span><span class="pill ${p.state==='NEUF'?'on':''}">${p.state}</span></span>
+        <span><span class="pill ${p.status==='vendu'?'off':(p.status==='reserve'?'':'on')}">${p.status==='vendu'?'Vendu':(p.status==='reserve'?'Réservé':'Disponible')}</span></span>
         <span class="dt-actions">
           <button class="dt-btn" data-action="edit-product" data-id="${p.id}">Modifier</button>
           <button class="dt-btn danger" data-action="delete-product" data-id="${p.id}">Retirer</button>
@@ -2397,6 +2528,7 @@
       document.getElementById('pf-name').value = p.name;
       document.getElementById('pf-cat').value = p.cat;
       document.getElementById('pf-state').value = p.state;
+      document.getElementById('pf-status').value = p.status || 'disponible';
       document.getElementById('pf-power').value = p.spec.p;
       document.getElementById('pf-year').value = p.spec.a;
       document.getElementById('pf-usage').value = p.spec.h;
@@ -2426,6 +2558,7 @@
       cat: document.getElementById('pf-cat').value,
       name: document.getElementById('pf-name').value.trim(),
       state: document.getElementById('pf-state').value,
+      status: document.getElementById('pf-status').value,
       spec: {
         p: document.getElementById('pf-power').value.trim() || '—',
         a: document.getElementById('pf-year').value.trim() || '—',
@@ -2526,10 +2659,14 @@
     }
     rows += coupons.map(c => `
       <div class="dt-row">
-        <span class="dt-name mono">${c.code}</span>
+        <span class="dt-name mono">${esc(c.code)}</span>
         <span>${c.type === 'percent' ? 'Pourcentage' : 'Montant fixe'}</span>
         <span>${c.type === 'percent' ? c.value + ' %' : fmt(c.value)}</span>
-        <span><span class="pill ${c.active ? 'on' : 'off'}">${c.active ? 'Actif' : 'Inactif'}</span>${c.expiresAt ? `<br><span class="dt-sub">exp. ${c.expiresAt}</span>` : ''}</span>
+        <span>
+          <span class="pill ${c.active ? 'on' : 'off'}">${c.active ? 'Actif' : 'Inactif'}</span>
+          ${c.expiresAt ? `<br><span class="dt-sub">exp. ${c.expiresAt}</span>` : ''}
+          <br><span class="dt-sub">${c.usedCount || 0}${c.maxUses ? ' / ' + c.maxUses : ''} utilisation(s)</span>
+        </span>
         <span class="dt-actions">
           <button class="dt-btn" data-action="toggle-coupon" data-code="${c.code}">${c.active ? 'Désactiver' : 'Activer'}</button>
           <button class="dt-btn danger" data-action="delete-coupon" data-code="${c.code}">Supprimer</button>
@@ -2569,10 +2706,12 @@
     const type = document.getElementById('coupon-type').value;
     const value = Number(document.getElementById('coupon-value').value);
     const expiresAt = document.getElementById('coupon-expiry').value || null;
+    const maxUsesRaw = document.getElementById('coupon-max-uses').value;
+    const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
     if(!code || !value){ showToast('Merci de remplir le code et la valeur.'); return; }
     const list = await loadCoupons();
     if(list.some(c => c.code === code)){ showToast('Ce code existe déjà.'); return; }
-    list.push({ code, type, value, expiresAt, active: true });
+    list.push({ code, type, value, expiresAt, maxUses, usedCount: 0, active: true });
     await saveCoupons(list);
     e.target.reset();
     await renderAdminCoupons();
@@ -2941,9 +3080,10 @@
     const list = await loadCoupons();
     const c = list.find(x => x.code === code);
     const today = new Date().toISOString().slice(0,10);
-    if(!c || !c.active || (c.expiresAt && c.expiresAt < today)){
+    const exhausted = c && c.maxUses && (c.usedCount || 0) >= c.maxUses;
+    if(!c || !c.active || (c.expiresAt && c.expiresAt < today) || exhausted){
       appliedCoupon = null;
-      feedback.textContent = 'Code invalide ou expiré.';
+      feedback.textContent = exhausted ? 'Ce coupon a atteint sa limite d\'utilisation.' : 'Code invalide ou expiré.';
       feedback.style.color = '#ff9070';
     } else {
       appliedCoupon = c;
