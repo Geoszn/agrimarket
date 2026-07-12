@@ -491,6 +491,33 @@
 
   /* confirmation after order */
   .confirm-order{max-width:460px; text-align:left;}
+
+  /* ===== FICHE DÉTAIL PRODUIT ===== */
+  .pd-modal{max-width:840px; padding:28px;}
+  .pd-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px;}
+  .pd-gallery{display:flex; flex-direction:column; gap:10px;}
+  .pd-main-image{
+    aspect-ratio:4/3; border-radius:4px; overflow:hidden; border:1px solid var(--line);
+    background:linear-gradient(155deg, #2b3136, #1b1f22);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .pd-main-image img{width:100%; height:100%; object-fit:cover;}
+  .pd-main-image svg{width:56%; height:56%; opacity:0.9;}
+  .pd-thumbs{display:flex; gap:8px; flex-wrap:wrap;}
+  .pd-thumb{
+    width:56px; height:44px; border-radius:3px; overflow:hidden; cursor:pointer;
+    border:1px solid var(--line); opacity:0.65; transition:.15s; flex-shrink:0;
+  }
+  .pd-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .pd-thumb:hover{opacity:0.9;}
+  .pd-thumb.active{opacity:1; border-color:var(--accent);}
+  .pd-info{display:flex; flex-direction:column; gap:14px;}
+  .pd-info h2{font-size:1.5rem; line-height:1.15;}
+  .pd-description{color:var(--text-mute); font-size:0.9rem; line-height:1.6; white-space:pre-line;}
+  @media (max-width:700px){
+    .pd-grid{grid-template-columns:1fr; gap:20px;}
+    .pd-modal{padding:20px;}
+  }
   .confirm-order .check{
     width:52px; height:52px; border-radius:50%; background:rgba(90,180,90,0.15); border:1px solid #3a5a3a;
     display:flex; align-items:center; justify-content:center; margin-bottom:16px;
@@ -567,11 +594,45 @@
   }
 
   .dash-form{max-width:640px;}
+  .pf-img-thumb{
+    position:relative; width:76px; height:58px; border-radius:3px; overflow:hidden;
+    border:1px solid var(--line); background:var(--bg); flex-shrink:0;
+  }
+  .pf-img-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .pf-img-thumb.is-main{border-color:var(--accent); box-shadow:0 0 0 2px rgba(232,89,12,0.35);}
+  .pf-img-remove{
+    position:absolute; top:2px; right:2px; width:17px; height:17px; border-radius:50%;
+    background:rgba(10,12,13,0.75); color:#fff; font-size:11px; line-height:17px; text-align:center;
+    border:none; cursor:pointer; padding:0;
+  }
+  .pf-img-remove:hover{background:#ff6b6b; color:#14171a;}
+  .pf-img-main-tag{
+    position:absolute; bottom:2px; left:2px; background:var(--accent); color:#14171a;
+    font-size:0.55rem; padding:1px 5px; border-radius:2px; font-family:'IBM Plex Mono'; font-weight:600;
+  }
+  .pf-img-set-main{
+    position:absolute; bottom:2px; left:2px; background:rgba(10,12,13,0.75); color:#fff;
+    font-size:0.55rem; padding:1px 6px; border-radius:2px; border:none; cursor:pointer;
+  }
+  .pf-img-set-main:hover{background:var(--accent); color:#14171a;}
   .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;}
   .form-grid .field select{
     width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
     padding:11px 13px; border-radius:2px; font-family:'Barlow'; font-size:0.92rem;
   }
+  .dash-textarea{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:12px 14px; border-radius:2px; font-family:'Barlow'; font-size:0.9rem;
+    line-height:1.6; resize:vertical;
+  }
+  .dash-textarea:focus{border-color:var(--accent);}
+
+  /* ===== PAGE LÉGALE (vue publique) ===== */
+  .legal-modal{max-width:640px; max-height:80vh; overflow-y:auto;}
+  .legal-modal .legal-body{color:var(--text-mute); font-size:0.92rem; line-height:1.75;}
+  .legal-modal .legal-body p{margin-bottom:14px;}
+  .footer-bottom a{color:var(--text-mute); cursor:pointer; background:none; border:none; font:inherit; padding:0;}
+  .footer-bottom a:hover{color:var(--accent-2);}
 
   .promo-tool{
     display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;
@@ -859,15 +920,20 @@
       <div>
         <h5>Contact</h5>
         <ul>
-          <li>contact@agrimarket.fr</li>
-          <li>+33 1 23 45 67 89</li>
-          <li>Lun–Ven, 8h–18h</li>
+          <li id="contact-email-display">contact@agrimarket.fr</li>
+          <li id="contact-phone-display">+33 1 23 45 67 89</li>
+          <li id="contact-hours-display">Lun–Ven, 8h–18h</li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <span>© 2026 AgriMarket. Tous droits réservés.</span>
-      <span>Mentions légales · Conditions générales de vente · Confidentialité</span>
+      <span>
+        <a data-legal="about">À propos</a> ·
+        <a data-legal="cgu">CGU</a> ·
+        <a data-legal="privacy">Confidentialité</a> ·
+        <a data-legal="cookies">Cookies</a>
+      </span>
     </div>
   </div>
 </footer>
@@ -881,7 +947,7 @@
 
     <!-- non connecté -->
     <div id="auth-block">
-      <div class="tabs">
+      <div class="tabs" id="auth-tabs">
         <button class="tab-btn active" data-tab="login">Connexion</button>
         <button class="tab-btn" data-tab="register">Créer un compte</button>
       </div>
@@ -893,6 +959,18 @@
         <div class="field"><label>Email</label><input type="email" id="login-email" required></div>
         <div class="field"><label>Mot de passe</label><input type="password" id="login-password" required></div>
         <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+        <a href="#" id="forgot-password-link" style="align-self:flex-end; font-size:0.78rem; color:var(--text-mute); text-decoration:underline; margin-top:-4px;">Mot de passe oublié ?</a>
+      </form>
+
+      <form class="form-view" id="forgot-form">
+        <h3>Réinitialiser le mot de passe</h3>
+        <p class="sub">Renseigne ton email et choisis un nouveau mot de passe.</p>
+        <div class="form-error" id="forgot-error"></div>
+        <div class="field"><label>Email</label><input type="email" id="forgot-email" required></div>
+        <div class="field"><label>Nouveau mot de passe</label><input type="password" id="forgot-password" required minlength="4"></div>
+        <div class="field"><label>Confirmer le nouveau mot de passe</label><input type="password" id="forgot-password-confirm" required minlength="4"></div>
+        <button type="submit" class="btn btn-primary btn-block">Réinitialiser</button>
+        <a href="#" id="back-to-login-link" style="align-self:center; font-size:0.78rem; color:var(--text-mute); text-decoration:underline;">Retour à la connexion</a>
       </form>
 
       <form class="form-view" id="register-form">
@@ -902,6 +980,7 @@
         <div class="field"><label>Nom complet</label><input type="text" id="register-name" required></div>
         <div class="field"><label>Email</label><input type="email" id="register-email" required></div>
         <div class="field"><label>Mot de passe</label><input type="password" id="register-password" required minlength="4"></div>
+        <div class="field"><label>Confirmer le mot de passe</label><input type="password" id="register-password-confirm" required minlength="4"></div>
         <button type="submit" class="btn btn-primary btn-block">Créer mon compte</button>
       </form>
     </div>
@@ -981,6 +1060,31 @@
   </div>
 </div>
 
+<!-- ===== FICHE DÉTAIL PRODUIT ===== -->
+<div class="overlay" id="product-detail-overlay">
+  <div class="modal pd-modal">
+    <button class="modal-close" id="product-detail-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="pd-grid">
+      <div class="pd-gallery">
+        <div class="pd-main-image" id="pd-main-image"></div>
+        <div class="pd-thumbs" id="pd-thumbs"></div>
+      </div>
+      <div class="pd-info">
+        <div class="cat-tag" id="pd-cat"></div>
+        <h2 id="pd-name"></h2>
+        <div class="spec-row" id="pd-specs"></div>
+        <p class="pd-description" id="pd-description"></p>
+        <div class="price-row" style="margin-top:auto;">
+          <div class="price" id="pd-price"></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="pd-add-btn">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ===== DASHBOARD ADMIN ===== -->
@@ -1019,8 +1123,13 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20 5 5 0 0 0 0-10h5"/></svg>
           Apparence
         </button>
+        <button class="dash-nav-btn" data-panel="pages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+          Pages légales
+        </button>
       </nav>
       <button class="btn btn-ghost btn-block" id="dashboard-exit" style="margin-top:auto;">Quitter le dashboard</button>
+      <button class="btn-danger" id="dashboard-logout" style="width:100%; margin-top:8px;">Se déconnecter</button>
     </aside>
 
     <div class="dash-main">
@@ -1065,20 +1174,21 @@
             <div class="field"><label>Prix (€) *</label><input type="number" id="pf-price" min="0" required></div>
             <div class="field"><label>Ancien prix — laisser vide si pas de promo</label><input type="number" id="pf-old" min="0"></div>
             <div class="field" style="grid-column:1/-1;">
-              <label>Photo de l'article</label>
+              <label>Description de l'article</label>
+              <textarea id="pf-description" rows="4" placeholder="État général, options, historique d'entretien, points forts…" style="width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:11px 13px; border-radius:2px; font-family:'Barlow'; font-size:0.92rem; resize:vertical;"></textarea>
+            </div>
+            <div class="field" style="grid-column:1/-1;">
+              <label>Photos de l'article (jusqu'à 6 — la première est la photo principale)</label>
+              <div id="pf-images-grid" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;"></div>
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <input type="url" id="pf-image" placeholder="https://exemple.com/photo-tracteur.jpg" style="flex:1; min-width:220px;">
+                <input type="url" id="pf-image-url-input" placeholder="https://exemple.com/photo.jpg" style="flex:1; min-width:200px; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:11px 13px; border-radius:2px;">
+                <button type="button" class="btn btn-ghost" id="pf-add-image-url">Ajouter le lien</button>
                 <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap;">
-                  Téléverser depuis l'appareil
-                  <input type="file" id="pf-image-file" accept="image/*" style="display:none;">
+                  Téléverser
+                  <input type="file" id="pf-image-file" accept="image/*" multiple style="display:none;">
                 </label>
               </div>
-              <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
-                <div id="pf-image-preview" style="width:90px; height:60px; border:1px solid var(--line); border-radius:3px; background:var(--bg); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                  <span style="color:var(--text-mute); font-size:0.65rem; font-family:'IBM Plex Mono';">Aperçu</span>
-                </div>
-                <span style="color:var(--text-mute); font-size:0.76rem;" id="pf-image-status">Lien ou fichier — laissez vide pour l'icône par défaut de la catégorie.</span>
-              </div>
+              <p class="dash-hint" id="pf-image-status" style="margin-top:8px; margin-bottom:0;">Aucune photo — l'icône par défaut de la catégorie sera utilisée.</p>
             </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">Enregistrer l'article</button>
@@ -1148,14 +1258,32 @@
       <!-- APPARENCE -->
       <section class="dash-panel" id="panel-appearance">
         <div class="dash-panel-head">
-          <div><h2>Apparence du site</h2><p>Logo et bannières affichées sur la page d'accueil.</p></div>
+          <div><h2>Apparence du site</h2><p>Logo, coordonnées de contact et bannières affichées sur le site.</p></div>
         </div>
 
         <h3 class="dash-subhead">Logo</h3>
         <form class="promo-tool" id="logo-form">
           <div class="field" style="flex:2;"><label>Texte du logo</label><input type="text" id="logo-text-input" placeholder="ex : AGRI MARKET"></div>
-          <div class="field" style="flex:2;"><label>Image du logo (URL, optionnel)</label><input type="url" id="logo-image-input" placeholder="https://…"></div>
+          <div class="field" style="flex:2;">
+            <label>Image du logo (optionnel)</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="logo-image-input" placeholder="https://…" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="logo-image-file" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
           <button type="submit" class="btn btn-primary">Mettre à jour le logo</button>
+        </form>
+
+        <h3 class="dash-subhead">Informations de contact</h3>
+        <p class="dash-hint">Affichées dans le pied de page du site et sur le récapitulatif de commande envoyé à l'équipe.</p>
+        <form class="promo-tool" id="contact-form">
+          <div class="field"><label>Email</label><input type="email" id="contact-email-input" placeholder="contact@agrimarket.fr"></div>
+          <div class="field"><label>Téléphone</label><input type="text" id="contact-phone-input" placeholder="+33 1 23 45 67 89"></div>
+          <div class="field"><label>Horaires</label><input type="text" id="contact-hours-input" placeholder="Lun–Ven, 8h–18h"></div>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
         </form>
 
         <h3 class="dash-subhead">Bandeau de texte défilant</h3>
@@ -1187,6 +1315,33 @@
         <p class="dash-hint" id="ab-limit-hint" style="display:none; color:#ff9070;">Limite de 5 bannières atteinte — supprimez-en une pour en ajouter une nouvelle.</p>
         <div class="dash-table" id="ad-banners-table"></div>
       </section>
+
+      <!-- PAGES LÉGALES -->
+      <section class="dash-panel" id="panel-pages">
+        <div class="dash-panel-head">
+          <div><h2>Pages légales</h2><p>Ces textes sont accessibles depuis le bas de page du site (footer).</p></div>
+        </div>
+        <form id="pages-form" style="display:flex; flex-direction:column; gap:26px; max-width:760px;">
+          <div class="field">
+            <label>À propos</label>
+            <textarea id="page-about" rows="6" class="dash-textarea"></textarea>
+          </div>
+          <div class="field">
+            <label>Conditions Générales d'Utilisation (CGU)</label>
+            <textarea id="page-cgu" rows="6" class="dash-textarea"></textarea>
+          </div>
+          <div class="field">
+            <label>Politique de confidentialité</label>
+            <textarea id="page-privacy" rows="6" class="dash-textarea"></textarea>
+          </div>
+          <div class="field">
+            <label>Gestion des cookies</label>
+            <textarea id="page-cookies" rows="6" class="dash-textarea"></textarea>
+          </div>
+          <p class="dash-hint">Laissez une ligne vide entre deux paragraphes pour les séparer sur la page publique.</p>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Enregistrer les pages</button>
+        </form>
+      </section>
     </div>
   </div>
 </div>
@@ -1206,6 +1361,17 @@
       <div class="field"><label>Email</label><input type="email" id="ec-email" required></div>
       <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
     </form>
+  </div>
+</div>
+
+<!-- ===== PAGE LÉGALE (vue publique) ===== -->
+<div class="overlay" id="legal-overlay">
+  <div class="modal legal-modal">
+    <button class="modal-close" id="legal-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3 id="legal-title">—</h3>
+    <div class="legal-body" id="legal-body" style="margin-top:18px;"></div>
   </div>
 </div>
 
@@ -1316,12 +1482,24 @@
 
   const mediaFor = (p, cls) => {
     if(p.image){
-      return `<img src="${p.image}" alt="${p.name}" class="${cls||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','${iconFor(p.cat).replace(/'/g, "\\'")}')">`;
+      return `<img src="${esc(p.image)}" alt="${esc(p.name)}" class="${cls||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','${iconFor(p.cat).replace(/'/g, "\\'")}')">`;
     }
     return iconFor(p.cat);
   };
 
   const fmt = (n) => n.toLocaleString('fr-FR') + ' €';
+
+  /* Échappe le texte saisi par les utilisateurs avant de l'insérer dans le HTML
+     (nom de compte, email, nom d'article...) pour éviter toute injection. */
+  function esc(str){
+    if(str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   const ORDER_STATUSES = ['reçu', 'en traitement', 'en livraison', 'livré', 'annulé', 'échoué'];
   function statusClass(status){
@@ -1372,6 +1550,8 @@
       .forEach(p => {
         const card = document.createElement('div');
         card.className = 'card reveal';
+        card.style.cursor = 'pointer';
+        card.dataset.id = p.id;
         card.innerHTML = `
           <div class="card-media">
             <span class="badge ${p.old ? 'promo' : ''}">${p.old ? 'PROMO' : p.state}</span>
@@ -1379,7 +1559,7 @@
           </div>
           <div class="card-body">
             <div class="cat-tag">${p.cat.toUpperCase()}</div>
-            <h3>${p.name}</h3>
+            <h3>${esc(p.name)}</h3>
             <div class="spec-row">
               <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
               <span>ANNÉE&nbsp;<b>${p.spec.a}</b></span>
@@ -1398,7 +1578,8 @@
       });
 
     grid.querySelectorAll('.add-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         await addToCart(Number(btn.dataset.id));
         btn.textContent = 'Ajouté ✓';
         btn.classList.add('added');
@@ -1406,8 +1587,65 @@
       });
     });
 
+    grid.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
+    });
+
     grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
   }
+
+  /* ---- Fiche détail produit ---- */
+  function openProductDetail(id){
+    const p = productById(id);
+    if(!p) return;
+    const images = (Array.isArray(p.images) && p.images.length) ? p.images : (p.image ? [p.image] : []);
+
+    document.getElementById('pd-cat').textContent = p.cat.toUpperCase() + (p.old ? ' · PROMO' : '');
+    document.getElementById('pd-name').textContent = p.name;
+    document.getElementById('pd-specs').innerHTML = `
+      <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
+      <span>ANNÉE&nbsp;<b>${p.spec.a}</b></span>
+      <span>USAGE&nbsp;<b>${p.spec.h}</b></span>
+      <span>ÉTAT&nbsp;<b>${p.state}</b></span>
+    `;
+    document.getElementById('pd-description').textContent = p.description && p.description.trim()
+      ? p.description
+      : 'Aucune description détaillée n\'a encore été renseignée pour cet article. Contactez-nous pour plus d\'informations.';
+    document.getElementById('pd-price').innerHTML = `
+      ${p.old ? `<span class="old-price">${fmt(p.old)}</span>` : ''}
+      ${fmt(p.price)}<br><small>Prix indicatif HT</small>
+    `;
+    document.getElementById('pd-add-btn').dataset.id = p.id;
+
+    const mainBox = document.getElementById('pd-main-image');
+    const thumbsBox = document.getElementById('pd-thumbs');
+    function showImage(i){
+      mainBox.innerHTML = images.length
+        ? `<img src="${esc(images[i])}" alt="${esc(p.name)}" onerror="this.style.display='none'">`
+        : iconFor(p.cat);
+      thumbsBox.querySelectorAll('.pd-thumb').forEach((t, ti) => t.classList.toggle('active', ti === i));
+    }
+    thumbsBox.innerHTML = images.length > 1
+      ? images.map((src, i) => `<div class="pd-thumb ${i===0?'active':''}" data-i="${i}"><img src="${src}" onerror="this.style.opacity=0.15"></div>`).join('')
+      : '';
+    thumbsBox.querySelectorAll('.pd-thumb').forEach(t => {
+      t.addEventListener('click', () => showImage(Number(t.dataset.i)));
+    });
+    showImage(0);
+
+    document.getElementById('product-detail-overlay').classList.add('open');
+  }
+  document.getElementById('product-detail-close').addEventListener('click', () => {
+    document.getElementById('product-detail-overlay').classList.remove('open');
+  });
+  document.getElementById('product-detail-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'product-detail-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('pd-add-btn').addEventListener('click', async (e) => {
+    await addToCart(Number(e.target.dataset.id));
+    e.target.textContent = 'Ajouté ✓';
+    setTimeout(() => { e.target.textContent = 'Ajouter au panier'; }, 1200);
+  });
 
   document.getElementById('filters').addEventListener('click', (e) => {
     if(!e.target.classList.contains('filter-btn')) return;
@@ -1543,7 +1781,7 @@
         <div class="cart-line">
           <div class="thumb">${mediaFor(p)}</div>
           <div class="cart-line-info">
-            <h5>${p.name}</h5>
+            <h5>${esc(p.name)}</h5>
             <span class="unit">${fmt(p.price)} / unité</span>
             <div class="qty-row">
               <button class="qty-btn" data-action="dec" data-id="${p.id}">−</button>
@@ -1628,7 +1866,7 @@
     document.getElementById('confirm-order-sub').textContent =
       `Commande ${order.id} enregistrée. Un conseiller AgriMarket vous recontacte sous 24h au sujet de ${currentUser.email}.`;
     document.getElementById('email-preview').innerHTML =
-      `<b>À :</b> contact@agrimarket.fr<br>` +
+      `<b>À :</b> ${siteConfig.contactEmail}<br>` +
       `<b>Objet :</b> Nouvelle commande ${order.id}<br><br>` +
       `<b>Client :</b> ${order.userName} (${order.userEmail})<br>` +
       `<b>Articles :</b><br>` +
@@ -1658,6 +1896,11 @@
     } else {
       document.getElementById('auth-block').style.display = 'block';
       document.getElementById('account-panel').classList.remove('active');
+      document.getElementById('auth-tabs').style.display = 'flex';
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+      document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+      document.getElementById('login-form').classList.add('active');
     }
   }
   document.getElementById('account-btn').addEventListener('click', openAccountModal);
@@ -1690,8 +1933,13 @@
     const name = document.getElementById('register-name').value.trim();
     const email = document.getElementById('register-email').value.trim().toLowerCase();
     const password = document.getElementById('register-password').value;
+    const passwordConfirm = document.getElementById('register-password-confirm').value;
     if(!name || !email || password.length < 4){
       showFormError('register-error', 'Merci de remplir tous les champs (mot de passe : 4 caractères min.).');
+      return;
+    }
+    if(password !== passwordConfirm){
+      showFormError('register-error', 'Les deux mots de passe ne correspondent pas.');
       return;
     }
     const users = await getUsers();
@@ -1708,6 +1956,51 @@
     await refreshAccountUI();
     openAccountModal();
     showToast(`Bienvenue, ${name.split(' ')[0]} !`);
+  });
+
+  /* ---- Mot de passe oublié ---- */
+  document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('auth-tabs').style.display = 'none';
+    document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+    document.getElementById('forgot-form').classList.add('active');
+    hideFormError('forgot-error');
+  });
+  document.getElementById('back-to-login-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('auth-tabs').style.display = 'flex';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+    document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+    document.getElementById('login-form').classList.add('active');
+  });
+  document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideFormError('forgot-error');
+    const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+    const pwd = document.getElementById('forgot-password').value;
+    const pwdConfirm = document.getElementById('forgot-password-confirm').value;
+    if(pwd.length < 4){
+      showFormError('forgot-error', 'Le mot de passe doit contenir au moins 4 caractères.');
+      return;
+    }
+    if(pwd !== pwdConfirm){
+      showFormError('forgot-error', 'Les deux mots de passe ne correspondent pas.');
+      return;
+    }
+    const users = await getUsers();
+    const user = users.find(u => u.email === email);
+    if(user){
+      user.password = pwd;
+      await setUsers(users);
+    }
+    document.getElementById('forgot-form').reset();
+    document.getElementById('auth-tabs').style.display = 'flex';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+    document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+    document.getElementById('login-form').classList.add('active');
+    showToast('Si un compte existe avec cet email, le mot de passe a été mis à jour.');
   });
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -1803,7 +2096,7 @@
 
       document.getElementById('auth-block').style.display = 'none';
       document.getElementById('account-panel').classList.add('active');
-      document.querySelector('.danger-zone').style.display = isAdmin ? 'none' : 'flex';
+      document.getElementById('delete-account-btn').style.display = isAdmin ? 'none' : 'block';
     } else {
       btn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
@@ -1853,17 +2146,40 @@
     {id:'b4', text:"FINANCEMENT DISPONIBLE", active:true},
     {id:'b5', text:"REPRISE DE VOTRE ANCIEN MATÉRIEL", active:true},
   ];
-  let siteConfig = { logoText: 'AGRI MARKET', logoImage: '', banners: DEFAULT_BANNERS, adBanners: [] };
+  const DEFAULT_PAGES = {
+    about: "AgriMarket connecte les professionnels de l'agriculture et du transport avec du matériel inspecté, neuf ou d'occasion.\n\nNotre équipe contrôle chaque véhicule avant sa mise en ligne et accompagne chaque client jusqu'à la finalisation de la vente.",
+    cgu: "En passant commande sur AgriMarket, vous acceptez que celle-ci constitue une demande d'information et non un achat ferme. Un conseiller vous recontacte pour finaliser les modalités (paiement, livraison, garantie).\n\nLes prix affichés sont indicatifs et hors taxes sauf mention contraire. AgriMarket se réserve le droit de modifier les prix et disponibilités à tout moment.",
+    privacy: "Les informations transmises via votre compte (nom, email, historique de commandes) sont utilisées uniquement pour traiter vos demandes et vous recontacter.\n\nElles ne sont ni vendues ni partagées avec des tiers à des fins commerciales. Vous pouvez demander la suppression de votre compte à tout moment depuis votre espace client.",
+    cookies: "Ce site utilise uniquement des données techniques nécessaires à son fonctionnement (connexion, panier), stockées sur votre appareil ou dans notre base sécurisée.\n\nAucun cookie publicitaire ou traceur tiers n'est utilisé à ce stade.",
+  };
+
+  let siteConfig = {
+    logoText: 'AGRI MARKET', logoImage: '', banners: DEFAULT_BANNERS, adBanners: [],
+    contactEmail: 'contact@agrimarket.fr', contactPhone: '+33 1 23 45 67 89', contactHours: 'Lun–Ven, 8h–18h',
+    pages: { ...DEFAULT_PAGES }
+  };
 
   function applySiteConfig(){
     const parts = siteConfig.logoText.trim().split(' ');
     const first = parts[0] || 'AGRI';
     const rest = parts.slice(1).join(' ') || 'MARKET';
-    const html = siteConfig.logoImage
-      ? `<img src="${siteConfig.logoImage}" alt="Logo" style="height:28px; object-fit:contain;">`
-      : `${first}<span>${rest}</span>`;
-    document.getElementById('logo-text').innerHTML = html;
-    document.getElementById('logo-text-footer').innerHTML = html;
+    const textHtml = `${first}<span>${rest}</span>`;
+    document.getElementById('logo-text').innerHTML = textHtml;
+    document.getElementById('logo-text-footer').innerHTML = textHtml;
+
+    document.querySelectorAll('.mark').forEach(el => {
+      if(siteConfig.logoImage){
+        el.style.backgroundImage = `url('${siteConfig.logoImage}')`;
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+      } else {
+        el.style.backgroundImage = '';
+      }
+    });
+
+    document.getElementById('contact-email-display').textContent = siteConfig.contactEmail;
+    document.getElementById('contact-phone-display').textContent = siteConfig.contactPhone;
+    document.getElementById('contact-hours-display').textContent = siteConfig.contactHours;
 
     const active = siteConfig.banners.filter(b => b.active);
     const items = active.length ? active : DEFAULT_BANNERS;
@@ -1946,6 +2262,13 @@
   document.getElementById('dashboard-exit').addEventListener('click', () => {
     document.getElementById('dashboard-overlay').classList.remove('open');
   });
+  document.getElementById('dashboard-logout').addEventListener('click', async () => {
+    currentUser = null;
+    await setSession(null);
+    document.getElementById('dashboard-overlay').classList.remove('open');
+    await refreshAccountUI();
+    showToast('Vous êtes déconnecté du compte administrateur.');
+  });
 
   document.querySelectorAll('.dash-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1970,7 +2293,7 @@
           <span style="width:44px;height:32px;flex-shrink:0;border-radius:2px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;">
             ${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : `<span style="font-size:0.55rem;color:var(--text-mute);font-family:'IBM Plex Mono';">—</span>`}
           </span>
-          <span>${p.name}<br><span class="dt-sub">${p.spec.p} · ${p.spec.a}</span></span>
+          <span>${esc(p.name)}<br><span class="dt-sub">${esc(p.spec.p)} · ${esc(p.spec.a)}</span></span>
         </span>
         <span>${p.cat}</span>
         <span>${p.old ? `<s style="color:var(--text-mute)">${fmt(p.old)}</s><br>` : ''}${fmt(p.price)}</span>
@@ -1998,6 +2321,69 @@
     });
   }
 
+  let pfImages = [];
+
+  function renderPfImagesGrid(){
+    const grid = document.getElementById('pf-images-grid');
+    const status = document.getElementById('pf-image-status');
+    if(pfImages.length === 0){
+      grid.innerHTML = '';
+      status.textContent = 'Aucune photo — l\'icône par défaut de la catégorie sera utilisée.';
+      return;
+    }
+    grid.innerHTML = pfImages.map((src, i) => `
+      <div class="pf-img-thumb ${i===0 ? 'is-main' : ''}">
+        <img src="${src}" onerror="this.style.opacity=0.15">
+        <button type="button" class="pf-img-remove" data-i="${i}" title="Retirer">×</button>
+        ${i===0
+          ? `<span class="pf-img-main-tag">Principale</span>`
+          : `<button type="button" class="pf-img-set-main" data-i="${i}">Définir principale</button>`}
+      </div>
+    `).join('');
+    status.textContent = `${pfImages.length} / 6 photo(s).`;
+
+    grid.querySelectorAll('.pf-img-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pfImages.splice(Number(btn.dataset.i), 1);
+        renderPfImagesGrid();
+      });
+    });
+    grid.querySelectorAll('.pf-img-set-main').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.i);
+        const [chosen] = pfImages.splice(i, 1);
+        pfImages.unshift(chosen);
+        renderPfImagesGrid();
+      });
+    });
+  }
+
+  document.getElementById('pf-add-image-url').addEventListener('click', () => {
+    const input = document.getElementById('pf-image-url-input');
+    const url = input.value.trim();
+    if(!url) return;
+    if(pfImages.length >= 6){ showToast('Maximum 6 photos par article.'); return; }
+    pfImages.push(url);
+    input.value = '';
+    renderPfImagesGrid();
+  });
+
+  document.getElementById('pf-image-file').addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if(!files.length) return;
+    const status = document.getElementById('pf-image-status');
+    for(const file of files){
+      if(pfImages.length >= 6){ showToast('Maximum 6 photos par article.'); break; }
+      status.textContent = 'Traitement de l\'image…';
+      try{
+        const dataUrl = await compressImageFile(file);
+        pfImages.push(dataUrl);
+      }catch(err){ /* fichier ignoré */ }
+    }
+    e.target.value = '';
+    renderPfImagesGrid();
+  });
+
   function openProductForm(id){
     document.querySelectorAll('.dash-nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
@@ -2016,35 +2402,16 @@
       document.getElementById('pf-usage').value = p.spec.h;
       document.getElementById('pf-price').value = p.price;
       document.getElementById('pf-old').value = p.old || '';
-      document.getElementById('pf-image').value = p.image || '';
-      updateImagePreview(p.image || '');
+      document.getElementById('pf-description').value = p.description || '';
+      pfImages = Array.isArray(p.images) && p.images.length ? [...p.images] : (p.image ? [p.image] : []);
     } else {
       document.getElementById('product-form-title').textContent = 'Nouvel article';
       document.getElementById('pf-id').value = '';
-      updateImagePreview('');
+      pfImages = [];
     }
+    renderPfImagesGrid();
   }
-  function updateImagePreview(url){
-    const box = document.getElementById('pf-image-preview');
-    box.innerHTML = url
-      ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=color:#ff9070;font-size:0.65rem;font-family:IBM Plex Mono>Image invalide</span>'">`
-      : `<span style="color:var(--text-mute); font-size:0.65rem; font-family:'IBM Plex Mono';">Aperçu</span>`;
-  }
-  document.getElementById('pf-image').addEventListener('input', (e) => updateImagePreview(e.target.value.trim()));
-  document.getElementById('pf-image-file').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const status = document.getElementById('pf-image-status');
-    status.textContent = 'Traitement de l\'image…';
-    try{
-      const dataUrl = await compressImageFile(file);
-      document.getElementById('pf-image').value = dataUrl;
-      updateImagePreview(dataUrl);
-      status.textContent = 'Image chargée depuis l\'appareil ✓';
-    }catch(err){
-      status.textContent = 'Impossible de lire ce fichier, réessayez.';
-    }
-  });
+
   document.getElementById('new-product-btn').addEventListener('click', () => openProductForm(null));
   document.getElementById('cancel-product-form').addEventListener('click', () => {
     document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
@@ -2066,7 +2433,9 @@
       },
       price: Number(document.getElementById('pf-price').value),
       old: document.getElementById('pf-old').value ? Number(document.getElementById('pf-old').value) : null,
-      image: document.getElementById('pf-image').value.trim(),
+      description: document.getElementById('pf-description').value.trim(),
+      images: pfImages.slice(0, 6),
+      image: pfImages[0] || '',
     };
     if(id){
       const p = products.find(x => x.id === Number(id));
@@ -2100,7 +2469,7 @@
       const pct = Math.round((1 - p.price / p.old) * 100);
       return `
         <div class="dt-row">
-          <span class="dt-name">${p.name}</span>
+          <span class="dt-name">${esc(p.name)}</span>
           <span>${fmt(p.price)}</span>
           <span><s style="color:var(--text-mute)">${fmt(p.old)}</s></span>
           <span><span class="pill on">-${pct}%</span></span>
@@ -2222,7 +2591,7 @@
     rows += orders.map(o => `
       <div class="dt-row" style="grid-template-columns:1.6fr 1.6fr 1fr 1fr 1.3fr;">
         <span class="dt-name mono">${o.id}<br><span class="dt-sub">${new Date(o.createdAt).toLocaleDateString('fr-FR')}</span></span>
-        <span>${o.userName}<br><span class="dt-sub">${o.userEmail}</span></span>
+        <span>${esc(o.userName)}<br><span class="dt-sub">${esc(o.userEmail)}</span></span>
         <span>${o.items.length} article(s)</span>
         <span>${fmt(o.total)}</span>
         <span>
@@ -2249,6 +2618,13 @@
   function renderAppearanceForm(){
     document.getElementById('logo-text-input').value = siteConfig.logoText;
     document.getElementById('logo-image-input').value = siteConfig.logoImage;
+    document.getElementById('contact-email-input').value = siteConfig.contactEmail;
+    document.getElementById('contact-phone-input').value = siteConfig.contactPhone;
+    document.getElementById('contact-hours-input').value = siteConfig.contactHours;
+    document.getElementById('page-about').value = siteConfig.pages.about;
+    document.getElementById('page-cgu').value = siteConfig.pages.cgu;
+    document.getElementById('page-privacy').value = siteConfig.pages.privacy;
+    document.getElementById('page-cookies').value = siteConfig.pages.cookies;
     const table = document.getElementById('banners-table');
     if(siteConfig.banners.length === 0){
       table.innerHTML = `<div class="dt-empty">Aucune bannière — le texte par défaut s'affiche.</div>`;
@@ -2291,6 +2667,61 @@
     await saveSite(siteConfig);
     applySiteConfig();
     showToast('Logo mis à jour.');
+  });
+
+  document.getElementById('logo-image-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await compressImageFile(file, 500, 0.8);
+      document.getElementById('logo-image-input').value = dataUrl;
+      showToast('Logo chargé — clique "Mettre à jour le logo" pour l\'appliquer.');
+    }catch(err){
+      showToast('Impossible de lire ce fichier.');
+    }
+  });
+
+  document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.contactEmail = document.getElementById('contact-email-input').value.trim() || 'contact@agrimarket.fr';
+    siteConfig.contactPhone = document.getElementById('contact-phone-input').value.trim();
+    siteConfig.contactHours = document.getElementById('contact-hours-input').value.trim();
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast('Informations de contact mises à jour.');
+  });
+
+  document.getElementById('pages-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.pages = {
+      about: document.getElementById('page-about').value.trim(),
+      cgu: document.getElementById('page-cgu').value.trim(),
+      privacy: document.getElementById('page-privacy').value.trim(),
+      cookies: document.getElementById('page-cookies').value.trim(),
+    };
+    await saveSite(siteConfig);
+    showToast('Pages légales mises à jour.');
+  });
+
+  /* ---- Vue publique des pages légales ---- */
+  const LEGAL_TITLES = { about: 'À propos', cgu: "Conditions Générales d'Utilisation", privacy: 'Politique de confidentialité', cookies: 'Gestion des cookies' };
+  function openLegalPage(key){
+    const text = (siteConfig.pages && siteConfig.pages[key]) || DEFAULT_PAGES[key] || '';
+    document.getElementById('legal-title').textContent = LEGAL_TITLES[key] || 'Informations';
+    document.getElementById('legal-body').innerHTML = text
+      .split(/\n\s*\n/)
+      .map(p => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
+      .join('');
+    document.getElementById('legal-overlay').classList.add('open');
+  }
+  document.querySelectorAll('[data-legal]').forEach(a => {
+    a.addEventListener('click', () => openLegalPage(a.dataset.legal));
+  });
+  document.getElementById('legal-close').addEventListener('click', () => {
+    document.getElementById('legal-overlay').classList.remove('open');
+  });
+  document.getElementById('legal-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'legal-overlay') e.currentTarget.classList.remove('open');
   });
 
   document.getElementById('banner-form').addEventListener('submit', async (e) => {
@@ -2429,8 +2860,8 @@
     table.innerHTML = `<div class="dt-row dt-head"><span>Nom</span><span>Email</span><span>Inscrit le</span><span>Statut</span><span></span></div>` +
       users.map(u => `
         <div class="dt-row">
-          <span class="dt-name">${u.name}</span>
-          <span class="dt-sub">${u.email}</span>
+          <span class="dt-name">${esc(u.name)}</span>
+          <span class="dt-sub">${esc(u.email)}</span>
           <span class="dt-sub">${new Date(u.createdAt).toLocaleDateString('fr-FR')}</span>
           <span><span class="pill ${u.blocked ? 'off' : 'on'}">${u.blocked ? 'Bloqué' : 'Actif'}</span></span>
           <span class="dt-actions">
@@ -2526,7 +2957,8 @@
   (async function init(){
     await loadProducts();
     const site = await loadSite();
-    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', banners: DEFAULT_BANNERS, adBanners: [], ...site };
+    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
+    siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
     if(!Array.isArray(siteConfig.adBanners)) siteConfig.adBanners = [];
     applySiteConfig();
     renderCatalog('all');
