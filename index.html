@@ -179,7 +179,8 @@
   .btn{
     font-family:'Oswald'; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
     font-size:0.9rem; padding:15px 30px; border-radius:var(--radius);
-    border:1px solid transparent; transition:.15s;
+    border:1px solid transparent; transition:.15s; background:none; color:var(--text);
+    appearance:none; -webkit-appearance:none;
     display:inline-flex; align-items:center; gap:10px;
   }
   .btn-primary{background:var(--accent); color:#14171a;}
@@ -187,7 +188,7 @@
   .btn:active{transform:translateY(0) scale(0.98);}
   .btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed; transform:none; box-shadow:none;}
   .btn:disabled:hover{background:var(--surface); transform:none; box-shadow:none;}
-  .btn-ghost{border-color:var(--line); color:var(--text);}
+  .btn-ghost{background:transparent; border-color:var(--line); color:var(--text);}
   .btn-ghost:hover{border-color:var(--text-mute); background:rgba(255,255,255,0.03); transform:translateY(-1px);}
   .stat-row{display:flex; gap:36px; flex-wrap:wrap;}
   .stat b{
@@ -586,7 +587,7 @@
     border-radius:2px; font-size:0.9rem; line-height:1; display:flex; align-items:center; justify-content:center;
   }
   .qty-btn:hover{border-color:var(--accent);}
-  .remove-line{color:#ff9070; font-size:0.72rem; font-family:'IBM Plex Mono'; align-self:flex-start; margin-left:auto;}
+  .remove-line{background:none; border:none; cursor:pointer; color:#ff9070; font-size:0.72rem; font-family:'IBM Plex Mono'; align-self:flex-start; margin-left:auto;}
   .cart-empty{color:var(--text-mute); text-align:center; padding:60px 0; font-size:0.9rem;}
   .drawer-footer{border-top:1px solid var(--line); padding:20px 24px 24px; display:flex; flex-direction:column; gap:14px;}
   .total-row{display:flex; justify-content:space-between; align-items:baseline;}
@@ -595,7 +596,56 @@
   .drawer-note{font-size:0.72rem; color:var(--text-mute); line-height:1.4;}
 
   /* confirmation after order */
-  .confirm-order{max-width:460px; text-align:left;}
+  .confirm-order{max-width:480px; text-align:left; padding:0; overflow:hidden;}
+  .co-hero{
+    padding:32px 28px 22px; text-align:center;
+    background:linear-gradient(180deg, rgba(90,180,90,0.08), transparent);
+    border-bottom:1px solid var(--line);
+  }
+  .co-check{
+    width:64px; height:64px; border-radius:50%; background:rgba(90,180,90,0.15); border:1px solid #3a5a3a;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+    animation: coCheckPop .45s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  @keyframes coCheckPop{ from{transform:scale(0.5); opacity:0;} to{transform:scale(1); opacity:1;} }
+  .co-hero h3{font-size:1.3rem; margin-bottom:6px;}
+  .co-hero .sub{color:var(--text-mute); font-size:0.86rem; margin-bottom:16px; line-height:1.5;}
+  .co-ref{
+    display:inline-block; font-family:'IBM Plex Mono'; font-size:0.76rem; color:var(--text-mute);
+    background:var(--bg); border:1px dashed var(--line); border-radius:4px; padding:7px 16px;
+  }
+  .co-ref b{color:var(--accent-2); letter-spacing:0.03em; font-size:0.82rem;}
+
+  .co-steps{padding:20px 28px; display:flex; flex-direction:column; gap:13px; border-bottom:1px solid var(--line);}
+  .co-step{display:flex; align-items:center; gap:12px; font-size:0.84rem; color:var(--text-mute);}
+  .co-step-num{
+    width:22px; height:22px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-size:0.7rem;
+    color:var(--accent-2); flex-shrink:0;
+  }
+
+  .co-summary{padding:20px 28px; border-bottom:1px solid var(--line);}
+  .co-summary-head{font-family:'Oswald'; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-mute); margin-bottom:10px;}
+  .co-item-row{display:flex; justify-content:space-between; gap:10px; font-size:0.85rem; padding:7px 0; border-bottom:1px dashed var(--line);}
+  .co-item-row:last-of-type{border-bottom:none;}
+  .co-summary-row{display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-mute); padding-top:10px;}
+  .co-total-row{
+    display:flex; justify-content:space-between; align-items:baseline; font-family:'Oswald';
+    font-size:1.2rem; font-weight:700; padding-top:12px; margin-top:6px; border-top:1px solid var(--line);
+  }
+  .co-total-row span:last-child{color:var(--accent-2);}
+
+  .co-email-toggle{
+    display:flex; align-items:center; justify-content:center; gap:6px; width:100%; background:none; border:none;
+    color:var(--text-mute); font-size:0.78rem; padding:14px 28px; cursor:pointer;
+  }
+  .co-email-toggle:hover{color:var(--text);}
+  .co-email-toggle svg{transition:transform .2s;}
+  .co-email-toggle.open svg{transform:rotate(180deg);}
+  .co-email-details{padding:0 28px 20px;}
+
+  .co-actions{display:flex; gap:10px; padding:20px 28px 28px; border-top:1px solid var(--line);}
+  .co-actions .btn{flex:1; justify-content:center;}
 
   /* ===== FICHE DÉTAIL PRODUIT ===== */
   .pd-modal{max-width:900px; padding:28px; max-height:88vh; overflow-y:auto;}
@@ -657,8 +707,8 @@
   .review-item .rv-date{color:var(--text-mute); font-size:0.72rem; font-family:'IBM Plex Mono';}
   .review-item p{color:var(--text-mute); font-size:0.86rem; margin-top:8px; line-height:1.5;}
   .review-form{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:18px;}
-  .star-picker{display:flex; gap:6px; margin-bottom:14px;}
-  .star-picker button{background:none; border:none; font-size:1.5rem; color:var(--line); cursor:pointer; transition:.1s;}
+  .star-picker{display:flex; gap:2px; margin-bottom:14px;}
+  .star-picker button{background:none; border:none; font-size:1.5rem; color:var(--line); cursor:pointer; transition:.1s; padding:6px 8px; min-width:40px; min-height:40px;}
   .star-picker button.active{color:var(--accent-2);}
 
   /* Produits similaires */
@@ -718,6 +768,17 @@
   }
   .dash-panel-head h2{font-size:1.5rem; margin-bottom:6px;}
   .dash-panel-head p{color:var(--text-mute); font-size:0.88rem;}
+  .dash-search-input{
+    width:100%; max-width:360px; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:11px 14px; border-radius:5px; font-family:'Barlow'; font-size:0.88rem; margin-bottom:18px;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25); transition:border-color .15s, box-shadow .15s;
+  }
+  .dash-search-input::placeholder{color:#5a615e;}
+  .dash-search-input:hover{border-color:#4a5157;}
+  .dash-search-input:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);
+  }
   .stat-cards{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
   .stat-card{
     background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px;
@@ -924,6 +985,7 @@
       <button class="icon-btn" id="dashboard-btn" aria-label="Dashboard administrateur" style="display:none; border-color:var(--accent-2); color:var(--accent-2);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
         <span class="btn-label">Dashboard</span>
+        <span class="cart-count" id="dashboard-badge" style="display:none;">0</span>
       </button>
       <button class="icon-btn" id="account-btn" aria-label="Mon compte">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
@@ -1277,16 +1339,45 @@
     <button class="modal-close" id="confirm-order-close" aria-label="Fermer">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
-    <div class="check">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7fd17f" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+
+    <div class="co-hero">
+      <div class="co-check">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7fd17f" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Commande confirmée</h3>
+      <p class="sub" id="confirm-order-sub">Merci ! Un conseiller AgriMarket vous recontacte sous 24h pour finaliser la vente.</p>
+      <div class="co-ref">N° de commande&nbsp; <b id="co-order-id">—</b></div>
     </div>
-    <h3>Commande transmise</h3>
-    <p class="sub" id="confirm-order-sub">Un conseiller AgriMarket vous recontacte sous 24h pour finaliser la vente.</p>
-    <p class="dash-hint" style="margin-top:16px; margin-bottom:6px;">Email envoyé à notre équipe :</p>
-    <div class="email-preview" id="email-preview"></div>
-    <p class="dash-hint" style="margin-top:16px; margin-bottom:6px;">Email de confirmation envoyé à votre adresse :</p>
-    <div class="email-preview" id="client-email-preview"></div>
-    <button class="btn btn-primary btn-block" id="confirm-order-ok" style="margin-top:20px;">Terminé</button>
+
+    <div class="co-steps">
+      <div class="co-step"><span class="co-step-num">1</span>Votre demande a bien été enregistrée</div>
+      <div class="co-step"><span class="co-step-num">2</span>Un conseiller AgriMarket vous contacte sous 24h</div>
+      <div class="co-step"><span class="co-step-num">3</span>Vous finalisez ensemble les modalités de la vente</div>
+    </div>
+
+    <div class="co-summary">
+      <div class="co-summary-head">Récapitulatif</div>
+      <div id="co-items"></div>
+      <div class="co-summary-row" id="co-subtotal-row"><span>Sous-total</span><span id="co-subtotal">—</span></div>
+      <div class="co-summary-row" id="co-coupon-row" style="display:none;"><span>Coupon</span><span id="co-coupon">—</span></div>
+      <div class="co-total-row"><span>Total</span><span id="co-total">—</span></div>
+    </div>
+
+    <button type="button" class="co-email-toggle" id="co-email-toggle">
+      Voir l'email de confirmation envoyé
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="co-email-details" id="co-email-details" style="display:none;">
+      <p class="dash-hint" style="margin-bottom:6px;">Email envoyé à notre équipe :</p>
+      <div class="email-preview" id="email-preview"></div>
+      <p class="dash-hint" style="margin-top:14px; margin-bottom:6px;">Email de confirmation envoyé à votre adresse :</p>
+      <div class="email-preview" id="client-email-preview"></div>
+    </div>
+
+    <div class="co-actions">
+      <button class="btn btn-ghost" id="confirm-order-orders">Voir mes commandes</button>
+      <button class="btn btn-primary" id="confirm-order-ok">Continuer mes achats</button>
+    </div>
   </div>
 </div>
 
@@ -1426,6 +1517,10 @@
         <button class="dash-nav-btn" data-panel="pages">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
           Pages légales
+        </button>
+        <button class="dash-nav-btn" data-panel="security">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9.5 12l1.8 1.8 3.2-3.6"/></svg>
+          Sécurité
         </button>
       </nav>
       <button class="btn btn-ghost btn-block" id="dashboard-exit" style="margin-top:auto;">Quitter le dashboard</button>
@@ -1585,6 +1680,7 @@
         <div class="dash-panel-head">
           <div><h2>Commandes reçues</h2><p>Toutes les commandes validées par les clients, les plus récentes en premier.</p></div>
         </div>
+        <input type="text" id="orders-search" class="dash-search-input" placeholder="Rechercher par n° commande, nom ou email…">
         <div class="dash-table" id="admin-orders-table"></div>
       </section>
 
@@ -1631,6 +1727,7 @@
         <div class="dash-panel-head">
           <div><h2>Comptes clients</h2><p>Modifiez, bloquez ou supprimez les comptes enregistrés sur le site.</p></div>
         </div>
+        <input type="text" id="clients-search" class="dash-search-input" placeholder="Rechercher par nom ou email…">
         <div class="dash-table" id="clients-table"></div>
       </section>
 
@@ -1745,6 +1842,26 @@
           <p class="dash-hint">Laissez une ligne vide entre deux paragraphes pour les séparer sur la page publique.</p>
           <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Enregistrer les pages</button>
         </form>
+      </section>
+
+      <!-- SÉCURITÉ -->
+      <section class="dash-panel" id="panel-security">
+        <div class="dash-panel-head">
+          <div><h2>Sécurité</h2><p>Identifiants de connexion de ton compte administrateur.</p></div>
+        </div>
+        <form id="security-form" style="display:flex; flex-direction:column; gap:16px; max-width:440px;">
+          <div class="form-error" id="security-error"></div>
+          <div class="form-error" id="security-success" style="background:rgba(90,180,90,0.12); border-color:#3a5a3a; color:#8fdc8f;"></div>
+          <div class="field"><label>Mot de passe actuel</label><input type="password" id="sec-current-password" required></div>
+          <div class="field"><label>Email administrateur</label><input type="email" id="sec-admin-email" required></div>
+          <div class="field"><label>Nouveau mot de passe (laisser vide pour ne pas changer)</label><input type="password" id="sec-new-password" minlength="4"></div>
+          <div class="field"><label>Confirmer le nouveau mot de passe</label><input type="password" id="sec-new-password-confirm" minlength="4"></div>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Enregistrer</button>
+        </form>
+        <p class="dash-hint" style="max-width:440px; margin-top:20px;">
+          Le mot de passe est haché (SHA-256 + sel unique) avant d'être stocké — il n'est jamais conservé en clair dans la base.
+          Pour une sécurité maximale en production, ces vérifications devraient aussi être faites par un vrai serveur, pas seulement dans le navigateur.
+        </p>
       </section>
     </div>
   </div>
@@ -2243,10 +2360,12 @@
     grid.querySelectorAll('.add-btn:not([disabled])').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        await addToCart(Number(btn.dataset.id));
-        btn.textContent = t('btn_added');
-        btn.classList.add('added');
-        setTimeout(() => { btn.textContent = t('btn_add_to_cart'); btn.classList.remove('added'); }, 1200);
+        const added = await addToCart(Number(btn.dataset.id));
+        if(added){
+          btn.textContent = t('btn_added');
+          btn.classList.add('added');
+          setTimeout(() => { btn.textContent = t('btn_add_to_cart'); btn.classList.remove('added'); }, 1200);
+        }
       });
     });
     grid.querySelectorAll('.add-btn[disabled]').forEach(btn => {
@@ -2386,9 +2505,11 @@
   document.getElementById('pd-add-btn').addEventListener('click', async (e) => {
     const p = productById(Number(e.target.dataset.id));
     if(!p || p.status === 'vendu' || p.status === 'reserve') return;
-    await addToCart(Number(e.target.dataset.id));
-    e.target.textContent = t('btn_added');
-    setTimeout(() => { e.target.textContent = t('btn_add_to_cart'); }, 1200);
+    const added = await addToCart(Number(e.target.dataset.id));
+    if(added){
+      e.target.textContent = t('btn_added');
+      setTimeout(() => { e.target.textContent = t('btn_add_to_cart'); }, 1200);
+    }
   });
 
   /* ---- Avis clients (vue publique + soumission) ---- */
@@ -2560,20 +2681,14 @@
   async function addToCart(productId){
     const cart = await getCart();
     const line = cart.find(l => l.productId === productId);
-    if(line) line.qty += 1;
-    else cart.push({ productId, qty: 1 });
+    if(line){
+      showToast('Cet article est déjà dans votre panier.');
+      return false;
+    }
+    cart.push({ productId, qty: 1 });
     await setCart(cart);
     await refreshCartUI();
-  }
-
-  async function updateCartQty(productId, delta){
-    let cart = await getCart();
-    const line = cart.find(l => l.productId === productId);
-    if(!line) return;
-    line.qty += delta;
-    if(line.qty <= 0) cart = cart.filter(l => l.productId !== productId);
-    await setCart(cart);
-    await refreshCartUI();
+    return true;
   }
 
   async function removeFromCart(productId){
@@ -2585,7 +2700,7 @@
 
   async function refreshCartUI(){
     const cart = await getCart();
-    const totalQty = cart.reduce((s,l) => s + l.qty, 0);
+    const totalQty = cart.length;
     document.getElementById('cart-count').textContent = totalQty;
 
     const body = document.getElementById('cart-body');
@@ -2598,17 +2713,14 @@
     body.innerHTML = cart.map(line => {
       const p = productById(line.productId);
       if(!p) return '';
-      total += p.price * line.qty;
+      total += p.price;
       return `
         <div class="cart-line">
           <div class="thumb">${mediaFor(p)}</div>
           <div class="cart-line-info">
             <h5>${esc(p.name)}</h5>
-            <span class="unit">${fmt(p.price)} / unité</span>
+            <span class="unit">${fmt(p.price)}</span>
             <div class="qty-row">
-              <button class="qty-btn" data-action="dec" data-id="${p.id}">−</button>
-              <span>${line.qty}</span>
-              <button class="qty-btn" data-action="inc" data-id="${p.id}">+</button>
               <button class="remove-line" data-action="remove" data-id="${p.id}">${t('btn_remove')}</button>
             </div>
           </div>
@@ -2623,13 +2735,9 @@
     }
     document.getElementById('cart-total').textContent = fmt(Math.round(finalTotal));
 
-    body.querySelectorAll('[data-action]').forEach(btn => {
+    body.querySelectorAll('[data-action="remove"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const id = Number(btn.dataset.id);
-        const action = btn.dataset.action;
-        if(action === 'inc') await updateCartQty(id, 1);
-        if(action === 'dec') await updateCartQty(id, -1);
-        if(action === 'remove') await removeFromCart(id);
+        await removeFromCart(Number(btn.dataset.id));
       });
     });
   }
@@ -2838,8 +2946,29 @@
     await refreshCartUI();
 
     document.getElementById('cart-overlay').classList.remove('open');
+
+    document.getElementById('co-order-id').textContent = order.id;
     document.getElementById('confirm-order-sub').textContent =
-      `Commande ${order.id} enregistrée. Un conseiller AgriMarket vous recontacte sous 24h au sujet de ${currentUser.email}.`;
+      `Merci ${currentUser.name.split(' ')[0]} ! Un conseiller AgriMarket vous recontacte sous 24h à ${currentUser.email}.`;
+
+    document.getElementById('co-items').innerHTML = items.map(i => `
+      <div class="co-item-row">
+        <span>${esc(i.name)}</span>
+        <span>${fmt(i.price)}</span>
+      </div>
+    `).join('');
+    document.getElementById('co-subtotal').textContent = fmt(subtotal);
+    const couponRow = document.getElementById('co-coupon-row');
+    if(couponLabel){
+      couponRow.style.display = 'flex';
+      document.getElementById('co-coupon').textContent = couponLabel;
+    } else {
+      couponRow.style.display = 'none';
+    }
+    document.getElementById('co-total').textContent = fmt(total);
+
+    document.getElementById('co-email-details').style.display = 'none';
+    document.getElementById('co-email-toggle').classList.remove('open');
     document.getElementById('email-preview').innerHTML =
       `<b>À :</b> ${siteConfig.contactEmail}<br>` +
       `<b>Objet :</b> Nouvelle commande ${order.id}<br><br>` +
@@ -2861,11 +2990,23 @@
     document.getElementById('confirm-order-overlay').classList.add('open');
   });
 
+  document.getElementById('co-email-toggle').addEventListener('click', () => {
+    const details = document.getElementById('co-email-details');
+    const btn = document.getElementById('co-email-toggle');
+    const isOpen = details.style.display !== 'none';
+    details.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('open', !isOpen);
+  });
+
   document.getElementById('confirm-order-close').addEventListener('click', () => {
     document.getElementById('confirm-order-overlay').classList.remove('open');
   });
   document.getElementById('confirm-order-ok').addEventListener('click', () => {
     document.getElementById('confirm-order-overlay').classList.remove('open');
+  });
+  document.getElementById('confirm-order-orders').addEventListener('click', () => {
+    document.getElementById('confirm-order-overlay').classList.remove('open');
+    openAccountModal();
   });
   document.getElementById('confirm-order-overlay').addEventListener('click', (e) => {
     if(e.target.id === 'confirm-order-overlay') e.currentTarget.classList.remove('open');
@@ -2932,7 +3073,8 @@
       showFormError('register-error', 'Un compte existe déjà avec cet email.');
       return;
     }
-    const user = { id: 'U-' + Date.now(), name, email, password, createdAt: new Date().toISOString() };
+    const user = { id: 'U-' + Date.now(), name, email, createdAt: new Date().toISOString() };
+    await setUserPassword(user, password);
     users.push(user);
     await setUsers(users);
     currentUser = { id: user.id, name: user.name, email: user.email };
@@ -2976,7 +3118,7 @@
     const users = await getUsers();
     const user = users.find(u => u.email === email);
     if(user){
-      user.password = pwd;
+      await setUserPassword(user, pwd);
       await setUsers(users);
     }
     document.getElementById('forgot-form').reset();
@@ -2994,32 +3136,28 @@
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const password = document.getElementById('login-password').value;
 
-    if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
-      currentUser = { id: 'admin', name: 'Administrateur', email: ADMIN_EMAIL, role: 'admin' };
-      await setSession(currentUser);
-      document.getElementById('login-form').reset();
-      await refreshAccountUI();
-      document.getElementById('account-overlay').classList.remove('open');
-      showToast('Connecté en tant qu\'administrateur.');
-      return;
-    }
-
     const users = await getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
-    if(!user){
+    const user = users.find(u => u.email === email);
+    if(!user || !(await verifyUserPassword(user, password))){
       showFormError('login-error', 'Email ou mot de passe incorrect.');
       return;
     }
+    await setUsers(users); // persiste une éventuelle migration silencieuse vers le mot de passe haché
     if(user.blocked){
       showFormError('login-error', 'Ce compte a été bloqué. Contactez le support AgriMarket.');
       return;
     }
-    currentUser = { id: user.id, name: user.name, email: user.email };
+    currentUser = { id: user.id, name: user.name, email: user.email, role: user.role || undefined };
     await setSession(currentUser);
     document.getElementById('login-form').reset();
     await refreshAccountUI();
-    openAccountModal();
-    showToast(`Ravi de vous revoir, ${user.name.split(' ')[0]} !`);
+    if(user.role === 'admin'){
+      document.getElementById('account-overlay').classList.remove('open');
+      showToast('Connecté en tant qu\'administrateur.');
+    } else {
+      openAccountModal();
+      showToast(`Ravi de vous revoir, ${user.name.split(' ')[0]} !`);
+    }
   });
 
   document.getElementById('logout-btn').addEventListener('click', async () => {
@@ -3056,6 +3194,7 @@
     const dashBtn = document.getElementById('dashboard-btn');
     const isAdmin = currentUser && currentUser.role === 'admin';
     dashBtn.style.display = isAdmin ? 'flex' : 'none';
+    await refreshDashboardBadge();
 
     if(currentUser){
       btn.innerHTML = `
@@ -3099,7 +3238,7 @@
      DASHBOARD ADMINISTRATEUR
   ========================================================= */
   const ADMIN_EMAIL = 'admin@agrimarket.fr';
-  const ADMIN_PASSWORD = 'admin2026';
+  const ADMIN_DEFAULT_PASSWORD = 'admin2026'; // uniquement utilisé pour créer le compte admin la toute première fois — à changer immédiatement depuis Dashboard → Sécurité
   const PRODUCTS_KEY = 'agrimarket_products';
   const SITE_KEY = 'agrimarket_site';
   const COUPONS_KEY = 'agrimarket_coupons';
@@ -3107,6 +3246,56 @@
   const REVIEWS_KEY = 'agrimarket_reviews';
   const WISHLIST_KEY = 'agrimarket_wishlist';
   const MESSAGES_KEY = 'agrimarket_messages';
+
+  /* ---- Mots de passe : hachage SHA-256 + sel unique par compte ----
+     Empêche qu'une fuite de la base ne révèle les mots de passe en clair.
+     (Le hachage se fait côté navigateur : pour une sécurité maximale en
+     production, ce travail devrait être fait par un vrai serveur.) */
+  async function sha256Hex(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  function randomSalt(){
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  async function hashPassword(password, salt){
+    return sha256Hex(salt + ':' + password);
+  }
+  async function setUserPassword(user, plainPassword){
+    user.passwordSalt = randomSalt();
+    user.passwordHash = await hashPassword(plainPassword, user.passwordSalt);
+    delete user.password; // au cas où d'anciennes données non hachées existaient
+  }
+  async function verifyUserPassword(user, plainPassword){
+    if(user.passwordHash && user.passwordSalt){
+      const hash = await hashPassword(plainPassword, user.passwordSalt);
+      return hash === user.passwordHash;
+    }
+    // Compte créé avant la mise à jour sécurité (mot de passe encore en clair) :
+    // on vérifie une dernière fois à l'ancien format, puis on migre vers le hachage.
+    if(user.password !== undefined){
+      if(user.password === plainPassword){
+        await setUserPassword(user, plainPassword);
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  /* ---- Création du compte admin s'il n'existe pas encore ---- */
+  async function ensureAdminAccount(){
+    const users = await getUsers();
+    let admin = users.find(u => u.role === 'admin');
+    if(!admin){
+      admin = { id: 'admin', name: 'Administrateur', email: ADMIN_EMAIL, role: 'admin', createdAt: new Date().toISOString() };
+      await setUserPassword(admin, ADMIN_DEFAULT_PASSWORD);
+      users.push(admin);
+      await setUsers(users);
+    }
+  }
 
   async function loadMessages(){
     try{ const r = await window.storage.get(MESSAGES_KEY, true); return r ? JSON.parse(r.value) : []; }
@@ -3275,6 +3464,21 @@
   }
 
   /* ---- VUE D'ENSEMBLE ---- */
+  async function refreshDashboardBadge(){
+    const badge = document.getElementById('dashboard-badge');
+    if(!currentUser || currentUser.role !== 'admin'){ badge.style.display = 'none'; return; }
+    const [orders, reviews, messages] = await Promise.all([getOrders(), loadReviews(), loadMessages()]);
+    const count = orders.filter(o => o.status === 'reçu').length
+      + reviews.filter(r => r.status === 'pending').length
+      + messages.length;
+    if(count > 0){
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
   async function renderOverviewStats(){
     const orders = await getOrders();
     const users = await getUsers();
@@ -3435,9 +3639,16 @@
     await renderAdminMessages();
     renderAppearanceForm();
     renderAdminAdBanners();
+    document.getElementById('security-form').reset();
+    document.getElementById('sec-admin-email').value = currentUser ? currentUser.email : '';
+    document.getElementById('security-error').classList.remove('show');
+    document.getElementById('security-success').classList.remove('show');
   });
-  document.getElementById('dashboard-exit').addEventListener('click', () => {
+  document.getElementById('orders-search').addEventListener('input', () => renderAdminOrders());
+  document.getElementById('clients-search').addEventListener('input', () => renderAdminClients());
+  document.getElementById('dashboard-exit').addEventListener('click', async () => {
     document.getElementById('dashboard-overlay').classList.remove('open');
+    await refreshDashboardBadge();
   });
   document.getElementById('dashboard-logout').addEventListener('click', async () => {
     currentUser = null;
@@ -3767,11 +3978,15 @@
 
   /* ---- COMMANDES (vue admin) ---- */
   async function renderAdminOrders(){
-    const orders = await getOrders();
+    const allOrders = await getOrders();
+    const q = (document.getElementById('orders-search').value || '').trim().toLowerCase();
+    const orders = q
+      ? allOrders.filter(o => o.id.toLowerCase().includes(q) || o.userName.toLowerCase().includes(q) || o.userEmail.toLowerCase().includes(q))
+      : allOrders;
     const table = document.getElementById('admin-orders-table');
     let rows = `<div class="dt-row dt-head" style="grid-template-columns:1.6fr 1.6fr 1fr 1fr 1.3fr;"><span>Commande</span><span>Client</span><span>Articles</span><span>Total</span><span>Statut</span></div>`;
     if(orders.length === 0){
-      table.innerHTML = rows + `<div class="dt-empty">Aucune commande reçue pour le moment.</div>`;
+      table.innerHTML = rows + `<div class="dt-empty">${allOrders.length === 0 ? 'Aucune commande reçue pour le moment.' : 'Aucune commande ne correspond à cette recherche.'}</div>`;
       return;
     }
     rows += orders.map(o => `
@@ -4019,6 +4234,56 @@
     showToast('Pages légales mises à jour.');
   });
 
+  document.getElementById('security-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('security-error');
+    const okEl = document.getElementById('security-success');
+    errEl.classList.remove('show'); okEl.classList.remove('show');
+
+    const currentPwd = document.getElementById('sec-current-password').value;
+    const newEmail = document.getElementById('sec-admin-email').value.trim().toLowerCase();
+    const newPwd = document.getElementById('sec-new-password').value;
+    const newPwdConfirm = document.getElementById('sec-new-password-confirm').value;
+
+    const users = await getUsers();
+    const admin = users.find(u => u.id === currentUser.id && u.role === 'admin');
+    if(!admin){ errEl.textContent = 'Session invalide, reconnecte-toi.'; errEl.classList.add('show'); return; }
+
+    if(!(await verifyUserPassword(admin, currentPwd))){
+      errEl.textContent = 'Mot de passe actuel incorrect.';
+      errEl.classList.add('show');
+      return;
+    }
+    if(newPwd && newPwd !== newPwdConfirm){
+      errEl.textContent = 'Les deux nouveaux mots de passe ne correspondent pas.';
+      errEl.classList.add('show');
+      return;
+    }
+    if(newPwd && newPwd.length < 4){
+      errEl.textContent = 'Le nouveau mot de passe doit contenir au moins 4 caractères.';
+      errEl.classList.add('show');
+      return;
+    }
+    if(newEmail !== admin.email && users.some(u => u.email === newEmail && u.id !== admin.id)){
+      errEl.textContent = 'Un autre compte utilise déjà cet email.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    admin.email = newEmail;
+    if(newPwd) await setUserPassword(admin, newPwd);
+    await setUsers(users);
+    currentUser.email = newEmail;
+    await setSession(currentUser);
+    document.getElementById('sec-current-password').value = '';
+    document.getElementById('sec-new-password').value = '';
+    document.getElementById('sec-new-password-confirm').value = '';
+    okEl.textContent = 'Identifiants mis à jour avec succès.';
+    okEl.classList.add('show');
+    await refreshAccountUI();
+    showToast('Sécurité du compte mise à jour.');
+  });
+
   /* ---- Vue publique des pages légales ---- */
   const LEGAL_TITLES = { about: 'À propos', cgu: "Conditions Générales d'Utilisation", privacy: 'Politique de confidentialité', cookies: 'Gestion des cookies' };
   function openLegalPage(key){
@@ -4167,10 +4432,14 @@
 
   /* ---- CLIENTS (admin) ---- */
   async function renderAdminClients(){
-    const users = await getUsers();
+    const allUsers = (await getUsers()).filter(u => u.role !== 'admin');
+    const q = (document.getElementById('clients-search').value || '').trim().toLowerCase();
+    const users = q
+      ? allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+      : allUsers;
     const table = document.getElementById('clients-table');
     if(users.length === 0){
-      table.innerHTML = `<div class="dt-empty">Aucun compte client enregistré pour le moment.</div>`;
+      table.innerHTML = `<div class="dt-empty">${allUsers.length === 0 ? 'Aucun compte client enregistré pour le moment.' : 'Aucun client ne correspond à cette recherche.'}</div>`;
       return;
     }
     table.innerHTML = `<div class="dt-row dt-head"><span>Nom</span><span>Email</span><span>Inscrit le</span><span>Statut</span><span></span></div>` +
@@ -4271,8 +4540,19 @@
   });
 
   /* ---------- INIT ---------- */
+  /* ---- Accessibilité clavier : Échap ferme la fenêtre ouverte ---- */
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    const openOverlays = Array.from(document.querySelectorAll('.overlay.open'));
+    if(openOverlays.length === 0) return;
+    // ferme la fenêtre la plus "au-dessus" (dernière ouverte dans le DOM = souvent la plus récente)
+    const top = openOverlays[openOverlays.length - 1];
+    top.classList.remove('open');
+  });
+
   (async function init(){
     await loadProducts();
+    await ensureAdminAccount();
     const site = await loadSite();
     if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
     siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
