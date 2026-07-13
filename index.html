@@ -884,6 +884,36 @@
   .footer-bottom a{color:var(--text-mute); cursor:pointer; background:none; border:none; font:inherit; padding:0;}
   .footer-bottom a:hover{color:var(--accent-2);}
 
+  .bulk-row{
+    display:grid; grid-template-columns:48px 1.5fr 0.85fr 0.65fr 0.85fr 0.85fr 0.85fr 32px;
+    gap:8px; align-items:center; margin-bottom:8px; min-width:740px;
+  }
+  .bulk-row-head{
+    font-family:'IBM Plex Mono'; font-size:0.68rem; color:var(--text-mute); text-transform:uppercase;
+    letter-spacing:0.04em; margin-bottom:10px;
+  }
+  .bulk-row input{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:9px 10px; border-radius:4px; font-family:'Barlow'; font-size:0.85rem;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25); transition:border-color .15s, box-shadow .15s;
+  }
+  .bulk-row input:hover{border-color:#4a5157;}
+  .bulk-row input:focus{outline:none; border-color:var(--accent); box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);}
+  .bulk-row-remove{
+    width:26px; height:26px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line);
+    color:var(--text-mute); cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .bulk-row-remove:hover{background:#ff6b6b; border-color:#ff6b6b; color:#14171a;}
+  .bulk-photo-cell{
+    width:44px; height:44px; border-radius:4px; border:1px dashed var(--line); background:var(--bg);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden;
+    flex-shrink:0; transition:border-color .15s;
+  }
+  .bulk-photo-cell:hover{border-color:var(--accent);}
+  .bulk-photo-cell.has-image{border-style:solid; border-color:var(--accent);}
+  .bulk-photo-placeholder{color:var(--text-mute); font-size:1.1rem; line-height:1;}
+  .bulk-photo-preview{width:100%; height:100%; object-fit:cover;}
+
   .promo-tool{
     display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;
     background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:20px;
@@ -1117,10 +1147,6 @@
 
     <div class="filters" id="filters">
       <button class="filter-btn active" data-cat="all" data-i18n="filter_all">Tous</button>
-      <button class="filter-btn" data-cat="tracteur" data-i18n="filter_tractors">Tracteurs</button>
-      <button class="filter-btn" data-cat="camion" data-i18n="filter_trucks">Camions</button>
-      <button class="filter-btn" data-cat="moissonneuse" data-i18n="filter_harvesters">Moissonneuses</button>
-      <button class="filter-btn" data-cat="remorque" data-i18n="filter_trailers">Remorques</button>
     </div>
 
     <div class="grid" id="product-grid"></div>
@@ -1190,12 +1216,7 @@
       </div>
       <div>
         <h5 data-i18n="footer_catalog_head">Catalogue</h5>
-        <ul>
-          <li><a href="#catalogue" data-i18n="filter_tractors">Tracteurs</a></li>
-          <li><a href="#catalogue" data-i18n="filter_trucks">Camions</a></li>
-          <li><a href="#catalogue" data-i18n="filter_harvesters">Moissonneuses</a></li>
-          <li><a href="#catalogue" data-i18n="filter_trailers">Remorques</a></li>
-        </ul>
+        <ul id="footer-catalog-links"></ul>
       </div>
       <div>
         <h5 data-i18n="footer_support_head">Assistance</h5>
@@ -1482,6 +1503,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Articles
         </button>
+        <button class="dash-nav-btn" data-panel="categories">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Catégories
+        </button>
         <button class="dash-nav-btn" data-panel="brands">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18 9 9 0 0 1 0-18z"/><circle cx="12" cy="12" r="3"/></svg>
           Marques
@@ -1549,9 +1574,65 @@
       <section class="dash-panel" id="panel-products">
         <div class="dash-panel-head">
           <div><h2>Articles</h2><p>Ajoutez, modifiez ou retirez du matériel du catalogue public.</p></div>
-          <button class="btn btn-primary" id="new-product-btn">+ Ajouter un article</button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-ghost" id="bulk-add-btn">+ Ajout groupé (jusqu'à 10)</button>
+            <button class="btn btn-primary" id="new-product-btn">+ Ajouter un article</button>
+          </div>
         </div>
         <div class="dash-table" id="products-table"></div>
+      </section>
+
+      <!-- AJOUT GROUPÉ -->
+      <section class="dash-panel" id="panel-bulk-products">
+        <div class="dash-panel-head">
+          <div><h2>Ajout groupé d'articles</h2><p>Idéal pour ajouter rapidement plusieurs articles de la même catégorie. Ajoute une photo principale sur chaque ligne — tu pourras compléter la galerie et la description ensuite, en modifiant chaque article individuellement.</p></div>
+          <button class="btn btn-ghost" id="bulk-cancel-btn">Annuler</button>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="field"><label>Catégorie (pour tous les articles) *</label><select id="bulk-cat" required></select></div>
+          <div class="field">
+            <label>État (pour tous)</label>
+            <select id="bulk-state">
+              <option value="NEUF">Neuf</option>
+              <option value="OCCASION">Occasion</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Disponibilité (pour tous)</label>
+            <select id="bulk-status">
+              <option value="disponible">Disponible</option>
+              <option value="reserve">Réservé</option>
+              <option value="vendu">Vendu</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <div class="bulk-row bulk-row-head">
+            <span>Photo</span><span>Nom *</span><span>Puissance</span><span>Année</span><span>Usage</span><span>Prix (€) *</span><span>Ancien prix</span><span></span>
+          </div>
+          <div id="bulk-rows"></div>
+        </div>
+        <button type="button" class="btn btn-ghost" id="bulk-add-row-btn" style="margin-top:10px;">+ Ajouter une ligne</button>
+        <p class="dash-hint" id="bulk-row-limit-hint" style="display:none; color:#ff9070;">Limite de 10 articles par ajout groupé atteinte.</p>
+
+        <button type="button" class="btn btn-primary" id="bulk-submit-btn" style="margin-top:20px;">Enregistrer les articles</button>
+      </section>
+
+      <!-- CATÉGORIES -->
+      <section class="dash-panel" id="panel-categories">
+        <div class="dash-panel-head">
+          <div><h2>Catégories</h2><p>Gérez les types d'articles proposés dans le catalogue (filtres, formulaire d'ajout, menu).</p></div>
+        </div>
+        <form class="promo-tool" id="category-form">
+          <input type="hidden" id="cat-id">
+          <div class="field" style="flex:2;"><label>Nom de la catégorie *</label><input type="text" id="cat-name" placeholder="ex : Moissonneuses" required></div>
+          <button type="submit" class="btn btn-primary" id="cat-submit-btn">Ajouter la catégorie</button>
+          <button type="button" class="btn btn-ghost" id="cat-cancel-btn" style="display:none;">Annuler</button>
+        </form>
+        <p class="dash-hint">Supprimer une catégorie encore utilisée par des articles est bloqué — réaffecte d'abord ces articles à une autre catégorie.</p>
+        <div class="dash-table" id="categories-table"></div>
       </section>
 
       <!-- MARQUES -->
@@ -1571,6 +1652,7 @@
                 <input type="file" id="br-icon-file" accept="image/*" style="display:none;">
               </label>
             </div>
+            <p class="dash-hint" style="margin-top:6px; margin-bottom:0;">Format idéal : image carrée, environ 300 × 300 px.</p>
           </div>
           <button type="submit" class="btn btn-primary" id="br-submit-btn">Ajouter la marque</button>
           <button type="button" class="btn btn-ghost" id="br-cancel-btn" style="display:none;">Annuler</button>
@@ -1590,12 +1672,7 @@
             <div class="field"><label>Nom de l'article *</label><input type="text" id="pf-name" required></div>
             <div class="field">
               <label>Catégorie *</label>
-              <select id="pf-cat" required>
-                <option value="tracteur">Tracteur</option>
-                <option value="camion">Camion</option>
-                <option value="moissonneuse">Moissonneuse</option>
-                <option value="remorque">Remorque</option>
-              </select>
+              <select id="pf-cat" required></select>
             </div>
             <div class="field">
               <label>État *</label>
@@ -1623,6 +1700,7 @@
             </div>
             <div class="field" style="grid-column:1/-1;">
               <label>Photos de l'article (jusqu'à 6 — la première est la photo principale)</label>
+              <p class="dash-hint" style="margin-top:0; margin-bottom:8px;">Format idéal : environ 1200 × 900 px, format paysage (ratio 4:3) — les photos trop lourdes sont automatiquement compressées.</p>
               <div id="pf-images-grid" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;"></div>
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <input type="url" id="pf-image-url-input" placeholder="https://exemple.com/photo.jpg" style="flex:1; min-width:200px; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:11px 13px; border-radius:2px;">
@@ -1648,10 +1726,6 @@
           <div class="field"><label>Catégorie</label>
             <select id="promo-cat">
               <option value="all">Tous les articles</option>
-              <option value="tracteur">Tracteurs</option>
-              <option value="camion">Camions</option>
-              <option value="moissonneuse">Moissonneuses</option>
-              <option value="remorque">Remorques</option>
             </select>
           </div>
           <div class="field"><label>Réduction (%)</label><input type="number" id="promo-percent" min="1" max="90" value="10"></div>
@@ -1766,12 +1840,13 @@
                 <input type="file" id="logo-image-file" accept="image/*" style="display:none;">
               </label>
             </div>
+            <p class="dash-hint" style="margin-top:6px; margin-bottom:0;">Format idéal : image carrée, environ 300 × 300 px. Elle remplace l'icône à côté du texte du logo.</p>
           </div>
           <button type="submit" class="btn btn-primary">Mettre à jour le logo</button>
         </form>
 
         <h3 class="dash-subhead">Image de la page d'accueil</h3>
-        <p class="dash-hint">Remplace l'illustration du tracteur en haut du site par une vraie photo. Format conseillé : proche de 480 × 340 (paysage). Laisse vide pour garder l'illustration.</p>
+        <p class="dash-hint">Remplace l'illustration du tracteur en haut du site par une vraie photo. Format idéal : environ <b style="color:var(--text);">1600 × 1130 px</b> (paysage). Laisse vide pour garder l'illustration.</p>
         <form class="promo-tool" id="hero-image-form">
           <div class="field" style="flex:2;">
             <label>Photo d'accueil</label>
@@ -2486,7 +2561,7 @@
             ${mediaFor(p)}
           </div>
           <div class="card-body">
-            <div class="cat-tag">${p.cat.toUpperCase()}</div>
+            <div class="cat-tag">${esc(categoryName(p.cat).toUpperCase())}</div>
             <h3>${esc(p.name)}</h3>
             <div class="spec-row">
               <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
@@ -2550,7 +2625,7 @@
     if(!p) return;
     const images = (Array.isArray(p.images) && p.images.length) ? p.images : (p.image ? [p.image] : []);
 
-    document.getElementById('pd-cat').textContent = p.cat.toUpperCase() + (p.old ? ' · PROMO' : '');
+    document.getElementById('pd-cat').textContent = categoryName(p.cat).toUpperCase() + (p.old ? ' · PROMO' : '');
     document.getElementById('pd-name').textContent = p.name;
     document.getElementById('pd-specs').innerHTML = `
       <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
@@ -3391,9 +3466,16 @@
   const SITE_KEY = 'agrimarket_site';
   const COUPONS_KEY = 'agrimarket_coupons';
   const BRANDS_KEY = 'agrimarket_brands';
+  const CATEGORIES_KEY = 'agrimarket_categories';
   const REVIEWS_KEY = 'agrimarket_reviews';
   const WISHLIST_KEY = 'agrimarket_wishlist';
   const MESSAGES_KEY = 'agrimarket_messages';
+  const DEFAULT_CATEGORIES = [
+    { id: 'tracteur', name: 'Tracteurs' },
+    { id: 'camion', name: 'Camions' },
+    { id: 'moissonneuse', name: 'Moissonneuses' },
+    { id: 'remorque', name: 'Remorques' },
+  ];
 
   /* ---- Mots de passe : hachage SHA-256 + sel unique par compte ----
      Empêche qu'une fuite de la base ne révèle les mots de passe en clair.
@@ -3459,6 +3541,21 @@
   }
   async function saveBrands(list){
     try{ await window.storage.set(BRANDS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+  async function loadCategories(){
+    try{
+      const r = await window.storage.get(CATEGORIES_KEY, true);
+      const list = r ? JSON.parse(r.value) : [];
+      return list.length ? list : null;
+    }catch(e){ return null; }
+  }
+  async function saveCategories(list){
+    try{ await window.storage.set(CATEGORIES_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+  let categories = [];
+  function categoryName(id){
+    const c = categories.find(x => x.id === id);
+    return c ? c.name : id;
   }
   async function loadReviews(){
     try{ const r = await window.storage.get(REVIEWS_KEY, true); return r ? JSON.parse(r.value) : []; }
@@ -3698,6 +3795,126 @@
   });
 
   /* ---- MARQUES (admin) ---- */
+  /* ---- CATÉGORIES ---- */
+  function applyCategoriesUI(){
+    // filtres du catalogue public
+    const filtersBox = document.getElementById('filters');
+    const allBtn = filtersBox.querySelector('[data-cat="all"]');
+    filtersBox.innerHTML = '';
+    filtersBox.appendChild(allBtn);
+    categories.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.cat = c.id;
+      btn.textContent = c.name;
+      filtersBox.appendChild(btn);
+    });
+
+    // select du formulaire produit
+    const pfCat = document.getElementById('pf-cat');
+    pfCat.innerHTML = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+
+    // select des promotions
+    const promoCat = document.getElementById('promo-cat');
+    promoCat.innerHTML = `<option value="all">Tous les articles</option>` +
+      categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+
+    // liens catalogue du footer
+    document.getElementById('footer-catalog-links').innerHTML =
+      categories.map(c => `<li><a href="#catalogue" data-cat-link="${c.id}">${esc(c.name)}</a></li>`).join('');
+    document.querySelectorAll('[data-cat-link]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        const target = document.querySelector(`.filter-btn[data-cat="${a.dataset.catLink}"]`);
+        if(target) target.classList.add('active');
+        renderCatalog(a.dataset.catLink);
+        document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  }
+
+  async function renderAdminCategories(){
+    const table = document.getElementById('categories-table');
+    if(categories.length === 0){
+      table.innerHTML = `<div class="dt-empty">Aucune catégorie — le catalogue restera vide sans au moins une catégorie.</div>`;
+      return;
+    }
+    table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:2fr 1fr auto;"><span>Nom</span><span>Articles</span><span></span></div>` +
+      categories.map(c => {
+        const count = products.filter(p => p.cat === c.id).length;
+        return `
+        <div class="dt-row" style="grid-template-columns:2fr 1fr auto;">
+          <span class="dt-name">${esc(c.name)}</span>
+          <span class="dt-sub">${count} article(s)</span>
+          <span class="dt-actions">
+            <button class="dt-btn" data-action="edit-category" data-id="${c.id}">Modifier</button>
+            <button class="dt-btn danger" data-action="delete-category" data-id="${c.id}">Supprimer</button>
+          </span>
+        </div>
+      `;
+      }).join('');
+
+    table.querySelectorAll('[data-action="edit-category"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const c = categories.find(x => x.id === btn.dataset.id);
+        document.getElementById('cat-id').value = c.id;
+        document.getElementById('cat-name').value = c.name;
+        document.getElementById('cat-submit-btn').textContent = 'Mettre à jour';
+        document.getElementById('cat-cancel-btn').style.display = 'inline-flex';
+      });
+    });
+    table.querySelectorAll('[data-action="delete-category"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const count = products.filter(p => p.cat === btn.dataset.id).length;
+        if(count > 0){
+          showToast(`Impossible : ${count} article(s) utilisent encore cette catégorie.`);
+          return;
+        }
+        if(!confirm('Supprimer définitivement cette catégorie ?')) return;
+        categories = categories.filter(c => c.id !== btn.dataset.id);
+        await saveCategories(categories);
+        applyCategoriesUI();
+        await renderAdminCategories();
+        showToast('Catégorie supprimée.');
+      });
+    });
+  }
+
+  document.getElementById('cat-cancel-btn').addEventListener('click', () => {
+    document.getElementById('category-form').reset();
+    document.getElementById('cat-id').value = '';
+    document.getElementById('cat-submit-btn').textContent = 'Ajouter la catégorie';
+    document.getElementById('cat-cancel-btn').style.display = 'none';
+  });
+
+  document.getElementById('category-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('cat-id').value;
+    const name = document.getElementById('cat-name').value.trim();
+    if(!name) return;
+
+    if(id){
+      const c = categories.find(x => x.id === id);
+      c.name = name;
+      showToast('Catégorie mise à jour.');
+    } else {
+      let slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'categorie';
+      let finalId = slug;
+      let n = 2;
+      while(categories.some(c => c.id === finalId)){ finalId = `${slug}-${n}`; n++; }
+      categories.push({ id: finalId, name });
+      showToast('Catégorie ajoutée.');
+    }
+    await saveCategories(categories);
+    applyCategoriesUI();
+    e.target.reset();
+    document.getElementById('cat-id').value = '';
+    document.getElementById('cat-submit-btn').textContent = 'Ajouter la catégorie';
+    document.getElementById('cat-cancel-btn').style.display = 'none';
+    await renderAdminCategories();
+  });
+
   function brandInitial(name){ return (name || '?').trim().charAt(0).toUpperCase(); }
 
   async function renderAdminBrands(){
@@ -3810,6 +4027,7 @@
       renderOverviewStats(),
       renderAdminProducts(),
       renderAdminBrands(),
+      renderAdminCategories(),
       renderAdminPromos(),
       renderAdminCoupons(),
       renderAdminOrders(),
@@ -3863,7 +4081,7 @@
           </span>
           <span>${esc(p.name)}<br><span class="dt-sub">${esc(p.spec.p)} · ${esc(p.spec.a)}</span></span>
         </span>
-        <span>${p.cat}</span>
+        <span>${esc(categoryName(p.cat))}</span>
         <span>${p.old ? `<s style="color:var(--text-mute)">${fmt(p.old)}</s><br>` : ''}${fmt(p.price)}</span>
         <span><span class="pill ${p.state==='NEUF'?'on':''}">${p.state}</span></span>
         <span><span class="pill ${p.status==='vendu'?'off':(p.status==='reserve'?'':'on')}">${p.status==='vendu'?'Vendu':(p.status==='reserve'?'Réservé':'Disponible')}</span></span>
@@ -3987,6 +4205,126 @@
     document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-products').classList.add('active');
     document.querySelector('.dash-nav-btn[data-panel="products"]').classList.add('active');
+  });
+
+  /* ---- AJOUT GROUPÉ D'ARTICLES ---- */
+  function bulkRowHtml(){
+    return `
+      <div class="bulk-row">
+        <label class="bulk-photo-cell" title="Ajouter une photo">
+          <input type="file" accept="image/*" class="bulk-image-file" style="display:none;">
+          <span class="bulk-photo-placeholder">+</span>
+          <img class="bulk-photo-preview" style="display:none;">
+        </label>
+        <input type="text" class="bulk-name" placeholder="ex : AgriMarket AM-5000">
+        <input type="text" class="bulk-power" placeholder="140 CH">
+        <input type="text" class="bulk-year" placeholder="2024">
+        <input type="text" class="bulk-usage" placeholder="120 h">
+        <input type="number" class="bulk-price" min="0" placeholder="45000">
+        <input type="number" class="bulk-old" min="0" placeholder="—">
+        <button type="button" class="bulk-row-remove" aria-label="Retirer cette ligne">×</button>
+      </div>
+    `;
+  }
+  function updateBulkAddState(){
+    const count = document.querySelectorAll('#bulk-rows .bulk-row').length;
+    document.getElementById('bulk-add-row-btn').style.display = count >= 10 ? 'none' : 'inline-flex';
+    document.getElementById('bulk-row-limit-hint').style.display = count >= 10 ? 'block' : 'none';
+  }
+  function addBulkRow(){
+    if(document.querySelectorAll('#bulk-rows .bulk-row').length >= 10) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = bulkRowHtml();
+    const row = wrap.firstElementChild;
+    row.querySelector('.bulk-row-remove').addEventListener('click', () => {
+      row.remove();
+      updateBulkAddState();
+    });
+    const fileInput = row.querySelector('.bulk-image-file');
+    const placeholder = row.querySelector('.bulk-photo-placeholder');
+    const preview = row.querySelector('.bulk-photo-preview');
+    const cell = row.querySelector('.bulk-photo-cell');
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if(!file) return;
+      placeholder.textContent = '…';
+      placeholder.style.display = 'flex';
+      preview.style.display = 'none';
+      try{
+        const url = await compressImageFile(file);
+        preview.src = url;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        cell.classList.add('has-image');
+      }catch(err){
+        placeholder.textContent = '+';
+        showToast('Impossible de lire cette photo.');
+      }
+    });
+    document.getElementById('bulk-rows').appendChild(row);
+    updateBulkAddState();
+  }
+  function openBulkAddPanel(){
+    document.querySelectorAll('.dash-nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-bulk-products').classList.add('active');
+    document.getElementById('bulk-cat').innerHTML = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    document.getElementById('bulk-state').value = 'NEUF';
+    document.getElementById('bulk-status').value = 'disponible';
+    document.getElementById('bulk-rows').innerHTML = '';
+    for(let i = 0; i < 3; i++) addBulkRow();
+  }
+  document.getElementById('bulk-add-btn').addEventListener('click', openBulkAddPanel);
+  document.getElementById('bulk-add-row-btn').addEventListener('click', addBulkRow);
+  document.getElementById('bulk-cancel-btn').addEventListener('click', () => {
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-products').classList.add('active');
+    document.querySelector('.dash-nav-btn[data-panel="products"]').classList.add('active');
+  });
+
+  document.getElementById('bulk-submit-btn').addEventListener('click', async () => {
+    const cat = document.getElementById('bulk-cat').value;
+    const state = document.getElementById('bulk-state').value;
+    const status = document.getElementById('bulk-status').value;
+    const rows = Array.from(document.querySelectorAll('#bulk-rows .bulk-row'));
+
+    let nextId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+    let added = 0;
+
+    rows.forEach(row => {
+      const name = row.querySelector('.bulk-name').value.trim();
+      const price = Number(row.querySelector('.bulk-price').value);
+      if(!name || !price) return; // ligne incomplète, ignorée
+      const power = row.querySelector('.bulk-power').value.trim() || '—';
+      const year = row.querySelector('.bulk-year').value.trim() || '—';
+      const usage = row.querySelector('.bulk-usage').value.trim() || '—';
+      const oldRaw = row.querySelector('.bulk-old').value;
+      const preview = row.querySelector('.bulk-photo-preview');
+      const image = preview.style.display !== 'none' && preview.src ? preview.src : '';
+      products.push({
+        id: nextId++,
+        cat, name, state, status,
+        spec: { p: power, a: year, h: usage },
+        price, old: oldRaw ? Number(oldRaw) : null,
+        image, images: image ? [image] : [], description: '',
+      });
+      added++;
+    });
+
+    if(added === 0){
+      showToast('Renseigne au moins un nom et un prix pour ajouter des articles.');
+      return;
+    }
+
+    await saveProducts();
+    renderCatalog('all');
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-cat="all"]').classList.add('active');
+    await renderAdminProducts();
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-products').classList.add('active');
+    document.querySelector('.dash-nav-btn[data-panel="products"]').classList.add('active');
+    showToast(`${added} article(s) ajouté(s). Ajoute des photos en modifiant chacun individuellement.`);
   });
 
   document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -4731,17 +5069,21 @@
   });
 
   (async function init(){
-    const [, site, brandsList, session] = await Promise.all([
+    const [, site, brandsList, session, categoriesList] = await Promise.all([
       loadProducts(),
       loadSite(),
       loadBrands(),
       getSession(),
       ensureAdminAccount(),
+      loadCategories(),
     ]);
+    categories = categoriesList || DEFAULT_CATEGORIES;
+    if(!categoriesList) await saveCategories(categories);
     if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
     siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
     if(!Array.isArray(siteConfig.adBanners)) siteConfig.adBanners = [];
     applySiteConfig();
+    applyCategoriesUI();
     renderCatalog('all');
     brands = brandsList;
     applyBrandsPublic();
