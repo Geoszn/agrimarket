@@ -1534,6 +1534,15 @@
           <div><h2>Vue d'ensemble</h2><p>Aperçu rapide de l'activité de la boutique.</p></div>
         </div>
         <div class="stat-cards" id="overview-stats"></div>
+
+        <div class="dash-panel-head" style="margin-top:34px;">
+          <div><h2 style="font-size:1.05rem;">Optimiser les images existantes</h2>
+          <p>Les photos ajoutées avant la mise en place du stockage dédié sont encodées dans le texte, ce qui ralentit le site. Ce bouton les convertit automatiquement vers l'espace de stockage — sans avoir besoin des fichiers d'origine, puisque l'image est déjà sur le site.</p></div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="migrate-images-btn">Lancer l'optimisation</button>
+          <span id="migrate-images-status" style="color:var(--text-mute); font-size:0.85rem;"></span>
+        </div>
       </section>
 
       <!-- ARTICLES -->
@@ -2201,7 +2210,7 @@
 
   const mediaFor = (p, cls) => {
     if(p.image){
-      return `<img src="${esc(p.image)}" alt="${esc(p.name)}" class="${cls||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','${iconFor(p.cat).replace(/'/g, "\\'")}')">`;
+      return `<img src="${esc(p.image)}" alt="${esc(p.name)}" class="${cls||''}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','${iconFor(p.cat).replace(/'/g, "\\'")}')">`;
     }
     return iconFor(p.cat);
   };
@@ -2345,6 +2354,90 @@
       console.warn('Upload vers Supabase Storage impossible, repli en base64.', err);
       return await compressImageFileBase64(file, maxDim, quality);
     }
+  }
+
+  /* ---- Migration des images base64 déjà présentes vers Supabase Storage ----
+     Ne nécessite pas les fichiers d'origine : l'image est déjà entièrement
+     contenue dans le texte encodé, on la reconvertit simplement en fichier. */
+  function isBase64Image(val){
+    return typeof val === 'string' && val.startsWith('data:image');
+  }
+  async function migrateOneImage(dataUrl, prefix){
+    try{
+      const blob = await (await fetch(dataUrl)).blob();
+      return await uploadImageToStorage(blob, prefix);
+    }catch(err){
+      console.warn('Migration d\'image échouée, conservée telle quelle.', err);
+      return dataUrl;
+    }
+  }
+  async function migrateAllBase64Images(onProgress){
+    let total = 0;
+    products.forEach(p => {
+      if(isBase64Image(p.image)) total++;
+      if(Array.isArray(p.images)) p.images.forEach(img => { if(isBase64Image(img)) total++; });
+    });
+    if(isBase64Image(siteConfig.logoImage)) total++;
+    if(isBase64Image(siteConfig.heroImage)) total++;
+    (siteConfig.adBanners || []).forEach(b => { if(isBase64Image(b.image)) total++; });
+    brands.forEach(b => { if(isBase64Image(b.icon)) total++; });
+
+    let done = 0, migrated = 0, failed = 0;
+    const tick = () => { done++; if(onProgress) onProgress(done, total); };
+
+    for(const p of products){
+      if(isBase64Image(p.image)){
+        const before = p.image;
+        p.image = await migrateOneImage(p.image, 'product');
+        if(p.image !== before) migrated++; else failed++;
+        tick();
+      }
+      if(Array.isArray(p.images)){
+        for(let i = 0; i < p.images.length; i++){
+          if(isBase64Image(p.images[i])){
+            const before = p.images[i];
+            p.images[i] = await migrateOneImage(p.images[i], 'product');
+            if(p.images[i] !== before) migrated++; else failed++;
+            tick();
+          }
+        }
+      }
+    }
+    if(isBase64Image(siteConfig.logoImage)){
+      const before = siteConfig.logoImage;
+      siteConfig.logoImage = await migrateOneImage(siteConfig.logoImage, 'logo');
+      if(siteConfig.logoImage !== before) migrated++; else failed++;
+      tick();
+    }
+    if(isBase64Image(siteConfig.heroImage)){
+      const before = siteConfig.heroImage;
+      siteConfig.heroImage = await migrateOneImage(siteConfig.heroImage, 'hero');
+      if(siteConfig.heroImage !== before) migrated++; else failed++;
+      tick();
+    }
+    for(const b of (siteConfig.adBanners || [])){
+      if(isBase64Image(b.image)){
+        const before = b.image;
+        b.image = await migrateOneImage(b.image, 'banner');
+        if(b.image !== before) migrated++; else failed++;
+        tick();
+      }
+    }
+    for(const b of brands){
+      if(isBase64Image(b.icon)){
+        const before = b.icon;
+        b.icon = await migrateOneImage(b.icon, 'brand');
+        if(b.icon !== before) migrated++; else failed++;
+        tick();
+      }
+    }
+
+    if(migrated > 0){
+      await saveProducts();
+      await saveSite(siteConfig);
+      await saveBrands(brands);
+    }
+    return { migrated, failed, total };
   }
 
   const grid = document.getElementById('product-grid');
@@ -3574,6 +3667,36 @@
     `;
   }
 
+  document.getElementById('migrate-images-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('migrate-images-btn');
+    const status = document.getElementById('migrate-images-status');
+    btn.disabled = true;
+    status.textContent = 'Analyse en cours…';
+    try{
+      const result = await migrateAllBase64Images((done, total) => {
+        status.textContent = `Optimisation en cours… ${done} / ${total}`;
+      });
+      if(result.total === 0){
+        status.textContent = 'Rien à optimiser — toutes les images sont déjà sur le stockage dédié.';
+      } else if(result.failed > 0){
+        status.textContent = `Terminé : ${result.migrated} image(s) optimisée(s), ${result.failed} échec(s) — vérifie que le bucket "product-images" est bien créé sur Supabase.`;
+      } else {
+        status.textContent = `Terminé : ${result.migrated} image(s) optimisée(s) avec succès.`;
+      }
+      if(result.migrated > 0){
+        applySiteConfig();
+        renderCatalog('all');
+        await renderAdminProducts();
+        applyBrandsPublic();
+        showToast(`${result.migrated} image(s) migrée(s) vers le stockage.`);
+      }
+    }catch(err){
+      status.textContent = 'Une erreur est survenue pendant l\'optimisation.';
+      console.error(err);
+    }
+    btn.disabled = false;
+  });
+
   /* ---- MARQUES (admin) ---- */
   function brandInitial(name){ return (name || '?').trim().charAt(0).toUpperCase(); }
 
@@ -3672,7 +3795,7 @@
     grid.innerHTML = brands.map(b => `
       <div class="brand-card">
         <div class="brand-icon">
-          ${b.icon ? `<img src="${esc(b.icon)}" alt="${esc(b.name)}" onerror="this.parentElement.innerHTML='<span>${brandInitial(b.name)}</span>'">` : `<span>${brandInitial(b.name)}</span>`}
+          ${b.icon ? `<img src="${esc(b.icon)}" alt="${esc(b.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span>${brandInitial(b.name)}</span>'">` : `<span>${brandInitial(b.name)}</span>`}
         </div>
         <span class="brand-name">${esc(b.name)}</span>
       </div>
@@ -3683,15 +3806,17 @@
   document.getElementById('dashboard-btn').addEventListener('click', async () => {
     document.getElementById('account-overlay').classList.remove('open');
     document.getElementById('dashboard-overlay').classList.add('open');
-    await renderOverviewStats();
-    await renderAdminProducts();
-    await renderAdminBrands();
-    await renderAdminPromos();
-    await renderAdminCoupons();
-    await renderAdminOrders();
-    await renderAdminReviews();
-    await renderAdminClients();
-    await renderAdminMessages();
+    await Promise.all([
+      renderOverviewStats(),
+      renderAdminProducts(),
+      renderAdminBrands(),
+      renderAdminPromos(),
+      renderAdminCoupons(),
+      renderAdminOrders(),
+      renderAdminReviews(),
+      renderAdminClients(),
+      renderAdminMessages(),
+    ]);
     renderAppearanceForm();
     renderAdminAdBanners();
     document.getElementById('security-form').reset();
@@ -4606,20 +4731,22 @@
   });
 
   (async function init(){
-    await loadProducts();
-    await ensureAdminAccount();
-    const site = await loadSite();
+    const [, site, brandsList, session] = await Promise.all([
+      loadProducts(),
+      loadSite(),
+      loadBrands(),
+      getSession(),
+      ensureAdminAccount(),
+    ]);
     if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
     siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
     if(!Array.isArray(siteConfig.adBanners)) siteConfig.adBanners = [];
     applySiteConfig();
     renderCatalog('all');
-    brands = await loadBrands();
+    brands = brandsList;
     applyBrandsPublic();
-    currentUser = await getSession();
-    await refreshAccountUI();
-    await refreshCartUI();
-    await refreshWishlistUI();
+    currentUser = session;
+    await Promise.all([refreshAccountUI(), refreshCartUI(), refreshWishlistUI()]);
     applyLang();
   })();
 </script>
