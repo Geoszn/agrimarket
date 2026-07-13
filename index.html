@@ -2358,40 +2358,53 @@
       }
     };
 
+    async function authHeaders(){
+      const headers = { apikey: SUPABASE_KEY };
+      if(supabaseClient){
+        try{
+          const { data } = await supabaseClient.auth.getSession();
+          if(data && data.session && data.session.access_token){
+            headers.Authorization = `Bearer ${data.session.access_token}`;
+          }
+        }catch(e){ /* pas de session, on continue en lecture publique */ }
+      }
+      return headers;
+    }
+
     const remote = {
       async get(key){
-        const res = await fetch(`${SUPABASE_TABLE}?key=eq.${encodeURIComponent(key)}&select=value`, {
-          headers: { apikey: SUPABASE_KEY }
-        });
+        const headers = await authHeaders();
+        const res = await fetch(`${SUPABASE_TABLE}?key=eq.${encodeURIComponent(key)}&select=value`, { headers });
         if(!res.ok) throw new Error('supabase get failed');
         const rows = await res.json();
         if(!rows.length) throw new Error('not found');
         return { key, value: rows[0].value };
       },
       async set(key, value){
+        const headers = await authHeaders();
+        headers['Content-Type'] = 'application/json';
+        headers.Prefer = 'resolution=merge-duplicates,return=minimal';
         const res = await fetch(`${SUPABASE_TABLE}?on_conflict=key`, {
           method: 'POST',
-          headers: {
-            apikey: SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            Prefer: 'resolution=merge-duplicates,return=minimal'
-          },
+          headers,
           body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
         });
         if(!res.ok) throw new Error('supabase set failed');
         return { key, value };
       },
       async delete(key){
+        const headers = await authHeaders();
         const res = await fetch(`${SUPABASE_TABLE}?key=eq.${encodeURIComponent(key)}`, {
           method: 'DELETE',
-          headers: { apikey: SUPABASE_KEY }
+          headers
         });
         if(!res.ok) throw new Error('supabase delete failed');
         return { key, deleted: true };
       },
       async list(prefix){
+        const headers = await authHeaders();
         const q = prefix ? `&key=like.${encodeURIComponent(prefix)}*` : '';
-        const res = await fetch(`${SUPABASE_TABLE}?select=key${q}`, { headers: { apikey: SUPABASE_KEY } });
+        const res = await fetch(`${SUPABASE_TABLE}?select=key${q}`, { headers });
         if(!res.ok) throw new Error('supabase list failed');
         const rows = await res.json();
         return { keys: rows.map(r => r.key), prefix };
@@ -2966,12 +2979,11 @@
       const comment = document.getElementById('pd-review-comment').value.trim();
       if(!chosenRating){ showToast('Choisis une note en étoiles.'); return; }
       if(!comment){ showToast('Écris un petit commentaire.'); return; }
-      const list = await loadReviews();
-      list.push({
+      const ok = await insertReview({
         id: 'rev' + Date.now(), productId: p.id, userId: currentUser.id, userName: currentUser.name,
-        rating: chosenRating, comment, status: 'pending', createdAt: new Date().toISOString()
+        rating: chosenRating, comment, status: 'pending'
       });
-      await saveReviews(list);
+      if(!ok){ showToast('Impossible d\'envoyer ton avis, réessaie.'); return; }
       showToast('Merci ! Ton avis sera publié après validation.');
       await renderProductReviews(p);
     });
@@ -3284,9 +3296,8 @@
     const email = document.getElementById('cm-email').value.trim();
     const message = document.getElementById('cm-message').value.trim();
     if(!name || !email || !message) return;
-    const list = await loadMessages();
-    list.unshift({ id: 'MSG-' + Date.now().toString().slice(-8), name, email, message, createdAt: new Date().toISOString(), read:false });
-    await saveMessages(list);
+    const ok = await insertMessage({ id: 'MSG-' + Date.now().toString().slice(-8), name, email, message, read: false });
+    if(!ok){ showToast('Impossible d\'envoyer le message, réessaie.'); return; }
     document.getElementById('contact-message-form').reset();
     document.getElementById('contact-modal-overlay').classList.remove('open');
     document.getElementById('contact-confirm-overlay').classList.add('open');
@@ -3322,11 +3333,9 @@
       `).join('');
     table.querySelectorAll('[data-action="delete-message"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        let l = await loadMessages();
-        l = l.filter(m => m.id !== btn.dataset.id);
-        await saveMessages(l);
-        await renderAdminMessages();
-        showToast('Message supprimé.');
+        const ok = await deleteMessage(btn.dataset.id);
+        if(ok){ await renderAdminMessages(); showToast('Message supprimé.'); }
+        else showToast('Impossible de supprimer ce message.');
       });
     });
   }
@@ -3750,9 +3759,7 @@
   const COUPONS_KEY = 'agrimarket_coupons';
   const BRANDS_KEY = 'agrimarket_brands';
   const CATEGORIES_KEY = 'agrimarket_categories';
-  const REVIEWS_KEY = 'agrimarket_reviews';
   const WISHLIST_KEY = 'agrimarket_wishlist';
-  const MESSAGES_KEY = 'agrimarket_messages';
   const DEFAULT_CATEGORIES = [
     { id: 'tracteur', name: 'Tracteurs' },
     { id: 'camion', name: 'Camions' },
@@ -3760,12 +3767,29 @@
     { id: 'remorque', name: 'Remorques' },
   ];
 
-  async function loadMessages(){
-    try{ const r = await window.storage.get(MESSAGES_KEY, true); return r ? JSON.parse(r.value) : []; }
-    catch(e){ return []; }
+  /* ---- Messages de contact (table "messages", RLS) ----
+     Envoi ouvert à tous (y compris non connectés), lecture et
+     suppression réservées à l'administrateur. */
+  function mapMessageFromDb(row){
+    return { id: row.id, name: row.name, email: row.email, message: row.message, read: row.read, createdAt: row.created_at };
   }
-  async function saveMessages(list){
-    try{ await window.storage.set(MESSAGES_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  async function loadMessages(){
+    if(!supabaseClient) return [];
+    const { data, error } = await supabaseClient.from('messages').select('*').order('created_at', { ascending: false });
+    if(error){ console.error(error); return []; }
+    return data.map(mapMessageFromDb);
+  }
+  async function insertMessage(msg){
+    const { error } = await supabaseClient.from('messages').insert({
+      id: msg.id, name: msg.name, email: msg.email, message: msg.message, read: msg.read || false,
+    });
+    if(error) console.error(error);
+    return !error;
+  }
+  async function deleteMessage(id){
+    const { error } = await supabaseClient.from('messages').delete().eq('id', id);
+    if(error) console.error(error);
+    return !error;
   }
 
   async function loadBrands(){
@@ -3790,12 +3814,36 @@
     const c = categories.find(x => x.id === id);
     return c ? c.name : id;
   }
-  async function loadReviews(){
-    try{ const r = await window.storage.get(REVIEWS_KEY, true); return r ? JSON.parse(r.value) : []; }
-    catch(e){ return []; }
+
+  /* ---- Avis clients (table "reviews", RLS) ----
+     Lecture publique des avis approuvés (+ les siens, + tout pour l'admin).
+     Un client ne peut créer que son propre avis ; modération = admin uniquement. */
+  function mapReviewFromDb(row){
+    return { id: row.id, productId: row.product_id, userId: row.user_id, userName: row.user_name, rating: row.rating, comment: row.comment, status: row.status, createdAt: row.created_at };
   }
-  async function saveReviews(list){
-    try{ await window.storage.set(REVIEWS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  async function loadReviews(){
+    if(!supabaseClient) return [];
+    const { data, error } = await supabaseClient.from('reviews').select('*').order('created_at', { ascending: false });
+    if(error){ console.error(error); return []; }
+    return data.map(mapReviewFromDb);
+  }
+  async function insertReview(review){
+    const { error } = await supabaseClient.from('reviews').insert({
+      id: review.id, product_id: review.productId, user_id: review.userId, user_name: review.userName,
+      rating: review.rating, comment: review.comment, status: review.status,
+    });
+    if(error) console.error(error);
+    return !error;
+  }
+  async function updateReview(id, fields){
+    const { error } = await supabaseClient.from('reviews').update(fields).eq('id', id);
+    if(error) console.error(error);
+    return !error;
+  }
+  async function deleteReview(id){
+    const { error } = await supabaseClient.from('reviews').delete().eq('id', id);
+    if(error) console.error(error);
+    return !error;
   }
   let brands = [];
 
@@ -4833,38 +4881,29 @@
 
     table.querySelectorAll('[data-action="approve-review"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const list2 = await loadReviews();
-        const r = list2.find(x => x.id === btn.dataset.id);
-        r.status = 'approved';
-        await saveReviews(list2);
-        await renderAdminReviews();
-        showToast('Avis publié.');
+        const ok = await updateReview(btn.dataset.id, { status: 'approved' });
+        if(ok){ await renderAdminReviews(); showToast('Avis publié.'); }
+        else showToast('Impossible de publier cet avis.');
       });
     });
     table.querySelectorAll('[data-action="unpublish-review"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const list2 = await loadReviews();
-        const r = list2.find(x => x.id === btn.dataset.id);
-        r.status = 'pending';
-        await saveReviews(list2);
-        await renderAdminReviews();
-        showToast('Avis dépublié.');
+        const ok = await updateReview(btn.dataset.id, { status: 'pending' });
+        if(ok){ await renderAdminReviews(); showToast('Avis dépublié.'); }
+        else showToast('Impossible de dépublier cet avis.');
       });
     });
     table.querySelectorAll('[data-action="delete-review"]').forEach(btn => {
       btn.addEventListener('click', async () => {
         if(!confirm('Supprimer définitivement cet avis ?')) return;
-        let list2 = await loadReviews();
-        list2 = list2.filter(x => x.id !== btn.dataset.id);
-        await saveReviews(list2);
-        await renderAdminReviews();
-        showToast('Avis supprimé.');
+        const ok = await deleteReview(btn.dataset.id);
+        if(ok){ await renderAdminReviews(); showToast('Avis supprimé.'); }
+        else showToast('Impossible de supprimer cet avis.');
       });
     });
     table.querySelectorAll('[data-action="edit-review"]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const list2 = await loadReviews();
-        const r = list2.find(x => x.id === btn.dataset.id);
+      btn.addEventListener('click', () => {
+        const r = all.find(x => x.id === btn.dataset.id);
         document.getElementById('er-id').value = r.id;
         document.getElementById('er-rating').value = r.rating;
         document.getElementById('er-comment').value = r.comment;
@@ -4888,11 +4927,11 @@
   });
   document.getElementById('edit-review-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const list2 = await loadReviews();
-    const r = list2.find(x => x.id === document.getElementById('er-id').value);
-    r.rating = Number(document.getElementById('er-rating').value);
-    r.comment = document.getElementById('er-comment').value.trim();
-    await saveReviews(list2);
+    const id = document.getElementById('er-id').value;
+    const rating = Number(document.getElementById('er-rating').value);
+    const comment = document.getElementById('er-comment').value.trim();
+    const ok = await updateReview(id, { rating, comment });
+    if(!ok){ showToast('Impossible de mettre à jour cet avis.'); return; }
     document.getElementById('edit-review-overlay').classList.remove('open');
     await renderAdminReviews();
     showToast('Avis mis à jour.');
