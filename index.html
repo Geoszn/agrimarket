@@ -12,6 +12,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2314171a'/%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='%23e8590c'/%3E%3Cdefs%3E%3Cpattern id='s' width='11.3' height='11.3' patternTransform='rotate(45)' patternUnits='userSpaceOnUse'%3E%3Crect width='5.65' height='11.3' fill='%23000000' opacity='0.22'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='url(%23s)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
     --bg: #14171a;
@@ -1266,6 +1267,7 @@
         <h3 data-i18n="login_title">Bon retour</h3>
         <p class="sub" data-i18n="login_sub">Connectez-vous pour suivre vos commandes.</p>
         <div class="form-error" id="login-error"></div>
+        <div class="form-error" id="login-info" style="background:rgba(90,180,90,0.12); border-color:#3a5a3a; color:#8fdc8f;"></div>
         <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="login-email" required></div>
         <div class="field"><label data-i18n="field_password">Mot de passe</label><input type="password" id="login-password" required></div>
         <button type="submit" class="btn btn-primary btn-block" data-i18n="login_btn">Se connecter</button>
@@ -1274,12 +1276,10 @@
 
       <form class="form-view" id="forgot-form">
         <h3 data-i18n="forgot_title">Réinitialiser le mot de passe</h3>
-        <p class="sub" data-i18n="forgot_sub">Renseigne ton email et choisis un nouveau mot de passe.</p>
+        <p class="sub" data-i18n="forgot_sub">Indique ton email — tu recevras un lien pour choisir un nouveau mot de passe.</p>
         <div class="form-error" id="forgot-error"></div>
         <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="forgot-email" required></div>
-        <div class="field"><label data-i18n="field_new_password">Nouveau mot de passe</label><input type="password" id="forgot-password" required minlength="4"></div>
-        <div class="field"><label data-i18n="field_confirm_new_password">Confirmer le nouveau mot de passe</label><input type="password" id="forgot-password-confirm" required minlength="4"></div>
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="forgot_btn">Réinitialiser</button>
+        <button type="submit" class="btn btn-primary btn-block" id="forgot-submit-btn" data-i18n="forgot_btn">Envoyer le lien</button>
         <a href="#" id="back-to-login-link" style="align-self:center; font-size:0.78rem; color:var(--text-mute); text-decoration:underline;" data-i18n="back_to_login">Retour à la connexion</a>
       </form>
 
@@ -1289,9 +1289,9 @@
         <div class="form-error" id="register-error"></div>
         <div class="field"><label data-i18n="field_fullname">Nom complet</label><input type="text" id="register-name" required></div>
         <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="register-email" required></div>
-        <div class="field"><label data-i18n="field_password">Mot de passe</label><input type="password" id="register-password" required minlength="4"></div>
-        <div class="field"><label data-i18n="field_confirm_password">Confirmer le mot de passe</label><input type="password" id="register-password-confirm" required minlength="4"></div>
-        <button type="submit" class="btn btn-primary btn-block" data-i18n="register_btn">Créer mon compte</button>
+        <div class="field"><label data-i18n="field_password">Mot de passe</label><input type="password" id="register-password" required minlength="6"></div>
+        <div class="field"><label data-i18n="field_confirm_password">Confirmer le mot de passe</label><input type="password" id="register-password-confirm" required minlength="6"></div>
+        <button type="submit" class="btn btn-primary btn-block" id="register-submit-btn" data-i18n="register_btn">Créer mon compte</button>
       </form>
     </div>
 
@@ -1951,6 +1951,23 @@
   </div>
 </div>
 
+<!-- ===== NOUVEAU MOT DE PASSE (après clic sur le lien reçu par email) ===== -->
+<div class="overlay" id="set-new-password-overlay">
+  <div class="modal">
+    <button class="modal-close" id="set-new-password-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3>Choisir un nouveau mot de passe</h3>
+    <p class="sub">Ton identité a été vérifiée via le lien reçu par email.</p>
+    <form id="set-new-password-form" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="form-error" id="set-new-password-error"></div>
+      <div class="field"><label>Nouveau mot de passe</label><input type="password" id="new-password-1" required minlength="6"></div>
+      <div class="field"><label>Confirmer le nouveau mot de passe</label><input type="password" id="new-password-2" required minlength="6"></div>
+      <button type="submit" class="btn btn-primary btn-block">Valider le nouveau mot de passe</button>
+    </form>
+  </div>
+</div>
+
 <!-- ===== MODAL ÉDITION CLIENT (admin) ===== -->
 <div class="overlay" id="edit-client-overlay">
   <div class="modal">
@@ -2090,7 +2107,7 @@
       tab_login:'Connexion', tab_register:'Créer un compte',
       login_title:'Bon retour', login_sub:'Connectez-vous pour suivre vos commandes.', login_btn:'Se connecter',
       forgot_link:'Mot de passe oublié ?', forgot_title:'Réinitialiser le mot de passe',
-      forgot_sub:'Renseigne ton email et choisis un nouveau mot de passe.', forgot_btn:'Réinitialiser', back_to_login:'Retour à la connexion',
+      forgot_sub:'Indique ton email — tu recevras un lien pour choisir un nouveau mot de passe.', forgot_btn:'Envoyer le lien', back_to_login:'Retour à la connexion',
       register_title:'Créer un compte', register_sub:'Gratuit — pour passer commande et suivre son historique.', register_btn:'Créer mon compte',
       field_email:'Email', field_password:'Mot de passe', field_new_password:'Nouveau mot de passe',
       field_confirm_new_password:'Confirmer le nouveau mot de passe', field_fullname:'Nom complet', field_confirm_password:'Confirmer le mot de passe',
@@ -2135,7 +2152,7 @@
       tab_login:'Sign in', tab_register:'Create account',
       login_title:'Welcome back', login_sub:'Sign in to track your orders.', login_btn:'Sign in',
       forgot_link:'Forgot password?', forgot_title:'Reset password',
-      forgot_sub:'Enter your email and choose a new password.', forgot_btn:'Reset', back_to_login:'Back to sign in',
+      forgot_sub:'Enter your email — you\'ll get a link to choose a new password.', forgot_btn:'Send link', back_to_login:'Back to sign in',
       register_title:'Create an account', register_sub:'Free — to place orders and track your history.', register_btn:'Create my account',
       field_email:'Email', field_password:'Password', field_new_password:'New password',
       field_confirm_new_password:'Confirm new password', field_fullname:'Full name', field_confirm_password:'Confirm password',
@@ -2194,6 +2211,13 @@
   const SUPABASE_URL = 'https://lyvmashwdvnrhhkzapxk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_aMqTjYQ-4O5BPQ_pDtfaRw_RicFb5Y9';
   const SUPABASE_TABLE = `${SUPABASE_URL}/rest/v1/kv_store`;
+  const SITE_URL = 'https://geoszn.github.io/agrimarket/';
+  /* Client Supabase Auth — gère l'inscription, la connexion et la
+     réinitialisation de mot de passe des CLIENTS par email réel.
+     (L'administrateur garde son propre système de compte, séparé.) */
+  const supabaseClient = (typeof window.supabase !== 'undefined')
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
 
   if (!window.storage) {
     const local = {
@@ -2875,6 +2899,31 @@
       else{ await window.storage.set(SESSION_KEY, JSON.stringify(val), false); }
     }catch(e){ console.error(e); }
   }
+  /* Restaure la session au chargement : d'abord côté client (Supabase Auth),
+     sinon on retombe sur la session admin (système local séparé). */
+  async function restoreSession(){
+    if(supabaseClient){
+      try{
+        const { data } = await supabaseClient.auth.getSession();
+        if(data && data.session && data.session.user){
+          const authUser = data.session.user;
+          const users = await getUsers();
+          let profile = users.find(u => u.id === authUser.id);
+          if(!profile){
+            profile = { id: authUser.id, name: authUser.user_metadata?.name || authUser.email.split('@')[0], email: authUser.email, createdAt: new Date().toISOString(), blocked: false };
+            users.push(profile);
+            await setUsers(users);
+          }
+          if(profile.blocked){
+            await supabaseClient.auth.signOut();
+          } else {
+            return { id: profile.id, name: profile.name, email: profile.email };
+          }
+        }
+      }catch(e){ console.warn('Session Supabase indisponible', e); }
+    }
+    return await getSession();
+  }
   async function getCart(){
     try{ const r = await window.storage.get(CART_KEY, false); return r ? JSON.parse(r.value) : []; }
     catch(e){ return []; }
@@ -3283,32 +3332,48 @@
     const email = document.getElementById('register-email').value.trim().toLowerCase();
     const password = document.getElementById('register-password').value;
     const passwordConfirm = document.getElementById('register-password-confirm').value;
-    if(!name || !email || password.length < 4){
-      showFormError('register-error', 'Merci de remplir tous les champs (mot de passe : 4 caractères min.).');
+    if(!name || !email || password.length < 6){
+      showFormError('register-error', 'Merci de remplir tous les champs (mot de passe : 6 caractères min.).');
       return;
     }
     if(password !== passwordConfirm){
       showFormError('register-error', 'Les deux mots de passe ne correspondent pas.');
       return;
     }
-    const users = await getUsers();
-    if(users.some(u => u.email === email)){
-      showFormError('register-error', 'Un compte existe déjà avec cet email.');
+    if(!supabaseClient){
+      showFormError('register-error', 'Service de comptes indisponible pour le moment.');
       return;
     }
-    const user = { id: 'U-' + Date.now(), name, email, createdAt: new Date().toISOString() };
-    await setUserPassword(user, password);
-    users.push(user);
-    await setUsers(users);
-    currentUser = { id: user.id, name: user.name, email: user.email };
-    await setSession(currentUser);
+    const btn = document.getElementById('register-submit-btn');
+    btn.disabled = true;
+    const { data, error } = await supabaseClient.auth.signUp({
+      email, password,
+      options: { data: { name }, emailRedirectTo: SITE_URL }
+    });
+    btn.disabled = false;
+    if(error){
+      showFormError('register-error', /already registered/i.test(error.message || '')
+        ? 'Un compte existe déjà avec cet email.'
+        : ('Impossible de créer le compte : ' + error.message));
+      return;
+    }
+    const users = await getUsers();
+    if(data.user && !users.some(u => u.id === data.user.id)){
+      users.push({ id: data.user.id, name, email, createdAt: new Date().toISOString(), blocked: false });
+      await setUsers(users);
+    }
     document.getElementById('register-form').reset();
-    await refreshAccountUI();
-    openAccountModal();
-    showToast(`Bienvenue, ${name.split(' ')[0]} !`);
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+    document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
+    document.getElementById('login-form').classList.add('active');
+    const info = document.getElementById('login-info');
+    info.textContent = `Compte créé ! Un email de confirmation a été envoyé à ${email}. Clique sur le lien reçu avant de te connecter.`;
+    info.classList.add('show');
+    showToast('Vérifie ta boîte mail pour confirmer ton compte.');
   });
 
-  /* ---- Mot de passe oublié ---- */
+  /* ---- Mot de passe oublié (vrai email via Supabase Auth) ---- */
   document.getElementById('forgot-password-link').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('auth-tabs').style.display = 'none';
@@ -3328,64 +3393,129 @@
     e.preventDefault();
     hideFormError('forgot-error');
     const email = document.getElementById('forgot-email').value.trim().toLowerCase();
-    const pwd = document.getElementById('forgot-password').value;
-    const pwdConfirm = document.getElementById('forgot-password-confirm').value;
-    if(pwd.length < 4){
-      showFormError('forgot-error', 'Le mot de passe doit contenir au moins 4 caractères.');
+    if(!supabaseClient){
+      showFormError('forgot-error', 'Service indisponible pour le moment.');
       return;
     }
-    if(pwd !== pwdConfirm){
-      showFormError('forgot-error', 'Les deux mots de passe ne correspondent pas.');
-      return;
-    }
-    const users = await getUsers();
-    const user = users.find(u => u.email === email);
-    if(user){
-      await setUserPassword(user, pwd);
-      await setUsers(users);
-    }
+    const btn = document.getElementById('forgot-submit-btn');
+    btn.disabled = true;
+    await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: SITE_URL });
+    btn.disabled = false;
     document.getElementById('forgot-form').reset();
     document.getElementById('auth-tabs').style.display = 'flex';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
     document.querySelectorAll('.form-view').forEach(f => f.classList.remove('active'));
     document.getElementById('login-form').classList.add('active');
-    showToast('Si un compte existe avec cet email, le mot de passe a été mis à jour.');
+    const info = document.getElementById('login-info');
+    info.textContent = 'Si un compte existe avec cet email, un lien de réinitialisation vient d\'être envoyé. Vérifie ta boîte mail.';
+    info.classList.add('show');
+    showToast('Email envoyé si le compte existe.');
+  });
+
+  /* ---- Choix du nouveau mot de passe, après clic sur le lien reçu par email ---- */
+  if(supabaseClient){
+    supabaseClient.auth.onAuthStateChange((event) => {
+      if(event === 'PASSWORD_RECOVERY'){
+        document.getElementById('set-new-password-overlay').classList.add('open');
+      }
+    });
+  }
+  document.getElementById('set-new-password-close').addEventListener('click', () => {
+    document.getElementById('set-new-password-overlay').classList.remove('open');
+  });
+  document.getElementById('set-new-password-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'set-new-password-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('set-new-password-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('set-new-password-error');
+    errEl.classList.remove('show');
+    const p1 = document.getElementById('new-password-1').value;
+    const p2 = document.getElementById('new-password-2').value;
+    if(p1.length < 6){ errEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères.'; errEl.classList.add('show'); return; }
+    if(p1 !== p2){ errEl.textContent = 'Les deux mots de passe ne correspondent pas.'; errEl.classList.add('show'); return; }
+    const { error } = await supabaseClient.auth.updateUser({ password: p1 });
+    if(error){ errEl.textContent = 'Erreur : ' + error.message; errEl.classList.add('show'); return; }
+    document.getElementById('set-new-password-overlay').classList.remove('open');
+    document.getElementById('set-new-password-form').reset();
+    showToast('Mot de passe mis à jour, tu es connecté(e).');
+    const { data } = await supabaseClient.auth.getUser();
+    if(data && data.user){
+      const users = await getUsers();
+      let profile = users.find(u => u.id === data.user.id);
+      if(!profile){
+        profile = { id: data.user.id, name: data.user.user_metadata?.name || data.user.email.split('@')[0], email: data.user.email, createdAt: new Date().toISOString(), blocked: false };
+        users.push(profile);
+        await setUsers(users);
+      }
+      currentUser = { id: profile.id, name: profile.name, email: profile.email };
+      await refreshAccountUI();
+    }
   });
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideFormError('login-error');
+    document.getElementById('login-info').classList.remove('show');
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const password = document.getElementById('login-password').value;
 
+    // 1) Compte administrateur : système local séparé
     const users = await getUsers();
-    const user = users.find(u => u.email === email);
-    if(!user || !(await verifyUserPassword(user, password))){
-      showFormError('login-error', 'Email ou mot de passe incorrect.');
+    const adminUser = users.find(u => u.email === email && u.role === 'admin');
+    if(adminUser){
+      if(!(await verifyUserPassword(adminUser, password))){
+        showFormError('login-error', 'Email ou mot de passe incorrect.');
+        return;
+      }
+      await setUsers(users);
+      currentUser = { id: adminUser.id, name: adminUser.name, email: adminUser.email, role: 'admin' };
+      await setSession(currentUser);
+      document.getElementById('login-form').reset();
+      await refreshAccountUI();
+      document.getElementById('account-overlay').classList.remove('open');
+      showToast('Connecté en tant qu\'administrateur.');
       return;
     }
-    await setUsers(users); // persiste une éventuelle migration silencieuse vers le mot de passe haché
-    if(user.blocked){
+
+    // 2) Compte client : Supabase Auth (email réel requis, vérifié)
+    if(!supabaseClient){
+      showFormError('login-error', 'Service de comptes indisponible pour le moment.');
+      return;
+    }
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if(error){
+      showFormError('login-error', /confirm/i.test(error.message || '')
+        ? 'Confirme ton adresse email avant de te connecter (vérifie ta boîte mail).'
+        : 'Email ou mot de passe incorrect.');
+      return;
+    }
+    let profile = users.find(u => u.id === data.user.id);
+    if(!profile){
+      profile = { id: data.user.id, name: data.user.user_metadata?.name || email.split('@')[0], email, createdAt: new Date().toISOString(), blocked: false };
+      users.push(profile);
+      await setUsers(users);
+    }
+    if(profile.blocked){
+      await supabaseClient.auth.signOut();
       showFormError('login-error', 'Ce compte a été bloqué. Contactez le support AgriMarket.');
       return;
     }
-    currentUser = { id: user.id, name: user.name, email: user.email, role: user.role || undefined };
-    await setSession(currentUser);
+    currentUser = { id: profile.id, name: profile.name, email: profile.email };
     document.getElementById('login-form').reset();
     await refreshAccountUI();
-    if(user.role === 'admin'){
-      document.getElementById('account-overlay').classList.remove('open');
-      showToast('Connecté en tant qu\'administrateur.');
-    } else {
-      openAccountModal();
-      showToast(`Ravi de vous revoir, ${user.name.split(' ')[0]} !`);
-    }
+    openAccountModal();
+    showToast(`Ravi de vous revoir, ${profile.name.split(' ')[0]} !`);
   });
 
   document.getElementById('logout-btn').addEventListener('click', async () => {
+    if(currentUser && currentUser.role === 'admin'){
+      await setSession(null);
+    } else if(supabaseClient){
+      await supabaseClient.auth.signOut();
+    }
     currentUser = null;
-    await setSession(null);
     document.getElementById('account-overlay').classList.remove('open');
     await refreshAccountUI();
     showToast('Vous êtes déconnecté.');
@@ -3404,8 +3534,8 @@
     let users = await getUsers();
     users = users.filter(u => u.id !== currentUser.id);
     await setUsers(users);
+    if(supabaseClient) await supabaseClient.auth.signOut();
     currentUser = null;
-    await setSession(null);
     document.getElementById('confirm-delete-block').style.display = 'none';
     document.getElementById('account-overlay').classList.remove('open');
     await refreshAccountUI();
@@ -5073,7 +5203,7 @@
       loadProducts(),
       loadSite(),
       loadBrands(),
-      getSession(),
+      restoreSession(),
       ensureAdminAccount(),
       loadCategories(),
     ]);
