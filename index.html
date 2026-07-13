@@ -2267,7 +2267,37 @@
   });
 
   /* ---- Upload d'image -> compression -> data URL (stockable comme texte) ---- */
-  function compressImageFile(file, maxDim = 900, quality = 0.72){
+  const STORAGE_BUCKET = 'product-images';
+
+  function compressImageToBlob(file, maxDim = 900, quality = 0.72){
+    return new Promise((resolve, reject) => {
+      if(!file.type.startsWith('image/')){ reject(new Error('not an image')); return; }
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error);
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('image load failed'));
+        img.onload = () => {
+          let { width, height } = img;
+          if(width > maxDim || height > maxDim){
+            if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+            else { width = Math.round(width * maxDim / height); height = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          canvas.toBlob(blob => {
+            if(!blob) reject(new Error('toBlob failed'));
+            else resolve(blob);
+          }, 'image/jpeg', quality);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function compressImageFileBase64(file, maxDim, quality){
     return new Promise((resolve, reject) => {
       if(!file.type.startsWith('image/')){ reject(new Error('not an image')); return; }
       const reader = new FileReader();
@@ -2290,6 +2320,31 @@
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  async function uploadImageToStorage(blob, prefix){
+    const filename = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filename}`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'image/jpeg' },
+      body: blob
+    });
+    if(!res.ok) throw new Error('upload failed: ' + res.status);
+    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${filename}`;
+  }
+
+  /* Compresse une image et l'envoie vers Supabase Storage (léger : seul un
+     lien est stocké dans les données du site). Si l'espace de stockage
+     n'est pas encore configuré ou injoignable, on retombe automatiquement
+     sur une image encodée directement (plus lourde, mais toujours utilisable). */
+  async function compressImageFile(file, maxDim = 900, quality = 0.72){
+    try{
+      const blob = await compressImageToBlob(file, maxDim, quality);
+      return await uploadImageToStorage(blob, 'img');
+    }catch(err){
+      console.warn('Upload vers Supabase Storage impossible, repli en base64.', err);
+      return await compressImageFileBase64(file, maxDim, quality);
+    }
   }
 
   const grid = document.getElementById('product-grid');
