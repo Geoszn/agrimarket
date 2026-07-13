@@ -318,6 +318,39 @@
   .filter-btn.active{background:var(--accent); color:#14171a; border-color:var(--accent);}
 
   /* ===== PRODUCT GRID ===== */
+  /* ===== MISE EN PAGE CATALOGUE + BANNIÈRE LATÉRALE ===== */
+  .catalog-layout{display:flex; gap:28px; align-items:flex-start;}
+  .catalog-main{flex:1; min-width:0;}
+  .catalog-sidebar{width:260px; flex-shrink:0; position:sticky; top:96px;}
+  .side-banner{
+    display:block; width:100%; aspect-ratio:1/2; border-radius:5px; overflow:hidden;
+    border:1px solid var(--line); background:var(--surface); transition:border-color .2s;
+  }
+  .side-banner:hover{border-color:var(--accent);}
+  .side-banner img{width:100%; height:100%; object-fit:cover; display:block;}
+
+  .side-square-row{display:block;}
+  .side-banner-square{
+    display:block; width:100%; aspect-ratio:1/1; border-radius:5px; overflow:hidden;
+    border:1px solid var(--line); background:var(--surface); margin-top:16px; transition:border-color .2s;
+  }
+  .side-banner-square:hover{border-color:var(--accent);}
+  .side-banner-square img{width:100%; height:100%; object-fit:cover; display:block;}
+
+  /* ===== PAGINATION ===== */
+  .pagination{
+    display:flex; align-items:center; justify-content:center; gap:18px; margin-top:40px;
+  }
+  .page-btn{
+    width:38px; height:38px; border-radius:50%; background:var(--surface); border:1px solid var(--line);
+    color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.15s;
+  }
+  .page-btn:hover:not(:disabled){border-color:var(--accent); color:var(--accent-2);}
+  .page-btn:disabled{opacity:0.35; cursor:not-allowed;}
+  .page-info{
+    font-family:'IBM Plex Mono'; font-size:0.8rem; color:var(--text-mute); letter-spacing:0.03em; min-width:90px; text-align:center;
+  }
+
   .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;}
   .card{
     background:var(--surface);
@@ -963,6 +996,11 @@
     .grid{grid-template-columns:repeat(2,1fr);}
     .trust-grid{grid-template-columns:repeat(2,1fr);}
     .footer-grid{grid-template-columns:1fr 1fr;}
+    .catalog-layout{flex-direction:column;}
+    .catalog-sidebar{width:100%; position:static; order:3;}
+    .side-banner{aspect-ratio:3/1; max-height:200px;}
+    .side-square-row{display:flex; gap:12px;}
+    .side-banner-square{flex:1;}
   }
   @media (max-width:560px){
     .grid{grid-template-columns:1fr;}
@@ -972,6 +1010,7 @@
     .stat-row{gap:24px;}
     .cta-row{width:100%;}
     .cta-row .btn{flex:1; justify-content:center;}
+    .pagination{gap:10px;}
   }
   @media (max-width:480px){
     .nav{padding:13px 16px;}
@@ -1150,8 +1189,36 @@
       <button class="filter-btn active" data-cat="all" data-i18n="filter_all">Tous</button>
     </div>
 
-    <div class="grid" id="product-grid"></div>
-    <p class="dt-empty" id="catalog-empty" style="display:none;" data-i18n="catalog_empty">Aucun article ne correspond à ta recherche.</p>
+    <div class="catalog-layout">
+      <div class="catalog-main">
+        <div class="grid" id="product-grid"></div>
+        <p class="dt-empty" id="catalog-empty" style="display:none;" data-i18n="catalog_empty">Aucun article ne correspond à ta recherche.</p>
+
+        <div class="pagination" id="catalog-pagination" style="display:none;">
+          <button class="page-btn" id="page-prev" aria-label="Page précédente">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="page-info" id="page-info">Page 1 / 1</span>
+          <button class="page-btn" id="page-next" aria-label="Page suivante">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <aside class="catalog-sidebar" id="catalog-sidebar" style="display:none;">
+        <a class="side-banner" id="side-banner-link" target="_blank" rel="noopener">
+          <img id="side-banner-img" alt="Publicité">
+        </a>
+        <div class="side-square-row">
+          <a class="side-banner-square" id="side-banner-link-2" target="_blank" rel="noopener" style="display:none;">
+            <img id="side-banner-img-2" alt="Publicité">
+          </a>
+          <a class="side-banner-square" id="side-banner-link-3" target="_blank" rel="noopener" style="display:none;">
+            <img id="side-banner-img-3" alt="Publicité">
+          </a>
+        </div>
+      </aside>
+    </div>
   </div>
 </section>
 
@@ -1899,6 +1966,57 @@
         </form>
         <p class="dash-hint" id="ab-limit-hint" style="display:none; color:#ff9070;">Limite de 5 bannières atteinte — supprimez-en une pour en ajouter une nouvelle.</p>
         <div class="dash-table" id="ad-banners-table"></div>
+
+        <h3 class="dash-subhead">Bannière latérale (verticale)</h3>
+        <p class="dash-hint">Affichée à côté du catalogue, sur toute sa hauteur. Format idéal : <b style="color:var(--text);">300 × 600 px</b> (portrait). Sur mobile, elle s'affiche sous le catalogue dans un format plus large et moins haut. Laisse vide pour la masquer.</p>
+        <form class="promo-tool" id="side-banner-form">
+          <div class="field" style="flex:2;">
+            <label>Image</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="side-banner-input" placeholder="https://…" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="side-banner-file" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="field" style="flex:1.4;"><label>Lien (optionnel)</label><input type="text" id="side-banner-link-input" placeholder="#catalogue"></div>
+          <button type="submit" class="btn btn-primary">Mettre à jour</button>
+          <button type="button" class="btn btn-ghost" id="side-banner-clear">Retirer</button>
+        </form>
+
+        <h3 class="dash-subhead">Bannières carrées (sous la bannière latérale)</h3>
+        <p class="dash-hint">Deux emplacements, affichés côte à côte sur mobile. Format idéal : <b style="color:var(--text);">300 × 300 px</b> (carré). Laisse vide pour masquer un emplacement.</p>
+        <form class="promo-tool" id="side-banner-form-2">
+          <div class="field" style="flex:2;">
+            <label>Image — emplacement 1</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="side-banner-input-2" placeholder="https://…" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="side-banner-file-2" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="field" style="flex:1.4;"><label>Lien (optionnel)</label><input type="text" id="side-banner-link-input-2" placeholder="#catalogue"></div>
+          <button type="submit" class="btn btn-primary">Mettre à jour</button>
+          <button type="button" class="btn btn-ghost" id="side-banner-clear-2">Retirer</button>
+        </form>
+        <form class="promo-tool" id="side-banner-form-3">
+          <div class="field" style="flex:2;">
+            <label>Image — emplacement 2</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="side-banner-input-3" placeholder="https://…" style="flex:1; min-width:160px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="side-banner-file-3" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <div class="field" style="flex:1.4;"><label>Lien (optionnel)</label><input type="text" id="side-banner-link-input-3" placeholder="#catalogue"></div>
+          <button type="submit" class="btn btn-primary">Mettre à jour</button>
+          <button type="button" class="btn btn-ghost" id="side-banner-clear-3">Retirer</button>
+        </form>
       </section>
 
       <!-- PAGES LÉGALES -->
@@ -1975,12 +2093,12 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
     <h3>Modifier le client</h3>
-    <p class="sub">Met à jour le nom et l'email de ce compte.</p>
+    <p class="sub">Met à jour le nom affiché pour ce compte. L'email de connexion appartient au client (géré via Supabase Auth) et ne peut pas être changé ici.</p>
     <form id="edit-client-form" style="display:flex; flex-direction:column; gap:14px;">
       <input type="hidden" id="ec-id">
       <div class="form-error" id="edit-client-error"></div>
       <div class="field"><label>Nom complet</label><input type="text" id="ec-name" required></div>
-      <div class="field"><label>Email</label><input type="email" id="ec-email" required></div>
+      <div class="field"><label>Email (lecture seule)</label><input type="email" id="ec-email" disabled style="opacity:0.6;"></div>
       <button type="submit" class="btn btn-primary btn-block">Enregistrer</button>
     </form>
   </div>
@@ -2542,7 +2660,8 @@
   const grid = document.getElementById('product-grid');
   const productById = (id) => products.find(p => p.id === Number(id));
 
-  let catalogState = { cat: 'all', search: '', sort: 'default' };
+  let catalogState = { cat: 'all', search: '', sort: 'default', page: 1 };
+  const CATALOG_PER_PAGE = 15;
 
   function statusBadge(p){
     if(p.status === 'vendu') return { cls: 'sold', label: 'VENDU' };
@@ -2565,10 +2684,15 @@
     else if(catalogState.sort === 'price-desc') list = [...list].sort((a,b) => b.price - a.price);
     else if(catalogState.sort === 'recent') list = [...list].sort((a,b) => b.id - a.id);
 
+    const totalPages = Math.max(1, Math.ceil(list.length / CATALOG_PER_PAGE));
+    if(catalogState.page > totalPages) catalogState.page = totalPages;
+    if(catalogState.page < 1) catalogState.page = 1;
+    const pageList = list.slice((catalogState.page - 1) * CATALOG_PER_PAGE, catalogState.page * CATALOG_PER_PAGE);
+
     grid.innerHTML = '';
     document.getElementById('catalog-empty').style.display = list.length === 0 ? 'block' : 'none';
 
-    list.forEach(p => {
+    pageList.forEach(p => {
         const unavailable = p.status === 'vendu' || p.status === 'reserve';
         const badge = statusBadge(p);
         const inWishlist = wl.includes(p.id);
@@ -2632,14 +2756,38 @@
     });
 
     grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    const paginationEl = document.getElementById('catalog-pagination');
+    if(totalPages > 1){
+      paginationEl.style.display = 'flex';
+      document.getElementById('page-info').textContent = `Page ${catalogState.page} / ${totalPages}`;
+      document.getElementById('page-prev').disabled = catalogState.page <= 1;
+      document.getElementById('page-next').disabled = catalogState.page >= totalPages;
+    } else {
+      paginationEl.style.display = 'none';
+    }
   }
+
+  document.getElementById('page-prev').addEventListener('click', () => {
+    if(catalogState.page <= 1) return;
+    catalogState.page--;
+    renderCatalog();
+    document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.getElementById('page-next').addEventListener('click', () => {
+    catalogState.page++;
+    renderCatalog();
+    document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   document.getElementById('catalog-search').addEventListener('input', (e) => {
     catalogState.search = e.target.value;
+    catalogState.page = 1;
     renderCatalog();
   });
   document.getElementById('catalog-sort').addEventListener('change', (e) => {
     catalogState.sort = e.target.value;
+    catalogState.page = 1;
     renderCatalog();
   });
 
@@ -2833,6 +2981,7 @@
     if(!e.target.classList.contains('filter-btn')) return;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
+    catalogState.page = 1;
     renderCatalog(e.target.dataset.cat);
   });
 
@@ -2866,29 +3015,69 @@
   });
 
   /* =========================================================
-     STOCKAGE — comptes (partagés) / panier & session (perso)
-     Démo : mots de passe en clair, à sécuriser côté serveur
-     réel avant toute mise en production.
+     COMPTES & COMMANDES — vraies tables Postgres (RLS Supabase)
+     Un client ne peut lire/modifier que ses propres données ;
+     seul un compte marqué role='admin' dans "profiles" voit tout.
+     Voir le script SQL fourni pour la structure exacte.
   ========================================================= */
-  const USERS_KEY = 'agrimarket_users';
-  const ORDERS_KEY = 'agrimarket_orders';
   const SESSION_KEY = 'agrimarket_session';
   const CART_KEY = 'agrimarket_cart';
 
-  async function getUsers(){
-    try{ const r = await window.storage.get(USERS_KEY, true); return r ? JSON.parse(r.value) : []; }
-    catch(e){ return []; }
+  /* ---- Profils (table "profiles") ---- */
+  async function getMyProfile(){
+    if(!supabaseClient) return null;
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const uid = sessionData?.session?.user?.id;
+    if(!uid) return null;
+    const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', uid).maybeSingle();
+    if(error){ console.error(error); return null; }
+    return data;
   }
-  async function setUsers(list){
-    try{ await window.storage.set(USERS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  async function getAllProfiles(){
+    if(!supabaseClient) return [];
+    const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
+    if(error){ console.error(error); return []; }
+    return data;
+  }
+  async function updateProfile(id, fields){
+    const { error } = await supabaseClient.from('profiles').update(fields).eq('id', id);
+    if(error) console.error(error);
+    return !error;
+  }
+  async function deleteProfile(id){
+    const { error } = await supabaseClient.from('profiles').delete().eq('id', id);
+    if(error) console.error(error);
+    return !error;
+  }
+
+  /* ---- Commandes (table "orders") ---- */
+  function mapOrderFromDb(row){
+    return {
+      id: row.id, userId: row.user_id, userName: row.user_name, userEmail: row.user_email,
+      items: row.items, subtotal: Number(row.subtotal), total: Number(row.total),
+      coupon: row.coupon, status: row.status, createdAt: row.created_at,
+    };
   }
   async function getOrders(){
-    try{ const r = await window.storage.get(ORDERS_KEY, true); return r ? JSON.parse(r.value) : []; }
-    catch(e){ return []; }
+    if(!supabaseClient) return [];
+    const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    if(error){ console.error(error); return []; }
+    return data.map(mapOrderFromDb);
   }
-  async function setOrders(list){
-    try{ await window.storage.set(ORDERS_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  async function insertOrder(order){
+    const { error } = await supabaseClient.from('orders').insert({
+      id: order.id, user_id: order.userId, user_name: order.userName, user_email: order.userEmail,
+      items: order.items, subtotal: order.subtotal, total: order.total, coupon: order.coupon, status: order.status,
+    });
+    if(error) console.error(error);
+    return !error;
   }
+  async function updateOrderStatusDb(id, status){
+    const { error } = await supabaseClient.from('orders').update({ status }).eq('id', id);
+    if(error) console.error(error);
+    return !error;
+  }
+
   async function getSession(){
     try{ const r = await window.storage.get(SESSION_KEY, false); return r ? JSON.parse(r.value) : null; }
     catch(e){ return null; }
@@ -2899,30 +3088,23 @@
       else{ await window.storage.set(SESSION_KEY, JSON.stringify(val), false); }
     }catch(e){ console.error(e); }
   }
-  /* Restaure la session au chargement : d'abord côté client (Supabase Auth),
-     sinon on retombe sur la session admin (système local séparé). */
+  /* Restaure la session au chargement à partir de Supabase Auth
+     (utilisée à la fois par les clients et par l'administrateur). */
   async function restoreSession(){
-    if(supabaseClient){
-      try{
-        const { data } = await supabaseClient.auth.getSession();
-        if(data && data.session && data.session.user){
-          const authUser = data.session.user;
-          const users = await getUsers();
-          let profile = users.find(u => u.id === authUser.id);
-          if(!profile){
-            profile = { id: authUser.id, name: authUser.user_metadata?.name || authUser.email.split('@')[0], email: authUser.email, createdAt: new Date().toISOString(), blocked: false };
-            users.push(profile);
-            await setUsers(users);
-          }
-          if(profile.blocked){
-            await supabaseClient.auth.signOut();
-          } else {
-            return { id: profile.id, name: profile.name, email: profile.email };
-          }
+    if(!supabaseClient) return null;
+    try{
+      const { data } = await supabaseClient.auth.getSession();
+      if(data && data.session && data.session.user){
+        const profile = await getMyProfile();
+        if(!profile) return null;
+        if(profile.blocked){
+          await supabaseClient.auth.signOut();
+          return null;
         }
-      }catch(e){ console.warn('Session Supabase indisponible', e); }
-    }
-    return await getSession();
+        return { id: profile.id, name: profile.name, email: profile.email, role: profile.role === 'admin' ? 'admin' : undefined };
+      }
+    }catch(e){ console.warn('Session Supabase indisponible', e); }
+    return null;
   }
   async function getCart(){
     try{ const r = await window.storage.get(CART_KEY, false); return r ? JSON.parse(r.value) : []; }
@@ -3208,14 +3390,13 @@
       status: 'reçu',
       createdAt: new Date().toISOString()
     };
-    const orders = await getOrders();
-    orders.unshift(order);
-    await setOrders(orders);
+    await insertOrder(order);
     await setCart([]);
     appliedCoupon = null;
     document.getElementById('coupon-input').value = '';
     document.getElementById('coupon-feedback').style.display = 'none';
     await refreshCartUI();
+    await refreshDashboardBadge();
 
     document.getElementById('cart-overlay').classList.remove('open');
 
@@ -3357,11 +3538,8 @@
         : ('Impossible de créer le compte : ' + error.message));
       return;
     }
-    const users = await getUsers();
-    if(data.user && !users.some(u => u.id === data.user.id)){
-      users.push({ id: data.user.id, name, email, createdAt: new Date().toISOString(), blocked: false });
-      await setUsers(users);
-    }
+    // Le profil (nom, email, rôle) est créé automatiquement par un déclencheur
+    // côté base de données dès que le compte Supabase Auth est créé.
     document.getElementById('register-form').reset();
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
@@ -3442,15 +3620,11 @@
     showToast('Mot de passe mis à jour, tu es connecté(e).');
     const { data } = await supabaseClient.auth.getUser();
     if(data && data.user){
-      const users = await getUsers();
-      let profile = users.find(u => u.id === data.user.id);
-      if(!profile){
-        profile = { id: data.user.id, name: data.user.user_metadata?.name || data.user.email.split('@')[0], email: data.user.email, createdAt: new Date().toISOString(), blocked: false };
-        users.push(profile);
-        await setUsers(users);
+      const profile = await getMyProfile();
+      if(profile){
+        currentUser = { id: profile.id, name: profile.name, email: profile.email, role: profile.role === 'admin' ? 'admin' : undefined };
+        await refreshAccountUI();
       }
-      currentUser = { id: profile.id, name: profile.name, email: profile.email };
-      await refreshAccountUI();
     }
   });
 
@@ -3461,25 +3635,6 @@
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const password = document.getElementById('login-password').value;
 
-    // 1) Compte administrateur : système local séparé
-    const users = await getUsers();
-    const adminUser = users.find(u => u.email === email && u.role === 'admin');
-    if(adminUser){
-      if(!(await verifyUserPassword(adminUser, password))){
-        showFormError('login-error', 'Email ou mot de passe incorrect.');
-        return;
-      }
-      await setUsers(users);
-      currentUser = { id: adminUser.id, name: adminUser.name, email: adminUser.email, role: 'admin' };
-      await setSession(currentUser);
-      document.getElementById('login-form').reset();
-      await refreshAccountUI();
-      document.getElementById('account-overlay').classList.remove('open');
-      showToast('Connecté en tant qu\'administrateur.');
-      return;
-    }
-
-    // 2) Compte client : Supabase Auth (email réel requis, vérifié)
     if(!supabaseClient){
       showFormError('login-error', 'Service de comptes indisponible pour le moment.');
       return;
@@ -3491,30 +3646,32 @@
         : 'Email ou mot de passe incorrect.');
       return;
     }
-    let profile = users.find(u => u.id === data.user.id);
+    const profile = await getMyProfile();
     if(!profile){
-      profile = { id: data.user.id, name: data.user.user_metadata?.name || email.split('@')[0], email, createdAt: new Date().toISOString(), blocked: false };
-      users.push(profile);
-      await setUsers(users);
+      showFormError('login-error', 'Impossible de charger ton profil. Réessaie dans un instant.');
+      await supabaseClient.auth.signOut();
+      return;
     }
     if(profile.blocked){
       await supabaseClient.auth.signOut();
       showFormError('login-error', 'Ce compte a été bloqué. Contactez le support AgriMarket.');
       return;
     }
-    currentUser = { id: profile.id, name: profile.name, email: profile.email };
+    const isAdminAccount = profile.role === 'admin';
+    currentUser = { id: profile.id, name: profile.name, email: profile.email, role: isAdminAccount ? 'admin' : undefined };
     document.getElementById('login-form').reset();
     await refreshAccountUI();
-    openAccountModal();
-    showToast(`Ravi de vous revoir, ${profile.name.split(' ')[0]} !`);
+    if(isAdminAccount){
+      document.getElementById('account-overlay').classList.remove('open');
+      showToast('Connecté en tant qu\'administrateur.');
+    } else {
+      openAccountModal();
+      showToast(`Ravi de vous revoir, ${profile.name.split(' ')[0]} !`);
+    }
   });
 
   document.getElementById('logout-btn').addEventListener('click', async () => {
-    if(currentUser && currentUser.role === 'admin'){
-      await setSession(null);
-    } else if(supabaseClient){
-      await supabaseClient.auth.signOut();
-    }
+    if(supabaseClient) await supabaseClient.auth.signOut();
     currentUser = null;
     document.getElementById('account-overlay').classList.remove('open');
     await refreshAccountUI();
@@ -3531,9 +3688,7 @@
   });
   document.getElementById('confirm-delete').addEventListener('click', async () => {
     if(!currentUser) return;
-    let users = await getUsers();
-    users = users.filter(u => u.id !== currentUser.id);
-    await setUsers(users);
+    await deleteProfile(currentUser.id);
     if(supabaseClient) await supabaseClient.auth.signOut();
     currentUser = null;
     document.getElementById('confirm-delete-block').style.display = 'none';
@@ -3590,8 +3745,6 @@
   /* =========================================================
      DASHBOARD ADMINISTRATEUR
   ========================================================= */
-  const ADMIN_EMAIL = 'admin@agrimarket.fr';
-  const ADMIN_DEFAULT_PASSWORD = 'admin2026'; // uniquement utilisé pour créer le compte admin la toute première fois — à changer immédiatement depuis Dashboard → Sécurité
   const PRODUCTS_KEY = 'agrimarket_products';
   const SITE_KEY = 'agrimarket_site';
   const COUPONS_KEY = 'agrimarket_coupons';
@@ -3606,56 +3759,6 @@
     { id: 'moissonneuse', name: 'Moissonneuses' },
     { id: 'remorque', name: 'Remorques' },
   ];
-
-  /* ---- Mots de passe : hachage SHA-256 + sel unique par compte ----
-     Empêche qu'une fuite de la base ne révèle les mots de passe en clair.
-     (Le hachage se fait côté navigateur : pour une sécurité maximale en
-     production, ce travail devrait être fait par un vrai serveur.) */
-  async function sha256Hex(str){
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-  function randomSalt(){
-    const arr = new Uint8Array(16);
-    crypto.getRandomValues(arr);
-    return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-  async function hashPassword(password, salt){
-    return sha256Hex(salt + ':' + password);
-  }
-  async function setUserPassword(user, plainPassword){
-    user.passwordSalt = randomSalt();
-    user.passwordHash = await hashPassword(plainPassword, user.passwordSalt);
-    delete user.password; // au cas où d'anciennes données non hachées existaient
-  }
-  async function verifyUserPassword(user, plainPassword){
-    if(user.passwordHash && user.passwordSalt){
-      const hash = await hashPassword(plainPassword, user.passwordSalt);
-      return hash === user.passwordHash;
-    }
-    // Compte créé avant la mise à jour sécurité (mot de passe encore en clair) :
-    // on vérifie une dernière fois à l'ancien format, puis on migre vers le hachage.
-    if(user.password !== undefined){
-      if(user.password === plainPassword){
-        await setUserPassword(user, plainPassword);
-        return true;
-      }
-      return false;
-    }
-    return false;
-  }
-
-  /* ---- Création du compte admin s'il n'existe pas encore ---- */
-  async function ensureAdminAccount(){
-    const users = await getUsers();
-    let admin = users.find(u => u.role === 'admin');
-    if(!admin){
-      admin = { id: 'admin', name: 'Administrateur', email: ADMIN_EMAIL, role: 'admin', createdAt: new Date().toISOString() };
-      await setUserPassword(admin, ADMIN_DEFAULT_PASSWORD);
-      users.push(admin);
-      await setUsers(users);
-    }
-  }
 
   async function loadMessages(){
     try{ const r = await window.storage.get(MESSAGES_KEY, true); return r ? JSON.parse(r.value) : []; }
@@ -3735,6 +3838,8 @@
 
   let siteConfig = {
     logoText: 'AGRI MARKET', logoImage: '', heroImage: '', banners: DEFAULT_BANNERS, adBanners: [],
+    sideBannerImage: '', sideBannerLink: '',
+    sideBannerImage2: '', sideBannerLink2: '', sideBannerImage3: '', sideBannerLink3: '',
     contactEmail: 'contact@agrimarket.fr', contactPhone: '+33 1 23 45 67 89', contactHours: 'Lun–Ven, 8h–18h',
     pages: { ...DEFAULT_PAGES }
   };
@@ -3767,6 +3872,33 @@
       heroPhoto.style.display = 'none';
       heroSvg.style.display = 'block';
     }
+
+    const sidebar = document.getElementById('catalog-sidebar');
+    const mainBanner = document.getElementById('side-banner-link');
+    if(siteConfig.sideBannerImage){
+      document.getElementById('side-banner-img').src = siteConfig.sideBannerImage;
+      mainBanner.href = siteConfig.sideBannerLink || '#catalogue';
+      mainBanner.style.display = 'block';
+    } else {
+      mainBanner.style.display = 'none';
+    }
+    const sq2 = document.getElementById('side-banner-link-2');
+    if(siteConfig.sideBannerImage2){
+      document.getElementById('side-banner-img-2').src = siteConfig.sideBannerImage2;
+      sq2.href = siteConfig.sideBannerLink2 || '#catalogue';
+      sq2.style.display = 'block';
+    } else {
+      sq2.style.display = 'none';
+    }
+    const sq3 = document.getElementById('side-banner-link-3');
+    if(siteConfig.sideBannerImage3){
+      document.getElementById('side-banner-img-3').src = siteConfig.sideBannerImage3;
+      sq3.href = siteConfig.sideBannerLink3 || '#catalogue';
+      sq3.style.display = 'block';
+    } else {
+      sq3.style.display = 'none';
+    }
+    sidebar.style.display = (siteConfig.sideBannerImage || siteConfig.sideBannerImage2 || siteConfig.sideBannerImage3) ? 'block' : 'none';
 
     document.getElementById('contact-email-display').textContent = siteConfig.contactEmail;
     document.getElementById('contact-phone-display').textContent = siteConfig.contactPhone;
@@ -3856,7 +3988,7 @@
 
   async function renderOverviewStats(){
     const orders = await getOrders();
-    const users = await getUsers();
+    const users = await getAllProfiles();
     const reviews = await loadReviews();
     const revenue = orders.filter(o => o.status !== 'annulé' && o.status !== 'échoué').reduce((s,o) => s + o.total, 0);
     const pendingReviews = reviews.filter(r => r.status === 'pending').length;
@@ -3958,6 +4090,7 @@
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         const target = document.querySelector(`.filter-btn[data-cat="${a.dataset.catLink}"]`);
         if(target) target.classList.add('active');
+        catalogState.page = 1;
         renderCatalog(a.dataset.catLink);
         document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth' });
       });
@@ -4654,11 +4787,10 @@
 
     table.querySelectorAll('[data-action="order-status"]').forEach(sel => {
       sel.addEventListener('change', async () => {
-        const list = await getOrders();
-        const o = list.find(x => x.id === sel.dataset.id);
-        o.status = sel.value;
-        await setOrders(list);
-        showToast(`Commande ${o.id} → ${sel.value}.`);
+        const ok = await updateOrderStatusDb(sel.dataset.id, sel.value);
+        if(ok) showToast(`Commande ${sel.dataset.id} → ${sel.value}.`);
+        else showToast('Impossible de mettre à jour cette commande.');
+        await refreshDashboardBadge();
       });
     });
   }
@@ -4771,6 +4903,12 @@
     document.getElementById('logo-text-input').value = siteConfig.logoText;
     document.getElementById('logo-image-input').value = siteConfig.logoImage;
     document.getElementById('hero-image-input').value = siteConfig.heroImage || '';
+    document.getElementById('side-banner-input').value = siteConfig.sideBannerImage || '';
+    document.getElementById('side-banner-link-input').value = siteConfig.sideBannerLink || '';
+    document.getElementById('side-banner-input-2').value = siteConfig.sideBannerImage2 || '';
+    document.getElementById('side-banner-link-input-2').value = siteConfig.sideBannerLink2 || '';
+    document.getElementById('side-banner-input-3').value = siteConfig.sideBannerImage3 || '';
+    document.getElementById('side-banner-link-input-3').value = siteConfig.sideBannerLink3 || '';
     document.getElementById('contact-email-input').value = siteConfig.contactEmail;
     document.getElementById('contact-phone-input').value = siteConfig.contactPhone;
     document.getElementById('contact-hours-input').value = siteConfig.contactHours;
@@ -4860,6 +4998,89 @@
     showToast('Illustration par défaut restaurée.');
   });
 
+  document.getElementById('side-banner-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const url = await compressImageFile(file, 900, 0.78);
+      document.getElementById('side-banner-input').value = url;
+      showToast('Image chargée — clique "Mettre à jour" pour l\'appliquer.');
+    }catch(err){
+      showToast('Impossible de lire ce fichier.');
+    }
+  });
+  document.getElementById('side-banner-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.sideBannerImage = document.getElementById('side-banner-input').value.trim();
+    siteConfig.sideBannerLink = document.getElementById('side-banner-link-input').value.trim();
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast(siteConfig.sideBannerImage ? 'Bannière latérale mise à jour.' : 'Bannière latérale retirée.');
+  });
+  document.getElementById('side-banner-clear').addEventListener('click', async () => {
+    siteConfig.sideBannerImage = '';
+    siteConfig.sideBannerLink = '';
+    document.getElementById('side-banner-input').value = '';
+    document.getElementById('side-banner-link-input').value = '';
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast('Bannière latérale retirée.');
+  });
+
+  document.getElementById('side-banner-file-2').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const url = await compressImageFile(file, 700, 0.8);
+      document.getElementById('side-banner-input-2').value = url;
+      showToast('Image chargée — clique "Mettre à jour" pour l\'appliquer.');
+    }catch(err){ showToast('Impossible de lire ce fichier.'); }
+  });
+  document.getElementById('side-banner-form-2').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.sideBannerImage2 = document.getElementById('side-banner-input-2').value.trim();
+    siteConfig.sideBannerLink2 = document.getElementById('side-banner-link-input-2').value.trim();
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast(siteConfig.sideBannerImage2 ? 'Bannière mise à jour.' : 'Bannière retirée.');
+  });
+  document.getElementById('side-banner-clear-2').addEventListener('click', async () => {
+    siteConfig.sideBannerImage2 = '';
+    siteConfig.sideBannerLink2 = '';
+    document.getElementById('side-banner-input-2').value = '';
+    document.getElementById('side-banner-link-input-2').value = '';
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast('Bannière retirée.');
+  });
+
+  document.getElementById('side-banner-file-3').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const url = await compressImageFile(file, 700, 0.8);
+      document.getElementById('side-banner-input-3').value = url;
+      showToast('Image chargée — clique "Mettre à jour" pour l\'appliquer.');
+    }catch(err){ showToast('Impossible de lire ce fichier.'); }
+  });
+  document.getElementById('side-banner-form-3').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    siteConfig.sideBannerImage3 = document.getElementById('side-banner-input-3').value.trim();
+    siteConfig.sideBannerLink3 = document.getElementById('side-banner-link-input-3').value.trim();
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast(siteConfig.sideBannerImage3 ? 'Bannière mise à jour.' : 'Bannière retirée.');
+  });
+  document.getElementById('side-banner-clear-3').addEventListener('click', async () => {
+    siteConfig.sideBannerImage3 = '';
+    siteConfig.sideBannerLink3 = '';
+    document.getElementById('side-banner-input-3').value = '';
+    document.getElementById('side-banner-link-input-3').value = '';
+    await saveSite(siteConfig);
+    applySiteConfig();
+    showToast('Bannière retirée.');
+  });
+
   document.getElementById('contact-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     siteConfig.contactEmail = document.getElementById('contact-email-input').value.trim() || 'contact@agrimarket.fr';
@@ -4893,40 +5114,47 @@
     const newPwd = document.getElementById('sec-new-password').value;
     const newPwdConfirm = document.getElementById('sec-new-password-confirm').value;
 
-    const users = await getUsers();
-    const admin = users.find(u => u.id === currentUser.id && u.role === 'admin');
-    if(!admin){ errEl.textContent = 'Session invalide, reconnecte-toi.'; errEl.classList.add('show'); return; }
-
-    if(!(await verifyUserPassword(admin, currentPwd))){
-      errEl.textContent = 'Mot de passe actuel incorrect.';
-      errEl.classList.add('show');
-      return;
-    }
     if(newPwd && newPwd !== newPwdConfirm){
       errEl.textContent = 'Les deux nouveaux mots de passe ne correspondent pas.';
       errEl.classList.add('show');
       return;
     }
-    if(newPwd && newPwd.length < 4){
-      errEl.textContent = 'Le nouveau mot de passe doit contenir au moins 4 caractères.';
-      errEl.classList.add('show');
-      return;
-    }
-    if(newEmail !== admin.email && users.some(u => u.email === newEmail && u.id !== admin.id)){
-      errEl.textContent = 'Un autre compte utilise déjà cet email.';
+    if(newPwd && newPwd.length < 6){
+      errEl.textContent = 'Le nouveau mot de passe doit contenir au moins 6 caractères.';
       errEl.classList.add('show');
       return;
     }
 
-    admin.email = newEmail;
-    if(newPwd) await setUserPassword(admin, newPwd);
-    await setUsers(users);
-    currentUser.email = newEmail;
-    await setSession(currentUser);
+    // Revérifie le mot de passe actuel auprès de Supabase Auth avant toute modification
+    const { error: verifyError } = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: currentPwd });
+    if(verifyError){
+      errEl.textContent = 'Mot de passe actuel incorrect.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    const updates = {};
+    if(newEmail && newEmail !== currentUser.email) updates.email = newEmail;
+    if(newPwd) updates.password = newPwd;
+    if(Object.keys(updates).length === 0){
+      okEl.textContent = 'Aucune modification à enregistrer.';
+      okEl.classList.add('show');
+      return;
+    }
+    const { error: updateError } = await supabaseClient.auth.updateUser(updates);
+    if(updateError){
+      errEl.textContent = 'Erreur : ' + updateError.message;
+      errEl.classList.add('show');
+      return;
+    }
+    if(updates.email){ await updateProfile(currentUser.id, { email: newEmail }); currentUser.email = newEmail; }
+
     document.getElementById('sec-current-password').value = '';
     document.getElementById('sec-new-password').value = '';
     document.getElementById('sec-new-password-confirm').value = '';
-    okEl.textContent = 'Identifiants mis à jour avec succès.';
+    okEl.textContent = updates.email
+      ? 'Mis à jour. Un email de confirmation a été envoyé à la nouvelle adresse — le changement d\'email prendra effet une fois confirmé.'
+      : 'Mot de passe mis à jour avec succès.';
     okEl.classList.add('show');
     await refreshAccountUI();
     showToast('Sécurité du compte mise à jour.');
@@ -5080,7 +5308,7 @@
 
   /* ---- CLIENTS (admin) ---- */
   async function renderAdminClients(){
-    const allUsers = (await getUsers()).filter(u => u.role !== 'admin');
+    const allUsers = (await getAllProfiles()).filter(u => u.role !== 'admin');
     const q = (document.getElementById('clients-search').value || '').trim().toLowerCase();
     const users = q
       ? allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
@@ -5095,7 +5323,7 @@
         <div class="dt-row">
           <span class="dt-name">${esc(u.name)}</span>
           <span class="dt-sub">${esc(u.email)}</span>
-          <span class="dt-sub">${new Date(u.createdAt).toLocaleDateString('fr-FR')}</span>
+          <span class="dt-sub">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
           <span><span class="pill ${u.blocked ? 'off' : 'on'}">${u.blocked ? 'Bloqué' : 'Actif'}</span></span>
           <span class="dt-actions">
             <button class="dt-btn" data-action="edit-client" data-id="${u.id}">Modifier</button>
@@ -5107,28 +5335,27 @@
 
     table.querySelectorAll('[data-action="toggle-block"]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const list = await getUsers();
-        const u = list.find(x => x.id === btn.dataset.id);
-        u.blocked = !u.blocked;
-        await setUsers(list);
-        await renderAdminClients();
-        showToast(u.blocked ? `${u.name} a été bloqué.` : `${u.name} a été débloqué.`);
+        const u = allUsers.find(x => x.id === btn.dataset.id);
+        const ok = await updateProfile(u.id, { blocked: !u.blocked });
+        if(ok){
+          await renderAdminClients();
+          showToast(!u.blocked ? `${u.name} a été bloqué.` : `${u.name} a été débloqué.`);
+        } else {
+          showToast('Impossible de mettre à jour ce compte.');
+        }
       });
     });
     table.querySelectorAll('[data-action="delete-client"]').forEach(btn => {
       btn.addEventListener('click', async () => {
         if(!confirm('Supprimer définitivement ce compte client ?')) return;
-        let list = await getUsers();
-        list = list.filter(x => x.id !== btn.dataset.id);
-        await setUsers(list);
-        await renderAdminClients();
-        showToast('Compte client supprimé.');
+        const ok = await deleteProfile(btn.dataset.id);
+        if(ok){ await renderAdminClients(); showToast('Compte client supprimé.'); }
+        else showToast('Impossible de supprimer ce compte.');
       });
     });
     table.querySelectorAll('[data-action="edit-client"]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const list = await getUsers();
-        const u = list.find(x => x.id === btn.dataset.id);
+      btn.addEventListener('click', () => {
+        const u = allUsers.find(x => x.id === btn.dataset.id);
         document.getElementById('ec-id').value = u.id;
         document.getElementById('ec-name').value = u.name;
         document.getElementById('ec-email').value = u.email;
@@ -5148,17 +5375,14 @@
     e.preventDefault();
     const id = document.getElementById('ec-id').value;
     const name = document.getElementById('ec-name').value.trim();
-    const email = document.getElementById('ec-email').value.trim().toLowerCase();
-    const errorEl = document.getElementById('edit-client-error');
-    const list = await getUsers();
-    if(list.some(u => u.email === email && u.id !== id)){
-      errorEl.textContent = 'Un autre compte utilise déjà cet email.';
+    if(!name) return;
+    const ok = await updateProfile(id, { name });
+    if(!ok){
+      const errorEl = document.getElementById('edit-client-error');
+      errorEl.textContent = 'Impossible de mettre à jour ce compte.';
       errorEl.classList.add('show');
       return;
     }
-    const u = list.find(x => x.id === id);
-    u.name = name; u.email = email;
-    await setUsers(list);
     document.getElementById('edit-client-overlay').classList.remove('open');
     await renderAdminClients();
     showToast('Compte client mis à jour.');
@@ -5204,12 +5428,11 @@
       loadSite(),
       loadBrands(),
       restoreSession(),
-      ensureAdminAccount(),
       loadCategories(),
     ]);
     categories = categoriesList || DEFAULT_CATEGORIES;
     if(!categoriesList) await saveCategories(categories);
-    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
+    if(site) siteConfig = { logoText:'AGRI MARKET', logoImage:'', heroImage:'', banners: DEFAULT_BANNERS, adBanners: [], sideBannerImage:'', sideBannerLink:'', sideBannerImage2:'', sideBannerLink2:'', sideBannerImage3:'', sideBannerLink3:'', contactEmail:'contact@agrimarket.fr', contactPhone:'+33 1 23 45 67 89', contactHours:'Lun–Ven, 8h–18h', pages:{...DEFAULT_PAGES}, ...site };
     siteConfig.pages = { ...DEFAULT_PAGES, ...(siteConfig.pages || {}) };
     if(!Array.isArray(siteConfig.adBanners)) siteConfig.adBanners = [];
     applySiteConfig();
