@@ -4899,11 +4899,20 @@
   async function notifyOrderStatusEmail(orderId, status, email, name){
     if(!supabaseClient) return;
     try{
-      const { error } = await supabaseClient.functions.invoke('order-status-email', {
+      const { data, error } = await supabaseClient.functions.invoke('order-status-email', {
         body: { orderId, status, email, name }
       });
-      if(error) console.warn('Email de statut non envoyé', error);
-    }catch(e){ console.warn('Email de statut non envoyé', e); }
+      if(error){
+        console.error('Email de statut non envoyé :', error);
+        showToast('Statut mis à jour, mais l\'email n\'a pas pu être envoyé (voir la console).');
+      } else if(data && data.error){
+        console.error('Resend a refusé l\'envoi :', data.error);
+        showToast('Statut mis à jour, mais l\'email a été refusé par Resend (voir la console).');
+      }
+    }catch(e){
+      console.error('Email de statut non envoyé :', e);
+      showToast('Statut mis à jour, mais l\'envoi de l\'email a échoué.');
+    }
   }
 
   /* ---- AVIS (admin) ---- */
