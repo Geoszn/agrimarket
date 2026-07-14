@@ -402,6 +402,34 @@
   }
   .card-wl-btn:hover{border-color:var(--accent);}
   .card-wl-btn.active{color:var(--accent); border-color:var(--accent); background:rgba(232,89,12,0.15);}
+  .card-compare-btn{
+    position:absolute; top:50px; right:12px; z-index:2;
+    width:30px; height:30px; border-radius:50%; background:rgba(20,23,26,0.7); border:1px solid var(--line);
+    color:#fff; display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .card-compare-btn:hover{border-color:var(--accent-2);}
+  .card-compare-btn.active{color:var(--accent-2); border-color:var(--accent-2); background:rgba(242,194,48,0.15);}
+
+  /* ===== BARRE COMPARATEUR ===== */
+  .compare-bar{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:150;
+    background:var(--surface); border:1px solid var(--accent-2); border-radius:8px;
+    padding:14px 20px; display:none; align-items:center; gap:16px; flex-wrap:wrap;
+    box-shadow:0 12px 32px rgba(0,0,0,0.5); max-width:92vw;
+  }
+  .compare-bar.show{display:flex;}
+  .compare-bar span{font-family:'Oswald'; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--text);}
+
+  /* ===== MODAL COMPARATEUR ===== */
+  .compare-modal{max-width:900px; max-height:85vh; overflow-y:auto;}
+  .compare-table{display:grid; gap:14px; margin-top:20px;}
+  .compare-col{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:16px; position:relative;}
+  .compare-col-remove{position:absolute; top:10px; right:10px; background:none; border:none; color:var(--text-mute); cursor:pointer; font-size:16px;}
+  .compare-col-remove:hover{color:#ff9070;}
+  .compare-col img, .compare-col svg{width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px; margin-bottom:12px; background:var(--bg);}
+  .compare-col h4{font-size:0.95rem; margin-bottom:10px; padding-right:20px;}
+  .compare-row{display:flex; justify-content:space-between; font-size:0.8rem; padding:7px 0; border-top:1px dashed var(--line); color:var(--text-mute);}
+  .compare-row b{color:var(--text);}
   .badge.sold{background:#3a4147; color:#c7cdc9;}
   .badge.reserved{background:var(--accent-2); color:#14171a;}
   .card.unavailable .card-media{opacity:0.55;}
@@ -491,6 +519,14 @@
   .footer-grid li{margin-bottom:10px; font-size:0.88rem; color:var(--text-mute);}
   .footer-grid li a:hover{color:var(--accent-2);}
   .footer-grid p{color:var(--text-mute); font-size:0.88rem; max-width:280px; margin-top:10px;}
+  .social-row{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+  .social-icon{
+    width:36px; height:36px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; transition:.15s; flex-shrink:0;
+  }
+  .social-icon:hover{border-color:var(--accent); transform:translateY(-2px);}
+  .social-icon img{width:100%; height:100%; object-fit:cover;}
+  .social-icon span{font-family:'Oswald'; font-weight:700; font-size:0.7rem; color:var(--accent-2); letter-spacing:0.02em;}
   .footer-bottom{
     display:flex; justify-content:space-between; padding:22px 0; font-size:0.78rem; color:var(--text-mute);
     flex-wrap:wrap; gap:10px;
@@ -822,6 +858,17 @@
     outline:none; border-color:var(--accent);
     box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);
   }
+  .bulk-bar{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    background:var(--surface); border:1px solid var(--accent); border-radius:5px;
+    padding:14px 18px; margin-bottom:14px;
+  }
+  .bulk-bar span{font-size:0.85rem; color:var(--text); font-family:'Oswald'; text-transform:uppercase; letter-spacing:0.03em;}
+  .bulk-bar select{
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:9px 12px; border-radius:4px; font-family:'Barlow'; font-size:0.85rem; cursor:pointer;
+  }
+  .bulk-check{width:16px; height:16px; cursor:pointer;}
   .stat-cards{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
   .stat-card{
     background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:22px;
@@ -1297,6 +1344,7 @@
       <div>
         <a href="#" class="logo"><span class="mark"></span><span id="logo-text-footer">AGRI<span>MARKET</span></span></a>
         <p data-i18n="footer_about">Plateforme professionnelle de vente de tracteurs, camions et matériel agricole neuf et d'occasion.</p>
+        <div class="social-row" id="footer-social-row"></div>
       </div>
       <div>
         <h5 data-i18n="footer_catalog_head">Catalogue</h5>
@@ -1623,6 +1671,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20 5 5 0 0 0 0-10h5"/></svg>
           Apparence
         </button>
+        <button class="dash-nav-btn" data-panel="social">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.6" y1="10.7" x2="15.4" y2="7.3"/><line x1="8.6" y1="13.3" x2="15.4" y2="16.7"/></svg>
+          Réseaux sociaux
+        </button>
         <button class="dash-nav-btn" data-panel="pages">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
           Pages légales
@@ -1852,6 +1904,24 @@
           <div><h2>Commandes reçues</h2><p>Toutes les commandes validées par les clients, les plus récentes en premier.</p></div>
         </div>
         <input type="text" id="orders-search" class="dash-search-input" placeholder="Rechercher par n° commande, nom ou email…">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--text-mute); cursor:pointer;">
+            <input type="checkbox" id="orders-select-all"> Tout sélectionner
+          </label>
+        </div>
+        <div class="bulk-bar" id="orders-bulk-bar" style="display:none;">
+          <span id="orders-bulk-count">0 commande(s) sélectionnée(s)</span>
+          <select id="orders-bulk-status">
+            <option value="reçu">reçu</option>
+            <option value="en traitement">en traitement</option>
+            <option value="en livraison">en livraison</option>
+            <option value="livré">livré</option>
+            <option value="annulé">annulé</option>
+            <option value="échoué">échoué</option>
+          </select>
+          <button class="btn btn-primary" id="orders-bulk-apply">Appliquer</button>
+          <button class="btn btn-ghost" id="orders-bulk-cancel">Annuler</button>
+        </div>
         <div class="dash-table" id="admin-orders-table"></div>
       </section>
 
@@ -2040,6 +2110,32 @@
         </form>
       </section>
 
+      <!-- RÉSEAUX SOCIAUX -->
+      <section class="dash-panel" id="panel-social">
+        <div class="dash-panel-head">
+          <div><h2>Réseaux sociaux</h2><p>Ajoute les liens vers tes réseaux — ils s'affichent en icônes cliquables dans le pied de page du site.</p></div>
+        </div>
+        <form class="promo-tool" id="social-form">
+          <input type="hidden" id="soc-id">
+          <div class="field" style="flex:1.2;"><label>Nom *</label><input type="text" id="soc-name" placeholder="ex : Instagram" required></div>
+          <div class="field" style="flex:1.6;"><label>Lien *</label><input type="url" id="soc-url" placeholder="https://instagram.com/tonpseudo" required></div>
+          <div class="field" style="flex:1.6;">
+            <label>Icône (optionnel)</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="url" id="soc-icon" placeholder="https://… (ou laisse vide)" style="flex:1; min-width:140px;">
+              <label class="btn btn-ghost" style="cursor:pointer; white-space:nowrap; padding:11px 14px;">
+                Téléverser
+                <input type="file" id="soc-icon-file" accept="image/*" style="display:none;">
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="soc-submit-btn">Ajouter</button>
+          <button type="button" class="btn btn-ghost" id="soc-cancel-btn" style="display:none;">Annuler</button>
+        </form>
+        <p class="dash-hint">Sans icône, un badge avec les initiales du nom est généré automatiquement. Format idéal si tu en téléverses une : image carrée, environ 200 × 200 px. Jusqu'à 8 réseaux.</p>
+        <div class="dash-table" id="social-table"></div>
+      </section>
+
       <!-- PAGES LÉGALES -->
       <section class="dash-panel" id="panel-pages">
         <div class="dash-panel-head">
@@ -2087,6 +2183,24 @@
         </p>
       </section>
     </div>
+  </div>
+</div>
+
+<!-- ===== COMPARATEUR DE PRODUITS ===== -->
+<div class="compare-bar" id="compare-bar">
+  <span id="compare-bar-count">0 article(s) à comparer</span>
+  <button class="btn btn-primary" id="compare-bar-open">Comparer</button>
+  <button class="btn btn-ghost" id="compare-bar-clear">Tout retirer</button>
+</div>
+
+<div class="overlay" id="compare-modal-overlay">
+  <div class="modal compare-modal">
+    <button class="modal-close" id="compare-modal-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3>Comparer les articles</h3>
+    <p class="sub">Jusqu'à 3 articles côte à côte.</p>
+    <div class="compare-table" id="compare-table"></div>
   </div>
 </div>
 
@@ -2163,6 +2277,7 @@
       <div class="field"><label data-i18n="field_fullname">Nom complet</label><input type="text" id="cm-name" required></div>
       <div class="field"><label data-i18n="field_email">Email</label><input type="email" id="cm-email" required></div>
       <div class="field"><label data-i18n="contact_message_label">Message</label><textarea id="cm-message" class="dash-textarea" rows="4" required></textarea></div>
+      <input type="text" id="cm-website" name="website" autocomplete="off" tabindex="-1" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" aria-hidden="true">
       <button type="submit" class="btn btn-primary btn-block" data-i18n="contact_send">Envoyer le message</button>
     </form>
   </div>
@@ -2702,7 +2817,77 @@
   const productById = (id) => products.find(p => p.id === Number(id));
 
   let catalogState = { cat: 'all', search: '', sort: 'default', page: 1, brand: 'all' };
-  const CATALOG_PER_PAGE = 15;
+
+  /* ---- Comparateur de produits ---- */
+  let compareList = [];
+  function toggleCompare(id){
+    if(compareList.includes(id)){
+      compareList = compareList.filter(x => x !== id);
+    } else {
+      if(compareList.length >= 3){ showToast('Tu peux comparer jusqu\'à 3 articles à la fois.'); return; }
+      compareList.push(id);
+    }
+    updateCompareBar();
+  }
+  function updateCompareBar(){
+    const bar = document.getElementById('compare-bar');
+    bar.classList.toggle('show', compareList.length >= 2);
+    document.getElementById('compare-bar-count').textContent = `${compareList.length} article(s) à comparer`;
+  }
+  function renderCompareTable(){
+    const table = document.getElementById('compare-table');
+    const cols = compareList.map(id => productById(id)).filter(Boolean);
+    table.style.gridTemplateColumns = `repeat(${cols.length}, 1fr)`;
+    table.innerHTML = cols.map(p => `
+      <div class="compare-col">
+        <button class="compare-col-remove" data-action="compare-remove" data-id="${p.id}" aria-label="Retirer">×</button>
+        ${mediaFor(p)}
+        <h4>${esc(p.name)}</h4>
+        <div class="compare-row"><span>Prix</span><b>${fmt(p.price)}</b></div>
+        <div class="compare-row"><span>Catégorie</span><b>${esc(categoryName(p.cat))}</b></div>
+        <div class="compare-row"><span>Marque</span><b>${p.brand && brandName(p.brand) ? esc(brandName(p.brand)) : '—'}</b></div>
+        <div class="compare-row"><span>Puissance</span><b>${esc(p.spec.p)}</b></div>
+        <div class="compare-row"><span>Année</span><b>${esc(p.spec.a)}</b></div>
+        <div class="compare-row"><span>Usage</span><b>${esc(p.spec.h)}</b></div>
+        <div class="compare-row"><span>État</span><b>${esc(p.state)}</b></div>
+        <div class="compare-row"><span>Disponibilité</span><b>${p.status === 'vendu' ? 'Vendu' : p.status === 'reserve' ? 'Réservé' : 'Disponible'}</b></div>
+        <button class="btn btn-primary btn-block" data-action="compare-add-cart" data-id="${p.id}" style="margin-top:14px;" ${p.status==='vendu'||p.status==='reserve' ? 'disabled' : ''}>Ajouter au panier</button>
+      </div>
+    `).join('');
+
+    table.querySelectorAll('[data-action="compare-remove"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        toggleCompare(Number(btn.dataset.id));
+        document.querySelectorAll(`.card[data-id="${btn.dataset.id}"] .card-compare-btn`).forEach(b => b.classList.remove('active'));
+        if(compareList.length < 2){ document.getElementById('compare-modal-overlay').classList.remove('open'); }
+        else renderCompareTable();
+      });
+    });
+    table.querySelectorAll('[data-action="compare-add-cart"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const added = await addToCart(Number(btn.dataset.id));
+        if(added) showToast('Ajouté au panier.');
+      });
+    });
+  }
+  document.getElementById('compare-bar-open').addEventListener('click', () => {
+    renderCompareTable();
+    document.getElementById('compare-modal-overlay').classList.add('open');
+  });
+  document.getElementById('compare-bar-clear').addEventListener('click', () => {
+    compareList = [];
+    updateCompareBar();
+    document.querySelectorAll('.card-compare-btn.active').forEach(b => b.classList.remove('active'));
+  });
+  document.getElementById('compare-modal-close').addEventListener('click', () => {
+    document.getElementById('compare-modal-overlay').classList.remove('open');
+  });
+  document.getElementById('compare-modal-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'compare-modal-overlay') e.currentTarget.classList.remove('open');
+  });
+
+
+  const CATALOG_PER_PAGE = 10;
 
   function statusBadge(p){
     if(p.status === 'vendu') return { cls: 'sold', label: 'VENDU' };
@@ -2748,6 +2933,9 @@
             <button class="card-wl-btn ${inWishlist ? 'active' : ''}" data-action="card-wl" data-id="${p.id}" aria-label="Liste de souhaits">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="${inWishlist ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
             </button>
+            <button class="card-compare-btn ${compareList.includes(p.id) ? 'active' : ''}" data-action="card-compare" data-id="${p.id}" aria-label="Ajouter au comparatif">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="12" rx="1"/></svg>
+            </button>
             ${mediaFor(p)}
           </div>
           <div class="card-body">
@@ -2790,6 +2978,13 @@
         const isIn = await toggleWishlist(Number(btn.dataset.id));
         btn.classList.toggle('active', isIn);
         btn.querySelector('svg').setAttribute('fill', isIn ? 'currentColor' : 'none');
+      });
+    });
+    grid.querySelectorAll('[data-action="card-compare"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCompare(Number(btn.dataset.id));
+        btn.classList.toggle('active', compareList.includes(Number(btn.dataset.id)));
       });
     });
 
@@ -3016,11 +3211,16 @@
       const comment = document.getElementById('pd-review-comment').value.trim();
       if(!chosenRating){ showToast('Choisis une note en étoiles.'); return; }
       if(!comment){ showToast('Écris un petit commentaire.'); return; }
-      const ok = await insertReview({
+      const { ok, error } = await insertReview({
         id: 'rev' + Date.now(), productId: p.id, userId: currentUser.id, userName: currentUser.name,
         rating: chosenRating, comment, status: 'pending'
       });
-      if(!ok){ showToast('Impossible d\'envoyer ton avis, réessaie.'); return; }
+      if(!ok){
+        showToast(/duplicate|unique/i.test(error || '')
+          ? 'Tu as déjà laissé un avis sur cet article.'
+          : 'Impossible d\'envoyer ton avis, réessaie.');
+        return;
+      }
       showToast('Merci ! Ton avis sera publié après validation.');
       await renderProductReviews(p);
     });
@@ -3332,9 +3532,22 @@
     const name = document.getElementById('cm-name').value.trim();
     const email = document.getElementById('cm-email').value.trim();
     const message = document.getElementById('cm-message').value.trim();
+    const honeypot = document.getElementById('cm-website').value;
+    if(honeypot){
+      // Rempli uniquement par des robots : on fait "comme si" ça avait marché, sans rien envoyer.
+      document.getElementById('contact-message-form').reset();
+      document.getElementById('contact-modal-overlay').classList.remove('open');
+      document.getElementById('contact-confirm-overlay').classList.add('open');
+      return;
+    }
     if(!name || !email || !message) return;
-    const ok = await insertMessage({ id: 'MSG-' + Date.now().toString().slice(-8), name, email, message, read: false });
-    if(!ok){ showToast('Impossible d\'envoyer le message, réessaie.'); return; }
+    const { ok, error } = await insertMessage({ id: 'MSG-' + Date.now().toString().slice(-8), name, email, message, read: false });
+    if(!ok){
+      showToast(/rate|trop de messages/i.test(error || '')
+        ? 'Tu as déjà envoyé un message récemment — réessaie dans une minute.'
+        : 'Impossible d\'envoyer le message, réessaie.');
+      return;
+    }
     document.getElementById('contact-message-form').reset();
     document.getElementById('contact-modal-overlay').classList.remove('open');
     document.getElementById('contact-confirm-overlay').classList.add('open');
@@ -3821,7 +4034,7 @@
       id: msg.id, name: msg.name, email: msg.email, message: msg.message, read: msg.read || false,
     });
     if(error) console.error(error);
-    return !error;
+    return { ok: !error, error: error ? error.message : null };
   }
   async function deleteMessage(id){
     const { error } = await supabaseClient.from('messages').delete().eq('id', id);
@@ -3870,7 +4083,7 @@
       rating: review.rating, comment: review.comment, status: review.status,
     });
     if(error) console.error(error);
-    return !error;
+    return { ok: !error, error: error ? error.message : null };
   }
   async function updateReview(id, fields){
     const { error } = await supabaseClient.from('reviews').update(fields).eq('id', id);
@@ -3883,6 +4096,28 @@
     return !error;
   }
   let brands = [];
+
+  /* ---- Réseaux sociaux ---- */
+  const SOCIAL_KEY = 'agrimarket_social';
+  async function loadSocialLinks(){
+    try{ const r = await window.storage.get(SOCIAL_KEY, true); return r ? JSON.parse(r.value) : []; }
+    catch(e){ return []; }
+  }
+  async function saveSocialLinks(list){
+    try{ await window.storage.set(SOCIAL_KEY, JSON.stringify(list), true); }catch(e){ console.error(e); }
+  }
+  let socialLinks = [];
+  function socialInitials(name){
+    return (name || '?').trim().slice(0, 2).toUpperCase();
+  }
+  function applySocialLinks(){
+    const row = document.getElementById('footer-social-row');
+    row.innerHTML = socialLinks.map(s => `
+      <a class="social-icon" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(s.name)}" title="${esc(s.name)}">
+        ${s.icon ? `<img src="${esc(s.icon)}" alt="${esc(s.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span>${socialInitials(s.name)}</span>'">` : `<span>${socialInitials(s.name)}</span>`}
+      </a>
+    `).join('');
+  }
 
   async function loadProducts(){
     try{
@@ -4265,6 +4500,106 @@
 
   function brandInitial(name){ return (name || '?').trim().charAt(0).toUpperCase(); }
 
+  /* ---- RÉSEAUX SOCIAUX (admin) ---- */
+  async function renderAdminSocial(){
+    socialLinks = await loadSocialLinks();
+    const table = document.getElementById('social-table');
+    const submitBtn = document.getElementById('soc-submit-btn');
+    const atLimit = socialLinks.length >= 8;
+    submitBtn.disabled = atLimit && !document.getElementById('soc-id').value;
+    submitBtn.style.opacity = submitBtn.disabled ? '0.5' : '1';
+
+    if(socialLinks.length === 0){
+      table.innerHTML = `<div class="dt-empty">Aucun réseau social ajouté pour le moment.</div>`;
+      applySocialLinks();
+      return;
+    }
+    table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:2.4fr 1fr auto;"><span>Réseau</span><span>Lien</span><span></span></div>` +
+      socialLinks.map(s => `
+        <div class="dt-row" style="grid-template-columns:2.4fr 1fr auto;">
+          <span class="dt-name" style="display:flex; align-items:center; gap:10px;">
+            <span style="width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${s.icon ? `<img src="${esc(s.icon)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : `<span style="font-family:'Oswald';color:var(--accent-2);font-size:0.68rem;">${socialInitials(s.name)}</span>`}
+            </span>
+            <span>${esc(s.name)}</span>
+          </span>
+          <span class="dt-sub">${esc(s.url)}</span>
+          <span class="dt-actions">
+            <button class="dt-btn" data-action="edit-social" data-id="${s.id}">Modifier</button>
+            <button class="dt-btn danger" data-action="delete-social" data-id="${s.id}">Supprimer</button>
+          </span>
+        </div>
+      `).join('');
+
+    table.querySelectorAll('[data-action="edit-social"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const s = socialLinks.find(x => x.id === btn.dataset.id);
+        document.getElementById('soc-id').value = s.id;
+        document.getElementById('soc-name').value = s.name;
+        document.getElementById('soc-url').value = s.url;
+        document.getElementById('soc-icon').value = s.icon || '';
+        document.getElementById('soc-submit-btn').textContent = 'Mettre à jour';
+        document.getElementById('soc-cancel-btn').style.display = 'inline-flex';
+        renderAdminSocial();
+      });
+    });
+    table.querySelectorAll('[data-action="delete-social"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Supprimer ce réseau social ?')) return;
+        socialLinks = socialLinks.filter(s => s.id !== btn.dataset.id);
+        await saveSocialLinks(socialLinks);
+        applySocialLinks();
+        await renderAdminSocial();
+        showToast('Réseau social supprimé.');
+      });
+    });
+    applySocialLinks();
+  }
+
+  document.getElementById('soc-icon-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const url = await compressImageFile(file, 400, 0.8);
+      document.getElementById('soc-icon').value = url;
+      showToast('Icône chargée — clique "Ajouter"/"Mettre à jour" pour l\'appliquer.');
+    }catch(err){ showToast('Impossible de lire ce fichier.'); }
+  });
+
+  document.getElementById('soc-cancel-btn').addEventListener('click', () => {
+    document.getElementById('social-form').reset();
+    document.getElementById('soc-id').value = '';
+    document.getElementById('soc-submit-btn').textContent = 'Ajouter';
+    document.getElementById('soc-cancel-btn').style.display = 'none';
+    renderAdminSocial();
+  });
+
+  document.getElementById('social-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('soc-id').value;
+    const name = document.getElementById('soc-name').value.trim();
+    const url = document.getElementById('soc-url').value.trim();
+    const icon = document.getElementById('soc-icon').value.trim();
+    if(!name || !url) return;
+
+    if(id){
+      const s = socialLinks.find(x => x.id === id);
+      Object.assign(s, { name, url, icon });
+      showToast('Réseau social mis à jour.');
+    } else {
+      if(socialLinks.length >= 8){ showToast('Limite de 8 réseaux atteinte.'); return; }
+      socialLinks.push({ id: 'soc' + Date.now(), name, url, icon });
+      showToast('Réseau social ajouté.');
+    }
+    await saveSocialLinks(socialLinks);
+    applySocialLinks();
+    e.target.reset();
+    document.getElementById('soc-id').value = '';
+    document.getElementById('soc-submit-btn').textContent = 'Ajouter';
+    document.getElementById('soc-cancel-btn').style.display = 'none';
+    await renderAdminSocial();
+  });
+
   async function renderAdminBrands(){
     brands = await loadBrands();
     const table = document.getElementById('brands-admin-table');
@@ -4381,6 +4716,7 @@
       renderOverviewStats(),
       renderAdminProducts(),
       renderAdminBrands(),
+      renderAdminSocial(),
       renderAdminCategories(),
       renderAdminPromos(),
       renderAdminCoupons(),
@@ -4860,13 +5196,15 @@
       ? allOrders.filter(o => o.id.toLowerCase().includes(q) || o.userName.toLowerCase().includes(q) || o.userEmail.toLowerCase().includes(q))
       : allOrders;
     const table = document.getElementById('admin-orders-table');
-    let rows = `<div class="dt-row dt-head" style="grid-template-columns:1.6fr 1.6fr 1fr 1fr 1.3fr;"><span>Commande</span><span>Client</span><span>Articles</span><span>Total</span><span>Statut</span></div>`;
+    document.getElementById('orders-bulk-bar').style.display = 'none';
+    let rows = `<div class="dt-row dt-head" style="grid-template-columns:34px 1.5fr 1.5fr 0.9fr 0.9fr 1.2fr;"><span></span><span>Commande</span><span>Client</span><span>Articles</span><span>Total</span><span>Statut</span></div>`;
     if(orders.length === 0){
       table.innerHTML = rows + `<div class="dt-empty">${allOrders.length === 0 ? 'Aucune commande reçue pour le moment.' : 'Aucune commande ne correspond à cette recherche.'}</div>`;
       return;
     }
     rows += orders.map(o => `
-      <div class="dt-row" style="grid-template-columns:1.6fr 1.6fr 1fr 1fr 1.3fr;">
+      <div class="dt-row" style="grid-template-columns:34px 1.5fr 1.5fr 0.9fr 0.9fr 1.2fr;">
+        <span><input type="checkbox" class="bulk-check" data-bulk-id="${o.id}" data-bulk-email="${esc(o.userEmail)}" data-bulk-name="${esc(o.userName)}"></span>
         <span class="dt-name mono">${o.id}<br><span class="dt-sub">${new Date(o.createdAt).toLocaleDateString('fr-FR')}</span></span>
         <span>${esc(o.userName)}<br><span class="dt-sub">${esc(o.userEmail)}</span></span>
         <span>${o.items.length} article(s)</span>
@@ -4892,7 +5230,45 @@
         await refreshDashboardBadge();
       });
     });
+
+    table.querySelectorAll('.bulk-check').forEach(cb => {
+      cb.addEventListener('change', updateOrdersBulkBar);
+    });
   }
+
+  function updateOrdersBulkBar(){
+    const checked = document.querySelectorAll('#admin-orders-table .bulk-check:checked');
+    const bar = document.getElementById('orders-bulk-bar');
+    if(checked.length === 0){ bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    document.getElementById('orders-bulk-count').textContent = `${checked.length} commande(s) sélectionnée(s)`;
+  }
+  document.getElementById('orders-select-all').addEventListener('change', (e) => {
+    document.querySelectorAll('#admin-orders-table .bulk-check').forEach(cb => { cb.checked = e.target.checked; });
+    updateOrdersBulkBar();
+  });
+  document.getElementById('orders-bulk-cancel').addEventListener('click', () => {
+    document.querySelectorAll('#admin-orders-table .bulk-check').forEach(cb => { cb.checked = false; });
+    document.getElementById('orders-select-all').checked = false;
+    document.getElementById('orders-bulk-bar').style.display = 'none';
+  });
+  document.getElementById('orders-bulk-apply').addEventListener('click', async () => {
+    const newStatus = document.getElementById('orders-bulk-status').value;
+    const checks = Array.from(document.querySelectorAll('#admin-orders-table .bulk-check:checked'));
+    if(checks.length === 0) return;
+    let success = 0;
+    for(const cb of checks){
+      const ok = await updateOrderStatusDb(cb.dataset.bulkId, newStatus);
+      if(ok){
+        success++;
+        notifyOrderStatusEmail(cb.dataset.bulkId, newStatus, cb.dataset.bulkEmail, cb.dataset.bulkName);
+      }
+    }
+    showToast(`${success} commande(s) mise(s) à jour → ${newStatus}.`);
+    document.getElementById('orders-select-all').checked = false;
+    await renderAdminOrders();
+    await refreshDashboardBadge();
+  });
 
   /* Envoie l'email de changement de statut via la fonction serveur
      (échec silencieux : le statut est déjà mis à jour même si l'email ne part pas). */
@@ -5525,14 +5901,50 @@
   });
 
   /* ---------- INIT ---------- */
-  /* ---- Accessibilité clavier : Échap ferme la fenêtre ouverte ---- */
+  /* ---- Accessibilité clavier : Échap ferme la fenêtre, Tab reste piégé dedans ---- */
+  function getFocusable(container){
+    return Array.from(container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(el => el.offsetParent !== null);
+  }
   document.addEventListener('keydown', (e) => {
-    if(e.key !== 'Escape') return;
     const openOverlays = Array.from(document.querySelectorAll('.overlay.open'));
     if(openOverlays.length === 0) return;
-    // ferme la fenêtre la plus "au-dessus" (dernière ouverte dans le DOM = souvent la plus récente)
+    // la fenêtre la plus "au-dessus" (dernière ouverte dans le DOM = souvent la plus récente)
     const top = openOverlays[openOverlays.length - 1];
-    top.classList.remove('open');
+
+    if(e.key === 'Escape'){
+      top.classList.remove('open');
+      return;
+    }
+    if(e.key === 'Tab'){
+      const focusable = getFocusable(top);
+      if(focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if(e.shiftKey && document.activeElement === first){
+        e.preventDefault();
+        last.focus();
+      } else if(!e.shiftKey && document.activeElement === last){
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+  /* Place le focus sur le premier élément interactif dès qu'une fenêtre s'ouvre */
+  const overlayFocusObserver = new MutationObserver((mutations) => {
+    mutations.forEach(m => {
+      if(m.attributeName === 'class'){
+        const el = m.target;
+        if(el.classList.contains('overlay') && el.classList.contains('open')){
+          const focusable = getFocusable(el);
+          if(focusable.length) setTimeout(() => focusable[0].focus(), 60);
+        }
+      }
+    });
+  });
+  document.querySelectorAll('.overlay').forEach(el => {
+    overlayFocusObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
   });
 
   (async function init(){
@@ -5553,6 +5965,8 @@
     renderCatalog('all');
     brands = brandsList;
     applyBrandsPublic();
+    socialLinks = await loadSocialLinks();
+    applySocialLinks();
     currentUser = session;
     await Promise.all([refreshAccountUI(), refreshCartUI(), refreshWishlistUI()]);
     applyLang();
