@@ -799,7 +799,7 @@
   .pd-thumb:hover{opacity:0.9;}
   .pd-thumb.active{opacity:1; border-color:var(--accent);}
   .pd-info{display:flex; flex-direction:column; gap:14px; position:relative;}
-  .pd-info h2{font-size:1.5rem; line-height:1.15; padding-right:36px;}
+  .pd-info h2{font-size:1.5rem; line-height:1.15; padding-right:78px;}
   .pd-description{color:var(--text-mute); font-size:0.9rem; line-height:1.6; white-space:pre-line;}
   .pd-wishlist-btn{
     position:absolute; top:0; right:0; background:var(--surface); border:1px solid var(--line);
@@ -1601,6 +1601,9 @@
         <div class="pd-thumbs" id="pd-thumbs"></div>
       </div>
       <div class="pd-info">
+        <button class="pd-wishlist-btn" id="pd-share-btn" style="right:46px;" aria-label="Copier le lien de cet article">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.7" x2="15.4" y2="7.3"/><line x1="8.6" y1="13.3" x2="15.4" y2="16.7"/></svg>
+        </button>
         <button class="pd-wishlist-btn" id="pd-wishlist-btn" aria-label="Ajouter à la liste de souhaits">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
         </button>
@@ -3107,6 +3110,36 @@
   });
 
   /* ---- Fiche détail produit ---- */
+  /* ---- URL et méta-données par article (SEO + partage) ---- */
+  const DEFAULT_TITLE = document.title;
+  const DEFAULT_DESC = document.querySelector('meta[name="description"]').content;
+  const DEFAULT_CANONICAL = document.querySelector('link[rel="canonical"]').href;
+  function updatePageMeta(title, description, canonicalUrl){
+    document.title = title;
+    document.querySelector('meta[name="description"]').setAttribute('content', description);
+    document.querySelector('link[rel="canonical"]').setAttribute('href', canonicalUrl);
+    const og = document.querySelector('meta[property="og:title"]'); if(og) og.setAttribute('content', title);
+    const ogd = document.querySelector('meta[property="og:description"]'); if(ogd) ogd.setAttribute('content', description);
+    const ogu = document.querySelector('meta[property="og:url"]'); if(ogu) ogu.setAttribute('content', canonicalUrl);
+  }
+  function resetPageMeta(){
+    updatePageMeta(DEFAULT_TITLE, DEFAULT_DESC, DEFAULT_CANONICAL);
+  }
+  /* Ouvre automatiquement la fiche produit si l'URL contient ?produit=ID (lien partagé, favori, retour navigateur) */
+  async function openProductFromUrl(){
+    const id = new URLSearchParams(location.search).get('produit');
+    if(id && productById(Number(id))) await openProductDetail(Number(id));
+  }
+  window.addEventListener('popstate', () => {
+    const id = new URLSearchParams(location.search).get('produit');
+    if(id && productById(Number(id))){
+      openProductDetail(Number(id));
+    } else {
+      document.getElementById('product-detail-overlay').classList.remove('open');
+      resetPageMeta();
+    }
+  });
+
   async function openProductDetail(id){
     const p = productById(id);
     if(!p) return;
@@ -3167,6 +3200,17 @@
       showToast(isIn ? 'Ajouté à ta liste de souhaits.' : 'Retiré de ta liste de souhaits.');
     };
 
+    /* Partage du lien direct */
+    document.getElementById('pd-share-btn').onclick = async () => {
+      const shareUrl = `${location.origin}${location.pathname}?produit=${p.id}`;
+      try{
+        await navigator.clipboard.writeText(shareUrl);
+        showToast('Lien copié dans le presse-papiers.');
+      }catch(err){
+        showToast(shareUrl);
+      }
+    };
+
     /* Calculateur de financement */
     const dp = document.getElementById('fc-downpayment');
     const mo = document.getElementById('fc-months');
@@ -3213,12 +3257,25 @@
     document.getElementById('product-detail-overlay').classList.add('open');
     document.getElementById('product-detail-overlay').scrollTop = 0;
     document.querySelector('.pd-modal').scrollTop = 0;
+
+    /* URL propre et partageable pour cet article, + titre/description à jour */
+    const productUrl = `${location.pathname}?produit=${p.id}`;
+    if(location.pathname + location.search !== productUrl){
+      history.pushState({ produit: p.id }, '', productUrl);
+    }
+    const shortDesc = `${categoryName(p.cat)} ${p.brand && brandName(p.brand) ? '· ' + brandName(p.brand) : ''} — ${p.spec.p}, ${p.spec.a}. ${fmt(p.price)}.`.replace(/\s+/g, ' ').trim();
+    updatePageMeta(`${p.name} — AgriMarket`, shortDesc, `${location.origin}${productUrl}`);
   }
-  document.getElementById('product-detail-close').addEventListener('click', () => {
+  function closeProductDetail(){
     document.getElementById('product-detail-overlay').classList.remove('open');
-  });
+    if(new URLSearchParams(location.search).has('produit')){
+      history.pushState({}, '', location.pathname);
+    }
+    resetPageMeta();
+  }
+  document.getElementById('product-detail-close').addEventListener('click', closeProductDetail);
   document.getElementById('product-detail-overlay').addEventListener('click', (e) => {
-    if(e.target.id === 'product-detail-overlay') e.currentTarget.classList.remove('open');
+    if(e.target.id === 'product-detail-overlay') closeProductDetail();
   });
   document.getElementById('pd-add-btn').addEventListener('click', async (e) => {
     const p = productById(Number(e.target.dataset.id));
@@ -6003,7 +6060,8 @@
     const top = openOverlays[openOverlays.length - 1];
 
     if(e.key === 'Escape'){
-      top.classList.remove('open');
+      if(top.id === 'product-detail-overlay') closeProductDetail();
+      else top.classList.remove('open');
       return;
     }
     if(e.key === 'Tab'){
@@ -6059,6 +6117,7 @@
     currentUser = session;
     await Promise.all([refreshAccountUI(), refreshCartUI(), refreshWishlistUI()]);
     applyLang();
+    await openProductFromUrl();
   })();
 </script>
 
