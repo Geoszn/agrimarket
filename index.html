@@ -299,14 +299,14 @@
   .search-box input:focus{outline:none;}
   .search-box:hover{border-color:#4a5157;}
   .search-box:focus-within{border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
-  #catalog-sort{
+  #catalog-sort, #catalog-brand-filter{
     background:var(--surface); border:1px solid var(--line); color:var(--text);
     padding:0 16px; border-radius:5px; font-family:'Oswald'; font-size:0.82rem;
     text-transform:uppercase; letter-spacing:0.03em; min-width:200px; height:46px;
     transition:border-color .15s; cursor:pointer;
   }
-  #catalog-sort:hover{border-color:#4a5157;}
-  #catalog-sort:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
+  #catalog-sort:hover, #catalog-brand-filter:hover{border-color:#4a5157;}
+  #catalog-sort:focus, #catalog-brand-filter:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
   .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:34px;}
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-mute);
@@ -352,6 +352,15 @@
   }
 
   .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;}
+  .skeleton-card{pointer-events:none;}
+  .skeleton-card .card-media{background:var(--surface-2);}
+  .skel-line{
+    height:10px; border-radius:3px; margin-bottom:10px;
+    background:linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
+    background-size:200% 100%; animation:skelPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes skelPulse{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  @media (prefers-reduced-motion: reduce){ .skel-line{animation:none;} }
   .card{
     background:var(--surface);
     border:1px solid var(--line);
@@ -1183,6 +1192,9 @@
         <option value="price-desc" data-i18n="sort_price_desc">Prix décroissant</option>
         <option value="recent" data-i18n="sort_recent">Plus récent</option>
       </select>
+      <select id="catalog-brand-filter">
+        <option value="all">Toutes les marques</option>
+      </select>
     </div>
 
     <div class="filters" id="filters">
@@ -1191,7 +1203,11 @@
 
     <div class="catalog-layout">
       <div class="catalog-main">
-        <div class="grid" id="product-grid"></div>
+        <div class="grid" id="product-grid">
+          <div class="card skeleton-card"><div class="card-media"></div><div class="card-body"><div class="skel-line" style="width:40%;"></div><div class="skel-line" style="width:75%; height:14px;"></div><div class="skel-line" style="width:90%;"></div></div></div>
+          <div class="card skeleton-card"><div class="card-media"></div><div class="card-body"><div class="skel-line" style="width:40%;"></div><div class="skel-line" style="width:75%; height:14px;"></div><div class="skel-line" style="width:90%;"></div></div></div>
+          <div class="card skeleton-card"><div class="card-media"></div><div class="card-body"><div class="skel-line" style="width:40%;"></div><div class="skel-line" style="width:75%; height:14px;"></div><div class="skel-line" style="width:90%;"></div></div></div>
+        </div>
         <p class="dt-empty" id="catalog-empty" style="display:none;" data-i18n="catalog_empty">Aucun article ne correspond à ta recherche.</p>
 
         <div class="pagination" id="catalog-pagination" style="display:none;">
@@ -1486,6 +1502,7 @@
         </button>
         <div class="cat-tag" id="pd-cat"></div>
         <h2 id="pd-name"></h2>
+        <div id="pd-brand" style="display:none; font-family:'IBM Plex Mono'; font-size:0.78rem; color:var(--accent-2); margin-top:-8px;"></div>
         <div class="pd-rating" id="pd-rating-summary"></div>
         <div class="spec-row" id="pd-specs"></div>
         <p class="pd-description" id="pd-description"></p>
@@ -1740,6 +1757,10 @@
             <div class="field">
               <label>Catégorie *</label>
               <select id="pf-cat" required></select>
+            </div>
+            <div class="field">
+              <label>Marque (optionnel)</label>
+              <select id="pf-brand"><option value="">— Aucune —</option></select>
             </div>
             <div class="field">
               <label>État *</label>
@@ -2563,9 +2584,16 @@
 
   async function uploadImageToStorage(blob, prefix){
     const filename = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
+    const headers = { apikey: SUPABASE_KEY, 'Content-Type': 'image/jpeg' };
+    if(supabaseClient){
+      try{
+        const { data } = await supabaseClient.auth.getSession();
+        if(data?.session?.access_token) headers.Authorization = `Bearer ${data.session.access_token}`;
+      }catch(e){ /* pas de session */ }
+    }
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filename}`, {
       method: 'POST',
-      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'image/jpeg' },
+      headers,
       body: blob
     });
     if(!res.ok) throw new Error('upload failed: ' + res.status);
@@ -2673,7 +2701,7 @@
   const grid = document.getElementById('product-grid');
   const productById = (id) => products.find(p => p.id === Number(id));
 
-  let catalogState = { cat: 'all', search: '', sort: 'default', page: 1 };
+  let catalogState = { cat: 'all', search: '', sort: 'default', page: 1, brand: 'all' };
   const CATALOG_PER_PAGE = 15;
 
   function statusBadge(p){
@@ -2690,6 +2718,7 @@
 
     let list = products.filter(p =>
       (catalogState.cat === 'all' || p.cat === catalogState.cat) &&
+      (catalogState.brand === 'all' || p.brand === catalogState.brand) &&
       (!search || p.name.toLowerCase().includes(search))
     );
 
@@ -2722,7 +2751,7 @@
             ${mediaFor(p)}
           </div>
           <div class="card-body">
-            <div class="cat-tag">${esc(categoryName(p.cat).toUpperCase())}</div>
+            <div class="cat-tag">${esc(categoryName(p.cat).toUpperCase())}${p.brand && brandName(p.brand) ? ' · ' + esc(brandName(p.brand)) : ''}</div>
             <h3>${esc(p.name)}</h3>
             <div class="spec-row">
               <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
@@ -2812,6 +2841,14 @@
 
     document.getElementById('pd-cat').textContent = categoryName(p.cat).toUpperCase() + (p.old ? ' · PROMO' : '');
     document.getElementById('pd-name').textContent = p.name;
+    const pdBrandEl = document.getElementById('pd-brand');
+    const bName = p.brand ? brandName(p.brand) : '';
+    if(bName){
+      pdBrandEl.textContent = bName;
+      pdBrandEl.style.display = 'block';
+    } else {
+      pdBrandEl.style.display = 'none';
+    }
     document.getElementById('pd-specs').innerHTML = `
       <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
       <span>ANNÉE&nbsp;<b>${p.spec.a}</b></span>
@@ -4318,6 +4355,8 @@
   function applyBrandsPublic(){
     const section = document.getElementById('marques');
     const grid = document.getElementById('brand-grid');
+    const brandFilter = document.getElementById('catalog-brand-filter');
+    brandFilter.innerHTML = '<option value="all">Toutes les marques</option>' + brands.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
     if(!brands.length){ section.style.display = 'none'; return; }
     section.style.display = 'block';
     grid.innerHTML = brands.map(b => `
@@ -4328,6 +4367,10 @@
         <span class="brand-name">${esc(b.name)}</span>
       </div>
     `).join('');
+  }
+  function brandName(id){
+    const b = brands.find(x => x.id === id);
+    return b ? b.name : '';
   }
 
   /* ---- navigation dashboard ---- */
@@ -4488,12 +4531,15 @@
     document.getElementById('panel-product-form').classList.add('active');
     const form = document.getElementById('product-form');
     form.reset();
+    const brandSelect = document.getElementById('pf-brand');
+    brandSelect.innerHTML = '<option value="">— Aucune —</option>' + brands.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
     if(id){
       const p = products.find(x => x.id === id);
       document.getElementById('product-form-title').textContent = 'Modifier l\'article';
       document.getElementById('pf-id').value = p.id;
       document.getElementById('pf-name').value = p.name;
       document.getElementById('pf-cat').value = p.cat;
+      document.getElementById('pf-brand').value = p.brand || '';
       document.getElementById('pf-state').value = p.state;
       document.getElementById('pf-status').value = p.status || 'disponible';
       document.getElementById('pf-power').value = p.spec.p;
@@ -4643,6 +4689,7 @@
     const id = document.getElementById('pf-id').value;
     const data = {
       cat: document.getElementById('pf-cat').value,
+      brand: document.getElementById('pf-brand').value || '',
       name: document.getElementById('pf-name').value.trim(),
       state: document.getElementById('pf-state').value,
       status: document.getElementById('pf-status').value,
@@ -4825,7 +4872,7 @@
         <span>${o.items.length} article(s)</span>
         <span>${fmt(o.total)}</span>
         <span>
-          <select class="status-select" data-action="order-status" data-id="${o.id}">
+          <select class="status-select" data-action="order-status" data-id="${o.id}" data-email="${esc(o.userEmail)}" data-name="${esc(o.userName)}">
             ${ORDER_STATUSES.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
         </span>
@@ -4836,11 +4883,27 @@
     table.querySelectorAll('[data-action="order-status"]').forEach(sel => {
       sel.addEventListener('change', async () => {
         const ok = await updateOrderStatusDb(sel.dataset.id, sel.value);
-        if(ok) showToast(`Commande ${sel.dataset.id} → ${sel.value}.`);
-        else showToast('Impossible de mettre à jour cette commande.');
+        if(ok){
+          showToast(`Commande ${sel.dataset.id} → ${sel.value}.`);
+          notifyOrderStatusEmail(sel.dataset.id, sel.value, sel.dataset.email, sel.dataset.name);
+        } else {
+          showToast('Impossible de mettre à jour cette commande.');
+        }
         await refreshDashboardBadge();
       });
     });
+  }
+
+  /* Envoie l'email de changement de statut via la fonction serveur
+     (échec silencieux : le statut est déjà mis à jour même si l'email ne part pas). */
+  async function notifyOrderStatusEmail(orderId, status, email, name){
+    if(!supabaseClient) return;
+    try{
+      const { error } = await supabaseClient.functions.invoke('order-status-email', {
+        body: { orderId, status, email, name }
+      });
+      if(error) console.warn('Email de statut non envoyé', error);
+    }catch(e){ console.warn('Email de statut non envoyé', e); }
   }
 
   /* ---- AVIS (admin) ---- */
