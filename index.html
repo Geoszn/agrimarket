@@ -6,13 +6,33 @@
 <title>AgriMarket — Tracteurs, camions & matériel professionnel</title>
 <meta name="description" content="AgriMarket — tracteurs, camions et matériel agricole neuf et d'occasion, inspectés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.">
 <meta name="theme-color" content="#14171a">
+<link rel="canonical" href="https://geoszn.github.io/agrimarket/">
 <meta property="og:title" content="AgriMarket — Tracteurs, camions & matériel professionnel">
 <meta property="og:description" content="Matériel agricole et poids lourds inspectés, neufs et d'occasion. Consultez le catalogue et recevez une offre sous 24h.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://geoszn.github.io/agrimarket/">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AgriMarket — Tracteurs, camions & matériel professionnel">
+<meta name="twitter:description" content="Matériel agricole et poids lourds inspectés, neufs et d'occasion.">
+<meta name="robots" content="index, follow">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2314171a'/%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='%23e8590c'/%3E%3Cdefs%3E%3Cpattern id='s' width='11.3' height='11.3' patternTransform='rotate(45)' patternUnits='userSpaceOnUse'%3E%3Crect width='5.65' height='11.3' fill='%23000000' opacity='0.22'/%3E%3C/pattern%3E%3C/defs%3E%3Crect x='8' y='8' width='48' height='48' rx='6' fill='url(%23s)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script type="application/ld+json" id="ld-json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "AgriMarket",
+  "description": "Vente de tracteurs, camions et matériel agricole neuf et d'occasion, inspectés et prêts à travailler.",
+  "url": "https://geoszn.github.io/agrimarket/",
+  "email": "contact@agrimarket.fr",
+  "telephone": "+33123456789",
+  "priceRange": "€€",
+  "areaServed": "FR"
+}
+</script>
 <style>
   :root{
     --bg: #14171a;
@@ -371,7 +391,7 @@
   }
   .card:hover{border-color:var(--accent); transform:translateY(-4px); box-shadow:0 16px 32px rgba(0,0,0,0.35);}
   .card-media{
-    aspect-ratio:4/3;
+    aspect-ratio:1/1;
     background:
       radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.35), transparent 70%),
       linear-gradient(155deg, #2b3136, #1b1f22);
@@ -421,15 +441,41 @@
   .compare-bar span{font-family:'Oswald'; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--text);}
 
   /* ===== MODAL COMPARATEUR ===== */
-  .compare-modal{max-width:900px; max-height:85vh; overflow-y:auto;}
-  .compare-table{display:grid; gap:14px; margin-top:20px;}
-  .compare-col{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:16px; position:relative;}
-  .compare-col-remove{position:absolute; top:10px; right:10px; background:none; border:none; color:var(--text-mute); cursor:pointer; font-size:16px;}
-  .compare-col-remove:hover{color:#ff9070;}
-  .compare-col img, .compare-col svg{width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px; margin-bottom:12px; background:var(--bg);}
-  .compare-col h4{font-size:0.95rem; margin-bottom:10px; padding-right:20px;}
-  .compare-row{display:flex; justify-content:space-between; font-size:0.8rem; padding:7px 0; border-top:1px dashed var(--line); color:var(--text-mute);}
-  .compare-row b{color:var(--text);}
+  .compare-modal{max-width:960px; max-height:88vh; overflow-y:auto; padding:32px;}
+  .compare-modal h3{font-size:1.3rem;}
+  .compare-modal .sub{margin-bottom:8px;}
+  .compare-table{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+    gap:18px; margin-top:24px; align-items:stretch;
+  }
+  .compare-col{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:18px; position:relative; display:flex; flex-direction:column;
+  }
+  .compare-col-remove{
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:26px; height:26px; border-radius:50%; background:rgba(20,23,26,0.75);
+    border:1px solid var(--line); color:#fff; cursor:pointer; font-size:15px; line-height:1;
+    display:flex; align-items:center; justify-content:center; transition:.15s;
+  }
+  .compare-col-remove:hover{color:#ff9070; border-color:#ff9070;}
+  .compare-col-media{
+    width:100%; aspect-ratio:1/1; border-radius:5px; margin-bottom:14px; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--line);
+  }
+  .compare-col-media img{width:100%; height:100%; object-fit:cover;}
+  .compare-col-media svg{width:60%; height:60%; opacity:0.9;}
+  .compare-col h4{font-size:1rem; line-height:1.3; margin-bottom:4px; min-height:2.6em;}
+  .compare-col .compare-price{font-family:'Oswald'; font-size:1.15rem; font-weight:700; color:var(--accent-2); margin-bottom:14px;}
+  .compare-specs{border-top:1px solid var(--line); padding-top:4px; margin-bottom:16px;}
+  .compare-row{display:flex; justify-content:space-between; gap:10px; font-size:0.8rem; padding:8px 0; border-bottom:1px dashed var(--line); color:var(--text-mute);}
+  .compare-row:last-child{border-bottom:none;}
+  .compare-row b{color:var(--text); text-align:right;}
+  .compare-col-actions{display:flex; flex-direction:column; gap:8px; margin-top:auto;}
+  @media (max-width:700px){
+    .compare-modal{padding:20px;}
+    .compare-table{grid-template-columns:1fr; gap:16px;}
+  }
   .badge.sold{background:#3a4147; color:#c7cdc9;}
   .badge.reserved{background:var(--accent-2); color:#14171a;}
   .card.unavailable .card-media{opacity:0.55;}
@@ -448,6 +494,13 @@
   .price{font-family:'Oswald'; font-size:1.3rem; font-weight:700;}
   .price small{font-family:'Barlow'; font-size:0.7rem; color:var(--text-mute); font-weight:400; text-transform:none;}
   .old-price{font-family:'IBM Plex Mono'; font-size:0.75rem; color:var(--text-mute); text-decoration:line-through; margin-right:8px;}
+  .card-btn-row{display:flex; gap:8px;}
+  .view-btn{
+    flex-shrink:0; padding:12px 16px; background:none; border:1px solid var(--line); color:var(--text-mute);
+    font-family:'Oswald'; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.05em; font-weight:600;
+    border-radius:2px; transition:.15s;
+  }
+  .view-btn:hover{border-color:var(--text-mute); color:var(--text);}
   .add-btn{
     width:100%; padding:12px; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
     font-family:'Oswald'; text-transform:uppercase; font-size:0.8rem; letter-spacing:0.05em; font-weight:600;
@@ -1083,6 +1136,9 @@
     .section{padding:56px 0;}
     .card-body{padding:16px;}
     .cta-band{padding:30px 22px; flex-direction:column; align-items:flex-start;}
+    .view-btn{padding:12px; font-size:0.72rem;}
+    .compare-modal{padding:16px; max-height:92vh;}
+    .compare-col{padding:14px;}
   }
 </style>
 </head>
@@ -2837,23 +2893,30 @@
   function renderCompareTable(){
     const table = document.getElementById('compare-table');
     const cols = compareList.map(id => productById(id)).filter(Boolean);
-    table.style.gridTemplateColumns = `repeat(${cols.length}, 1fr)`;
-    table.innerHTML = cols.map(p => `
+    table.innerHTML = cols.map(p => {
+      const unavailable = p.status === 'vendu' || p.status === 'reserve';
+      return `
       <div class="compare-col">
         <button class="compare-col-remove" data-action="compare-remove" data-id="${p.id}" aria-label="Retirer">×</button>
-        ${mediaFor(p)}
+        <div class="compare-col-media">${mediaFor(p)}</div>
         <h4>${esc(p.name)}</h4>
-        <div class="compare-row"><span>Prix</span><b>${fmt(p.price)}</b></div>
-        <div class="compare-row"><span>Catégorie</span><b>${esc(categoryName(p.cat))}</b></div>
-        <div class="compare-row"><span>Marque</span><b>${p.brand && brandName(p.brand) ? esc(brandName(p.brand)) : '—'}</b></div>
-        <div class="compare-row"><span>Puissance</span><b>${esc(p.spec.p)}</b></div>
-        <div class="compare-row"><span>Année</span><b>${esc(p.spec.a)}</b></div>
-        <div class="compare-row"><span>Usage</span><b>${esc(p.spec.h)}</b></div>
-        <div class="compare-row"><span>État</span><b>${esc(p.state)}</b></div>
-        <div class="compare-row"><span>Disponibilité</span><b>${p.status === 'vendu' ? 'Vendu' : p.status === 'reserve' ? 'Réservé' : 'Disponible'}</b></div>
-        <button class="btn btn-primary btn-block" data-action="compare-add-cart" data-id="${p.id}" style="margin-top:14px;" ${p.status==='vendu'||p.status==='reserve' ? 'disabled' : ''}>Ajouter au panier</button>
+        <div class="compare-price">${fmt(p.price)}</div>
+        <div class="compare-specs">
+          <div class="compare-row"><span>Catégorie</span><b>${esc(categoryName(p.cat))}</b></div>
+          <div class="compare-row"><span>Marque</span><b>${p.brand && brandName(p.brand) ? esc(brandName(p.brand)) : '—'}</b></div>
+          <div class="compare-row"><span>Puissance</span><b>${esc(p.spec.p)}</b></div>
+          <div class="compare-row"><span>Année</span><b>${esc(p.spec.a)}</b></div>
+          <div class="compare-row"><span>Usage</span><b>${esc(p.spec.h)}</b></div>
+          <div class="compare-row"><span>État</span><b>${esc(p.state)}</b></div>
+          <div class="compare-row"><span>Disponibilité</span><b>${unavailable ? (p.status==='vendu'?'Vendu':'Réservé') : 'Disponible'}</b></div>
+        </div>
+        <div class="compare-col-actions">
+          <button class="btn btn-ghost btn-block" data-action="compare-view" data-id="${p.id}">Voir le produit</button>
+          <button class="btn btn-primary btn-block" data-action="compare-add-cart" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>Ajouter au panier</button>
+        </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     table.querySelectorAll('[data-action="compare-remove"]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2861,6 +2924,12 @@
         document.querySelectorAll(`.card[data-id="${btn.dataset.id}"] .card-compare-btn`).forEach(b => b.classList.remove('active'));
         if(compareList.length < 2){ document.getElementById('compare-modal-overlay').classList.remove('open'); }
         else renderCompareTable();
+      });
+    });
+    table.querySelectorAll('[data-action="compare-view"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('compare-modal-overlay').classList.remove('open');
+        openProductDetail(Number(btn.dataset.id));
       });
     });
     table.querySelectorAll('[data-action="compare-add-cart"]').forEach(btn => {
@@ -2887,7 +2956,7 @@
   });
 
 
-  const CATALOG_PER_PAGE = 10;
+  const CATALOG_PER_PAGE = 12;
 
   function statusBadge(p){
     if(p.status === 'vendu') return { cls: 'sold', label: 'VENDU' };
@@ -2952,7 +3021,10 @@
                 ${fmt(p.price)}<br><small>Prix indicatif HT</small>
               </div>
             </div>
-            <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>
+            <div class="card-btn-row">
+              <button class="view-btn" data-action="card-view" data-id="${p.id}">Voir</button>
+              <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>
+            </div>
           </div>
         `;
         grid.appendChild(card);
@@ -2985,6 +3057,12 @@
         e.stopPropagation();
         toggleCompare(Number(btn.dataset.id));
         btn.classList.toggle('active', compareList.includes(Number(btn.dataset.id)));
+      });
+    });
+    grid.querySelectorAll('[data-action="card-view"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProductDetail(Number(btn.dataset.id));
       });
     });
 
@@ -4223,6 +4301,17 @@
     document.getElementById('contact-email-display').textContent = siteConfig.contactEmail;
     document.getElementById('contact-phone-display').textContent = siteConfig.contactPhone;
     document.getElementById('contact-hours-display').textContent = siteConfig.contactHours;
+
+    const ldJsonEl = document.getElementById('ld-json');
+    if(ldJsonEl){
+      try{
+        const ld = JSON.parse(ldJsonEl.textContent);
+        ld.name = (siteConfig.logoText || 'AgriMarket').replace(/\s+/g, ' ').trim();
+        ld.email = siteConfig.contactEmail;
+        if(siteConfig.contactPhone) ld.telephone = siteConfig.contactPhone;
+        ldJsonEl.textContent = JSON.stringify(ld);
+      }catch(e){ /* JSON-LD par défaut conservé */ }
+    }
 
     const active = siteConfig.banners.filter(b => b.active);
     const items = active.length ? active : DEFAULT_BANNERS;

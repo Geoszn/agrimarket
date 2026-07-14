@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://geoszn.github.io/agrimarket/sitemap.xml
