@@ -4899,7 +4899,9 @@
   async function notifyOrderStatusEmail(orderId, status, email, name){
     if(!supabaseClient) return;
     try{
-      const { data, error } = await supabaseClient.functions.invoke('order-status-email', {
+      // Nom technique ("slug") de la fonction déployée dans Supabase — peut différer
+      // du nom affiché dans le dashboard. Vérifie l'URL de ta fonction si tu la redéploies.
+      const { data, error } = await supabaseClient.functions.invoke('smooth-responder', {
         body: { orderId, status, email, name }
       });
       if(error){
