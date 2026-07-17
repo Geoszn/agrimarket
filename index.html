@@ -122,12 +122,20 @@
     background:rgba(20,23,26,0.94);
     backdrop-filter: blur(6px);
     border-bottom:1px solid var(--line);
+    transition:box-shadow .25s ease;
+  }
+  header.scrolled{
+    background:rgba(16,18,21,0.97); backdrop-filter: blur(10px);
+    box-shadow:0 6px 20px rgba(0,0,0,0.35);
   }
   .nav{
     display:flex; align-items:center; justify-content:space-between;
     padding:16px 28px;
     max-width:1240px; margin:0 auto;
+    transition:padding .25s ease;
   }
+  header.scrolled .nav{padding:10px 28px;}
+  header.scrolled .logo .mark{width:28px; height:28px;}
   .logo{
     display:flex; align-items:center; gap:10px;
     font-family:'Oswald'; font-weight:700; font-size:1.35rem;
@@ -140,6 +148,7 @@
     position:relative;
     flex-shrink:0;
     background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0,0,0,0.25) 4px 8px);
+    transition:width .25s ease, height .25s ease;
   }
   .logo span{color:var(--accent-2);}
   nav.links{display:flex; gap:32px;}
@@ -176,6 +185,28 @@
       linear-gradient(180deg, rgba(20,23,26,0.2), var(--bg) 85%),
       repeating-linear-gradient(120deg, #191d20 0 2px, #14171a 2px 46px);
     padding:88px 0 0;
+  }
+  .hero-anim{opacity:0; animation:heroFadeUp .7s cubic-bezier(.2,.7,.2,1) both;}
+  @keyframes heroFadeUp{ from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .hero-anim{animation:none; opacity:1;} }
+  .hero-search{
+    display:flex; align-items:center; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:6px 6px 6px 16px; max-width:480px; margin-bottom:28px;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.25); transition:border-color .15s, box-shadow .15s;
+  }
+  .hero-search:focus-within{border-color:var(--accent); box-shadow:inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(232,89,12,0.16);}
+  .hero-search svg{color:var(--text-mute); flex-shrink:0;}
+  .hero-search input{
+    flex:1; background:none; border:none; color:var(--text); font-family:'Barlow'; font-size:0.92rem; padding:10px 0;
+  }
+  .hero-search input::placeholder{color:#5a615e;}
+  .hero-search input:focus{outline:none;}
+  .hero-search .btn{padding:12px 20px; flex-shrink:0;}
+  @media (max-width:560px){
+    .hero-search{flex-wrap:wrap; padding:14px 16px;}
+    .hero-search input{width:100%; order:1;}
+    .hero-search .btn{width:100%; justify-content:center; order:2;}
   }
   .hero-grid{
     display:grid; grid-template-columns:1.05fr 0.95fr; gap:40px; align-items:center;
@@ -328,6 +359,9 @@
   #catalog-sort:hover, #catalog-brand-filter:hover{border-color:#4a5157;}
   #catalog-sort:focus, #catalog-brand-filter:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,89,12,0.16);}
   .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:34px;}
+  .add-btn:active, .view-btn:active, .filter-btn:active, .card-wl-btn:active, .card-compare-btn:active{
+    transform:scale(0.94); transition:transform .1s;
+  }
   .filter-btn{
     background:var(--surface); border:1px solid var(--line); color:var(--text-mute);
     padding:10px 20px; border-radius:20px; font-size:0.82rem;
@@ -406,7 +440,21 @@
     opacity:0.9;
   }
   .card-media svg{width:62%; height:62%; opacity:0.92; filter:drop-shadow(0 10px 14px rgba(0,0,0,0.45));}
-  .card-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .card-media img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .4s ease;}
+  .card:hover .card-media img{transform:scale(1.06);}
+  .quick-view-veil{
+    position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center;
+    background:rgba(10,12,13,0.55); opacity:0; transition:opacity .2s ease; pointer-events:none;
+  }
+  .card:hover .quick-view-veil{opacity:1; pointer-events:auto;}
+  .quick-view-pill{
+    background:var(--accent-2); color:#14171a; font-family:'Oswald'; font-size:0.75rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em; padding:10px 18px; border-radius:20px; border:none;
+    display:flex; align-items:center; gap:7px; transform:translateY(8px); transition:transform .2s ease;
+  }
+  .card:hover .quick-view-pill{transform:translateY(0);}
+  .quick-view-pill:hover{background:var(--accent);}
+  @media (hover:none){ .quick-view-veil{display:none;} }
   .badge{
     position:absolute; top:18px; left:12px;
     background:var(--accent-2); color:#14171a;
@@ -511,12 +559,64 @@
   .add-btn:disabled{background:var(--surface); border-color:var(--line); color:var(--text-mute); cursor:not-allowed;}
   .add-btn:disabled:hover{background:var(--surface); border-color:var(--line); color:var(--text-mute);}
 
+  /* ===== EXPLORER PAR CATÉGORIE ===== */
+  .explore-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px;}
+  .explore-tile{
+    position:relative; background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:28px 22px; cursor:pointer; overflow:hidden; transition:.2s; text-align:left; color:var(--text);
+  }
+  .explore-tile:hover{border-color:var(--accent); transform:translateY(-4px); box-shadow:0 16px 32px rgba(0,0,0,0.35);}
+  .explore-tile::after{
+    content:''; position:absolute; right:-30px; bottom:-30px; width:120px; height:120px;
+    background:radial-gradient(circle, rgba(242,194,48,0.12), transparent 70%);
+  }
+  .explore-tile svg{width:48px; height:34px; margin-bottom:16px;}
+  .explore-tile h4{font-family:'Oswald'; font-size:1.05rem; text-transform:uppercase; letter-spacing:0.02em; margin-bottom:4px;}
+  .explore-tile span{font-family:'IBM Plex Mono'; font-size:0.75rem; color:var(--text-mute);}
+
+  /* ===== DERNIERS ARRIVAGES ===== */
+  .new-arrivals-row{
+    display:flex; gap:20px; overflow-x:auto; padding-bottom:8px; scroll-snap-type:x proximity;
+    scrollbar-width:thin; scrollbar-color:var(--line) transparent;
+  }
+  .new-arrivals-row::-webkit-scrollbar{height:6px;}
+  .new-arrivals-row::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+  .arrival-card{
+    flex:0 0 240px; scroll-snap-align:start; background:var(--surface); border:1px solid var(--line);
+    border-radius:4px; overflow:hidden; cursor:pointer; transition:.2s; position:relative;
+  }
+  .arrival-card:hover{border-color:var(--accent); transform:translateY(-3px); box-shadow:0 12px 24px rgba(0,0,0,0.3);}
+  .arrival-card .arrival-media{aspect-ratio:1/1; position:relative; background:linear-gradient(155deg, #2b3136, #1b1f22); overflow:hidden;}
+  .arrival-card .arrival-media img{width:100%; height:100%; object-fit:cover;}
+  .arrival-card .arrival-media svg{width:60%; height:60%; margin:20% auto; display:block; opacity:0.9;}
+  .arrival-new-badge{
+    position:absolute; top:10px; left:10px; background:var(--accent); color:#14171a;
+    font-family:'Oswald'; font-size:0.65rem; font-weight:700; text-transform:uppercase;
+    padding:4px 9px; border-radius:2px; letter-spacing:0.04em; z-index:2;
+  }
+  .arrival-card .arrival-body{padding:14px;}
+  .arrival-card h5{font-size:0.85rem; margin-bottom:6px; line-height:1.3;}
+  .arrival-card .arrival-price{font-family:'Oswald'; font-weight:700; color:var(--accent-2); font-size:0.95rem;}
+
   /* ===== MARQUES ===== */
-  .brand-grid{display:grid; grid-template-columns:repeat(5, 1fr); gap:18px;}
+  .brand-marquee-wrap{overflow:hidden; position:relative;}
+  .brand-marquee-wrap::before, .brand-marquee-wrap::after{
+    content:''; position:absolute; top:0; bottom:0; width:60px; z-index:2; pointer-events:none;
+  }
+  .brand-marquee-wrap::before{left:0; background:linear-gradient(90deg, var(--bg), transparent);}
+  .brand-marquee-wrap::after{right:0; background:linear-gradient(-90deg, var(--bg), transparent);}
+  .brand-marquee-track{
+    display:flex; gap:18px; width:max-content;
+    animation:brandScroll 28s linear infinite;
+  }
+  .brand-marquee-track:hover{animation-play-state:paused;}
+  .brand-marquee-track.static{animation:none; justify-content:center; width:100%; flex-wrap:wrap;}
+  @keyframes brandScroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .brand-marquee-track{animation:none;} }
   .brand-card{
     background:var(--surface); border:1px solid var(--line); border-radius:4px;
     padding:26px 16px; display:flex; flex-direction:column; align-items:center; gap:12px;
-    transition:.2s; text-align:center;
+    transition:.2s; text-align:center; width:170px; flex-shrink:0;
   }
   .brand-card:hover{border-color:var(--accent); transform:translateY(-3px); box-shadow:0 12px 24px rgba(0,0,0,0.3);}
   .brand-icon{
@@ -526,8 +626,6 @@
   .brand-icon img{width:100%; height:100%; object-fit:cover;}
   .brand-icon span{font-family:'Oswald'; font-weight:700; font-size:1.1rem; color:var(--accent-2);}
   .brand-card .brand-name{font-family:'Oswald'; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.03em;}
-  @media (max-width:900px){ .brand-grid{grid-template-columns:repeat(3, 1fr);} }
-  @media (max-width:560px){ .brand-grid{grid-template-columns:repeat(2, 1fr);} }
 
   /* ===== TRUST STRIP ===== */
   .trust{background:var(--bg-alt); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
@@ -536,20 +634,87 @@
     padding:34px 28px; text-align:left;
     border-right:1px solid var(--line);
     display:flex; gap:14px; align-items:flex-start;
+    transition:background .2s ease;
   }
+  .trust-item:hover{background:rgba(232,89,12,0.05);}
   .trust-item:last-child{border-right:none;}
-  .trust-item svg{flex-shrink:0; width:28px; height:28px; color:var(--accent-2);}
+  .trust-item .trust-icon{
+    flex-shrink:0; width:44px; height:44px; border-radius:8px;
+    background:rgba(242,194,48,0.1); border:1px solid rgba(242,194,48,0.25);
+    display:flex; align-items:center; justify-content:center; transition:.2s;
+  }
+  .trust-item:hover .trust-icon{background:rgba(232,89,12,0.15); border-color:var(--accent); transform:translateY(-2px);}
+  .trust-item svg{flex-shrink:0; width:22px; height:22px; color:var(--accent-2);}
   .trust-item h4{font-family:'Oswald'; font-size:0.9rem; text-transform:uppercase; margin-bottom:4px; letter-spacing:0.03em;}
   .trust-item p{font-size:0.82rem; color:var(--text-mute);}
 
+  /* ===== POURQUOI AGRIMARKET ===== */
+  .why-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .why-col{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:28px;
+  }
+  .why-col-us{border-color:var(--accent); position:relative; box-shadow:0 16px 32px rgba(232,89,12,0.12);}
+  .why-col-head{margin-bottom:18px;}
+  .why-badge{
+    display:inline-block; font-family:'Oswald'; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em;
+    background:var(--accent); color:#14171a; padding:6px 14px; border-radius:20px; font-weight:700;
+  }
+  .why-badge-muted{background:var(--surface-2); color:var(--text-mute);}
+  .why-list{list-style:none; display:flex; flex-direction:column; gap:14px;}
+  .why-list li{
+    position:relative; padding-left:28px; font-size:0.9rem; color:var(--text); line-height:1.4;
+  }
+  .why-list li::before{
+    content:''; position:absolute; left:0; top:3px; width:18px; height:18px; border-radius:50%;
+    background-size:11px; background-repeat:no-repeat; background-position:center;
+  }
+  .why-yes::before{
+    background-color:rgba(90,180,90,0.15);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fdc8f' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  }
+  .why-no{color:var(--text-mute) !important;}
+  .why-no::before{
+    background-color:rgba(255,80,40,0.1);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9070' stroke-width='3'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
+  }
+  @media (max-width:700px){ .why-grid{grid-template-columns:1fr;} }
+
+  /* ===== AVIS CLIENTS (accueil) ===== */
+  .home-reviews-row{
+    display:flex; gap:20px; overflow-x:auto; padding-bottom:8px; scroll-snap-type:x proximity;
+    scrollbar-width:thin; scrollbar-color:var(--line) transparent;
+  }
+  .home-reviews-row::-webkit-scrollbar{height:6px;}
+  .home-reviews-row::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+  .home-review-card{
+    flex:0 0 300px; scroll-snap-align:start; background:var(--surface); border:1px solid var(--line);
+    border-radius:6px; padding:22px; display:flex; flex-direction:column; gap:12px;
+  }
+  .home-review-card .stars{color:var(--accent-2); letter-spacing:2px; font-size:0.95rem;}
+  .home-review-card p{color:var(--text-mute); font-size:0.88rem; line-height:1.55; flex:1;}
+  .home-review-card .home-review-footer{display:flex; align-items:center; gap:10px; border-top:1px solid var(--line); padding-top:14px;}
+  .home-review-avatar{
+    width:34px; height:34px; border-radius:50%; background:var(--accent); color:#14171a;
+    display:flex; align-items:center; justify-content:center; font-family:'Oswald'; font-weight:700; font-size:0.85rem; flex-shrink:0;
+  }
+  .home-review-footer .rv-name{font-family:'Oswald'; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.02em;}
+  .home-review-footer .rv-product{font-size:0.72rem; color:var(--text-mute); font-family:'IBM Plex Mono';}
+
   /* ===== NEWSLETTER / CTA BAND ===== */
   .cta-band{
-    background:var(--surface);
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 26px),
+      var(--surface);
     border:1px solid var(--line);
     border-radius:6px;
     padding:48px;
     display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
     position:relative; overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 20px 40px rgba(0,0,0,0.25);
+  }
+  .cta-band::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background-image:repeating-linear-gradient(180deg, var(--accent) 0 10px, var(--accent-deep) 10px 20px);
   }
   .cta-band::after{
     content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px;
@@ -559,7 +724,10 @@
   .cta-band p{color:var(--text-mute); max-width:420px;}
 
   /* ===== FOOTER ===== */
-  footer{background:var(--bg-alt); padding-top:60px;}
+  footer{
+    background:var(--bg-alt); padding-top:60px; position:relative;
+    background-image:radial-gradient(ellipse at 20% 0%, rgba(232,89,12,0.05), transparent 60%);
+  }
   .footer-grid{
     display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px;
     padding-bottom:44px; border-bottom:1px solid var(--line);
@@ -1196,24 +1364,29 @@
 <section class="hero">
   <div class="hero-grid">
     <div>
-      <div class="eyebrow" data-i18n="hero_eyebrow">Matériel professionnel inspecté</div>
-      <h1 data-i18n-html="hero_title">Du champ au chantier,<br><em>l'équipement qui tient.</em></h1>
-      <p class="lead" data-i18n="hero_lead">AgriMarket réunit tracteurs, camions et engins d'occasion et neufs, contrôlés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.</p>
-      <div class="cta-row">
+      <div class="eyebrow hero-anim" style="animation-delay:.05s;" data-i18n="hero_eyebrow">Matériel professionnel inspecté</div>
+      <h1 class="hero-anim" style="animation-delay:.15s;" data-i18n-html="hero_title">Du champ au chantier,<br><em>l'équipement qui tient.</em></h1>
+      <p class="lead hero-anim" style="animation-delay:.25s;" data-i18n="hero_lead">AgriMarket réunit tracteurs, camions et engins d'occasion et neufs, contrôlés et prêts à travailler. Consultez le catalogue, ajoutez au panier, on s'occupe du reste.</p>
+      <form class="hero-search hero-anim" id="hero-search-form" style="animation-delay:.32s;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="hero-search-input" placeholder="Rechercher un tracteur, une marque…">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+      </form>
+      <div class="cta-row hero-anim" style="animation-delay:.4s;">
         <a href="#catalogue" class="btn btn-primary">
           <span data-i18n="hero_cta_catalog">Voir le catalogue</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
         <a href="#" id="hero-contact-btn" class="btn btn-ghost" data-i18n="hero_cta_contact">Nous contacter</a>
       </div>
-      <div class="stat-row">
-        <div class="stat"><b>240+</b><span data-i18n="hero_stat_vehicles">Véhicules disponibles</span></div>
-        <div class="stat"><b>12</b><span data-i18n="hero_stat_regions">Régions livrées</span></div>
-        <div class="stat"><b>98%</b><span data-i18n="hero_stat_happy">Clients satisfaits</span></div>
+      <div class="stat-row hero-anim" style="animation-delay:.5s;">
+        <div class="stat"><b data-count="240" data-suffix="+">0</b><span data-i18n="hero_stat_vehicles">Véhicules disponibles</span></div>
+        <div class="stat"><b data-count="12" data-suffix="">0</b><span data-i18n="hero_stat_regions">Régions livrées</span></div>
+        <div class="stat"><b data-count="98" data-suffix="%">0</b><span data-i18n="hero_stat_happy">Clients satisfaits</span></div>
       </div>
     </div>
 
-    <div class="hero-art">
+    <div class="hero-art hero-anim" style="animation-delay:.2s;">
       <div class="plate">
         <span class="rivet r1"></span><span class="rivet r2"></span><span class="rivet r3"></span><span class="rivet r4"></span>
         <img id="hero-photo" alt="AgriMarket" style="display:none; width:100%; aspect-ratio:480/340; object-fit:cover; border-radius:4px;">
@@ -1266,10 +1439,37 @@
   </div>
 </div>
 
+<!-- ===== EXPLORER PAR CATÉGORIE ===== -->
+<section class="section" id="explore-section" style="padding-bottom:0; display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Par où commencer ?</div>
+        <h2>Explorer par catégorie</h2>
+      </div>
+    </div>
+    <div class="explore-grid" id="explore-grid"></div>
+  </div>
+</section>
+
 <!-- ===== BANNIÈRE PUBLICITAIRE ===== -->
 <section class="wrap" id="ad-section" style="padding-top:44px; display:none;">
   <div class="ad-carousel" id="ad-carousel">
     <div class="ad-dots" id="ad-dots"></div>
+  </div>
+</section>
+
+<!-- ===== DERNIERS ARRIVAGES ===== -->
+<section class="section" id="new-arrivals-section" style="padding-bottom:0; display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Fraîchement ajoutés</div>
+        <h2>Derniers arrivages</h2>
+      </div>
+      <p>Les articles les plus récemment mis en ligne.</p>
+    </div>
+    <div class="new-arrivals-row" id="new-arrivals-row"></div>
   </div>
 </section>
 
@@ -1346,19 +1546,19 @@
   <div class="wrap">
     <div class="trust-grid">
       <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></span>
         <div><h4 data-i18n="trust1_title">Inspection 150 points</h4><p data-i18n="trust1_text">Chaque véhicule est vérifié avant mise en ligne.</p></div>
       </div>
       <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="15" height="11" rx="1"/><path d="M16 10h4l3 3v4h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18.5" cy="19" r="2"/></svg>
+        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="15" height="11" rx="1"/><path d="M16 10h4l3 3v4h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18.5" cy="19" r="2"/></svg></span>
         <div><h4 data-i18n="trust2_title">Livraison nationale</h4><p data-i18n="trust2_text">Transport organisé jusqu'à votre exploitation.</p></div>
       </div>
       <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
         <div><h4 data-i18n="trust3_title">Financement</h4><p data-i18n="trust3_text">Solutions de paiement adaptées aux professionnels.</p></div>
       </div>
       <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.9-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.9-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
         <div><h4 data-i18n="trust4_title">Garantie & SAV</h4><p data-i18n="trust4_text">Un conseiller vous accompagne après la vente.</p></div>
       </div>
     </div>
@@ -1375,7 +1575,61 @@
       </div>
       <p data-i18n="brands_intro">Un réseau de constructeurs sélectionnés pour leur fiabilité.</p>
     </div>
-    <div class="brand-grid" id="brand-grid"></div>
+    <div class="brand-marquee-wrap">
+      <div class="brand-marquee-track" id="brand-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== POURQUOI AGRIMARKET ===== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">La différence</div>
+        <h2>Pourquoi passer par AgriMarket</h2>
+      </div>
+      <p>Comparé à un achat classique de particulier à particulier, sans aucune garantie.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-col why-col-us">
+        <div class="why-col-head">
+          <span class="why-badge">AgriMarket</span>
+        </div>
+        <ul class="why-list">
+          <li class="why-yes">Inspection 150 points avant mise en ligne</li>
+          <li class="why-yes">Garantie incluse jusqu'à 24 mois</li>
+          <li class="why-yes">Livraison organisée jusqu'à l'exploitation</li>
+          <li class="why-yes">Financement professionnel disponible</li>
+          <li class="why-yes">Conseiller dédié après la vente</li>
+        </ul>
+      </div>
+      <div class="why-col">
+        <div class="why-col-head">
+          <span class="why-badge why-badge-muted">Achat classique</span>
+        </div>
+        <ul class="why-list">
+          <li class="why-no">Aucune inspection indépendante</li>
+          <li class="why-no">Aucune garantie</li>
+          <li class="why-no">Transport à organiser soi-même</li>
+          <li class="why-no">Paiement comptant uniquement</li>
+          <li class="why-no">Aucun suivi après l'achat</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AVIS CLIENTS (accueil) ===== -->
+<section class="section" id="home-reviews-section" style="display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Ils nous font confiance</div>
+        <h2>Avis clients</h2>
+      </div>
+    </div>
+    <div class="home-reviews-row" id="home-reviews-row"></div>
   </div>
 </section>
 
@@ -2968,10 +3222,65 @@
     return { cls: '', label: p.state };
   }
 
+  async function renderHomeReviews(){
+    const section = document.getElementById('home-reviews-section');
+    const row = document.getElementById('home-reviews-row');
+    const all = await loadReviews();
+    const approved = all
+      .filter(r => r.status === 'approved' && r.comment && r.comment.trim())
+      .sort((a,b) => (b.rating - a.rating) || (new Date(b.createdAt) - new Date(a.createdAt)))
+      .slice(0, 8);
+    if(approved.length < 3){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    row.innerHTML = approved.map(r => {
+      const p = productById(r.productId);
+      return `
+      <div class="home-review-card">
+        <div class="stars">${starsHtml(r.rating)}</div>
+        <p>"${esc(r.comment)}"</p>
+        <div class="home-review-footer">
+          <div class="home-review-avatar">${esc(r.userName.charAt(0).toUpperCase())}</div>
+          <div>
+            <div class="rv-name">${esc(r.userName.split(' ')[0])}</div>
+            <div class="rv-product">${p ? esc(p.name) : ''}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    }).join('');
+  }
+
+  function renderNewArrivals(){
+    const section = document.getElementById('new-arrivals-section');
+    const row = document.getElementById('new-arrivals-row');
+    const recent = [...products]
+      .filter(p => p.status !== 'vendu')
+      .sort((a,b) => b.id - a.id)
+      .slice(0, 8);
+    if(recent.length < 3){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    row.innerHTML = recent.map(p => `
+      <div class="arrival-card" data-id="${p.id}">
+        <div class="arrival-media">
+          <span class="arrival-new-badge">Nouveau</span>
+          ${mediaFor(p)}
+        </div>
+        <div class="arrival-body">
+          <h5>${esc(p.name)}</h5>
+          <div class="arrival-price">${fmt(p.price)}</div>
+        </div>
+      </div>
+    `).join('');
+    row.querySelectorAll('.arrival-card').forEach(card => {
+      card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
+    });
+  }
+
   async function renderCatalog(cat){
     if(cat !== undefined) catalogState.cat = cat;
     const search = catalogState.search.trim().toLowerCase();
     const wl = await getWishlist();
+    renderNewArrivals();
 
     let list = products.filter(p =>
       (catalogState.cat === 'all' || p.cat === catalogState.cat) &&
@@ -3009,6 +3318,12 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="12" rx="1"/></svg>
             </button>
             ${mediaFor(p)}
+            <div class="quick-view-veil" data-action="card-view" data-id="${p.id}">
+              <button type="button" class="quick-view-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Aperçu rapide
+              </button>
+            </div>
           </div>
           <div class="card-body">
             <div class="cat-tag">${esc(categoryName(p.cat).toUpperCase())}${p.brand && brandName(p.brand) ? ' · ' + esc(brandName(p.brand)) : ''}</div>
@@ -3073,7 +3388,10 @@
       card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
     });
 
-    grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    grid.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 3) * 90}ms`;
+      revealObserver.observe(el);
+    });
 
     const paginationEl = document.getElementById('catalog-pagination');
     if(totalPages > 1){
@@ -3094,6 +3412,16 @@
   });
   document.getElementById('page-next').addEventListener('click', () => {
     catalogState.page++;
+    renderCatalog();
+    document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('hero-search-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = document.getElementById('hero-search-input').value;
+    document.getElementById('catalog-search').value = q;
+    catalogState.search = q;
+    catalogState.page = 1;
     renderCatalog();
     document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -3383,6 +3711,43 @@
     el.classList.add('reveal');
     revealObserver.observe(el);
   });
+
+  /* ---------- Compteur animé des statistiques du hero ---------- */
+  function animateCount(el){
+    const target = Number(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduceMotion){ el.textContent = target + suffix; return; }
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now){
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if(progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const statObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        animateCount(entry.target);
+        statObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.stat b[data-count]').forEach(el => statObserver.observe(el));
+
+  /* ---------- Header compact au défilement ---------- */
+  const headerEl = document.querySelector('header');
+  let lastScrollState = false;
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY > 40;
+    if(scrolled !== lastScrollState){
+      headerEl.classList.toggle('scrolled', scrolled);
+      lastScrollState = scrolled;
+    }
+  }, { passive: true });
 
   /* ---------- Menu mobile ---------- */
   const burgerBtn = document.getElementById('burger-btn');
@@ -4561,6 +4926,35 @@
         document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth' });
       });
     });
+
+    // tuiles "Explorer par catégorie"
+    const exploreSection = document.getElementById('explore-section');
+    const exploreGrid = document.getElementById('explore-grid');
+    if(categories.length === 0){
+      exploreSection.style.display = 'none';
+    } else {
+      exploreSection.style.display = 'block';
+      exploreGrid.innerHTML = categories.map(c => {
+        const count = products.filter(p => p.cat === c.id).length;
+        return `
+        <button class="explore-tile" data-explore-cat="${c.id}">
+          ${iconFor(c.id)}
+          <h4>${esc(c.name)}</h4>
+          <span>${count} article(s)</span>
+        </button>
+      `;
+      }).join('');
+      exploreGrid.querySelectorAll('[data-explore-cat]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          const target = document.querySelector(`.filter-btn[data-cat="${btn.dataset.exploreCat}"]`);
+          if(target) target.classList.add('active');
+          catalogState.page = 1;
+          renderCatalog(btn.dataset.exploreCat);
+          document.getElementById('catalogue').scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
   }
 
   async function renderAdminCategories(){
@@ -4840,7 +5234,7 @@
     brandFilter.innerHTML = '<option value="all">Toutes les marques</option>' + brands.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
     if(!brands.length){ section.style.display = 'none'; return; }
     section.style.display = 'block';
-    grid.innerHTML = brands.map(b => `
+    const cardsHtml = brands.map(b => `
       <div class="brand-card">
         <div class="brand-icon">
           ${b.icon ? `<img src="${esc(b.icon)}" alt="${esc(b.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<span>${brandInitial(b.name)}</span>'">` : `<span>${brandInitial(b.name)}</span>`}
@@ -4848,6 +5242,13 @@
         <span class="brand-name">${esc(b.name)}</span>
       </div>
     `).join('');
+    if(brands.length <= 4){
+      grid.classList.add('static');
+      grid.innerHTML = cardsHtml;
+    } else {
+      grid.classList.remove('static');
+      grid.innerHTML = cardsHtml + cardsHtml;
+    }
   }
   function brandName(id){
     const b = brands.find(x => x.id === id);
@@ -6118,6 +6519,7 @@
     await Promise.all([refreshAccountUI(), refreshCartUI(), refreshWishlistUI()]);
     applyLang();
     await openProductFromUrl();
+    renderHomeReviews();
   })();
 </script>
 
