@@ -531,6 +531,13 @@
   .card-body{padding:16px; display:flex; flex-direction:column; gap:9px; flex:1;}
   .card-body h3{font-size:0.92rem; letter-spacing:0.01em; line-height:1.3;}
   .cat-tag{font-family:'IBM Plex Mono'; font-size:0.66rem; color:var(--accent-2); letter-spacing:0.04em;}
+  .sale-mode-tags{display:flex; gap:5px; flex-wrap:wrap;}
+  .sale-mode-tag{
+    font-family:'IBM Plex Mono'; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.03em;
+    padding:2px 7px; border-radius:2px; border:1px solid; line-height:1.6;
+  }
+  .sale-mode-tag.buy{color:var(--accent-2); border-color:rgba(242,194,48,0.35); background:rgba(242,194,48,0.08);}
+  .sale-mode-tag.rent{color:#8fc7ff; border-color:rgba(143,199,255,0.35); background:rgba(143,199,255,0.08);}
   .spec-row{
     display:flex; gap:12px; flex-wrap:wrap;
     font-family:'IBM Plex Mono'; font-size:0.68rem; color:var(--text-mute);
@@ -1459,6 +1466,19 @@
   </div>
 </section>
 
+<!-- ===== RÉCEMMENT CONSULTÉS ===== -->
+<section class="section" id="recent-views-section" style="padding-bottom:0; display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Reprendre où tu en étais</div>
+        <h2>Récemment consultés</h2>
+      </div>
+    </div>
+    <div class="new-arrivals-row" id="recent-views-row"></div>
+  </div>
+</section>
+
 <!-- ===== DERNIERS ARRIVAGES ===== -->
 <section class="section" id="new-arrivals-section" style="padding-bottom:0; display:none;">
   <div class="wrap">
@@ -1667,6 +1687,7 @@
           <li><a href="#" data-i18n="footer_tracking">Suivi de commande</a></li>
           <li><a href="#" data-i18n="trust3_title">Financement</a></li>
           <li><a href="#" data-i18n="footer_warranty">Garantie</a></li>
+          <li><a href="#" id="tradein-link">Reprise de matériel</a></li>
         </ul>
       </div>
       <div>
@@ -1855,7 +1876,7 @@
         <div class="pd-thumbs" id="pd-thumbs"></div>
       </div>
       <div class="pd-info">
-        <button class="pd-wishlist-btn" id="pd-share-btn" style="right:46px;" aria-label="Copier le lien de cet article">
+        <button class="pd-wishlist-btn" id="pd-share-btn" style="right:46px;" aria-label="Partager cet article">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.7" x2="15.4" y2="7.3"/><line x1="8.6" y1="13.3" x2="15.4" y2="16.7"/></svg>
         </button>
         <button class="pd-wishlist-btn" id="pd-wishlist-btn" aria-label="Ajouter à la liste de souhaits">
@@ -1864,13 +1885,14 @@
         <div class="cat-tag" id="pd-cat"></div>
         <h2 id="pd-name"></h2>
         <div id="pd-brand" style="display:none; font-family:'IBM Plex Mono'; font-size:0.78rem; color:var(--accent-2); margin-top:-8px;"></div>
+        <div id="pd-sale-mode-tags"></div>
         <div class="pd-rating" id="pd-rating-summary"></div>
         <div class="spec-row" id="pd-specs"></div>
         <p class="pd-description" id="pd-description"></p>
         <div class="price-row" style="margin-top:auto;">
           <div class="price" id="pd-price"></div>
         </div>
-        <button class="btn btn-primary btn-block" id="pd-add-btn">Ajouter au panier</button>
+        <div id="pd-actions" style="display:flex; flex-direction:column; gap:10px;"></div>
       </div>
     </div>
 
@@ -2038,7 +2060,7 @@
           <button class="btn btn-ghost" id="bulk-cancel-btn">Annuler</button>
         </div>
 
-        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;">
           <div class="field"><label>Catégorie (pour tous les articles) *</label><select id="bulk-cat" required></select></div>
           <div class="field">
             <label>État (pour tous)</label>
@@ -2053,6 +2075,14 @@
               <option value="disponible">Disponible</option>
               <option value="reserve">Réservé</option>
               <option value="vendu">Vendu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Mode de vente (pour tous)</label>
+            <select id="bulk-sale-mode">
+              <option value="vente">Vente uniquement</option>
+              <option value="location">Location uniquement</option>
+              <option value="both">Vente et location</option>
             </select>
           </div>
         </div>
@@ -2140,6 +2170,14 @@
                 <option value="disponible">Disponible</option>
                 <option value="reserve">Réservé</option>
                 <option value="vendu">Vendu</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Mode de vente</label>
+              <select id="pf-sale-mode">
+                <option value="vente">Vente uniquement</option>
+                <option value="location">Location uniquement</option>
+                <option value="both">Vente et location</option>
               </select>
             </div>
             <div class="field"><label>Puissance / caractéristique</label><input type="text" id="pf-power" placeholder="ex : 140 CH"></div>
@@ -2592,6 +2630,60 @@
       <div class="field"><label data-i18n="contact_message_label">Message</label><textarea id="cm-message" class="dash-textarea" rows="4" required></textarea></div>
       <input type="text" id="cm-website" name="website" autocomplete="off" tabindex="-1" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" aria-hidden="true">
       <button type="submit" class="btn btn-primary btn-block" data-i18n="contact_send">Envoyer le message</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== REPRISE DE MATÉRIEL ===== -->
+<div class="overlay" id="tradein-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="tradein-modal-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3>Reprise de votre matériel</h3>
+    <p class="sub">Décrivez votre matériel, un conseiller vous recontacte avec une estimation.</p>
+    <form id="tradein-form" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="form-grid">
+        <div class="field"><label>Nom complet *</label><input type="text" id="ti-name" required></div>
+        <div class="field"><label>Email *</label><input type="email" id="ti-email" required></div>
+        <div class="field"><label>Téléphone</label><input type="tel" id="ti-phone"></div>
+        <div class="field"><label>Type de matériel *</label><input type="text" id="ti-type" placeholder="ex : Tracteur" required></div>
+        <div class="field"><label>Marque / modèle</label><input type="text" id="ti-brand" placeholder="ex : John Deere 6120M"></div>
+        <div class="field"><label>Année</label><input type="text" id="ti-year" placeholder="ex : 2018"></div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>État général</label>
+          <select id="ti-state">
+            <option value="Excellent">Excellent</option>
+            <option value="Bon">Bon</option>
+            <option value="Moyen">Moyen</option>
+            <option value="À réviser">À réviser</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Précisions (heures d'utilisation, options, historique...)</label><textarea id="ti-notes" class="dash-textarea" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block">Envoyer ma demande de reprise</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== DEMANDE DE LOCATION ===== -->
+<div class="overlay" id="rental-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="rental-modal-close" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h3>Demande de location</h3>
+    <p class="sub">Article : <b id="rental-product-name" style="color:var(--text);"></b></p>
+    <form id="rental-form" style="display:flex; flex-direction:column; gap:14px;">
+      <input type="hidden" id="rental-product-id">
+      <div class="form-grid">
+        <div class="field"><label>Nom complet *</label><input type="text" id="rt-name" required></div>
+        <div class="field"><label>Email *</label><input type="email" id="rt-email" required></div>
+        <div class="field"><label>Téléphone</label><input type="tel" id="rt-phone"></div>
+        <div class="field"><label>Durée souhaitée</label><input type="text" id="rt-duration" placeholder="ex : 2 semaines"></div>
+      </div>
+      <div class="field"><label>Message (optionnel)</label><textarea id="rt-notes" class="dash-textarea" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block">Envoyer ma demande de location</button>
     </form>
   </div>
 </div>
@@ -3221,6 +3313,14 @@
     if(p.old) return { cls: 'promo', label: 'PROMO' };
     return { cls: '', label: p.state };
   }
+  function saleModeTagsHtml(p){
+    const mode = p.saleMode || 'vente';
+    let html = '<div class="sale-mode-tags">';
+    if(mode === 'vente' || mode === 'both') html += `<span class="sale-mode-tag buy">Achat</span>`;
+    if(mode === 'location' || mode === 'both') html += `<span class="sale-mode-tag rent">Location</span>`;
+    html += '</div>';
+    return html;
+  }
 
   async function renderHomeReviews(){
     const section = document.getElementById('home-reviews-section');
@@ -3248,6 +3348,41 @@
       </div>
     `;
     }).join('');
+  }
+
+  /* ---- Récemment consultés (mémoire locale de l'appareil) ---- */
+  const RECENT_VIEWS_KEY = 'agrimarket_recent_views';
+  function getRecentViews(){
+    try{ return JSON.parse(localStorage.getItem(RECENT_VIEWS_KEY)) || []; }
+    catch(e){ return []; }
+  }
+  function trackRecentView(id){
+    try{
+      let list = getRecentViews().filter(x => x !== id);
+      list.unshift(id);
+      list = list.slice(0, 8);
+      localStorage.setItem(RECENT_VIEWS_KEY, JSON.stringify(list));
+    }catch(e){ /* stockage local indisponible, on ignore */ }
+  }
+  function renderRecentViews(){
+    const section = document.getElementById('recent-views-section');
+    const row = document.getElementById('recent-views-row');
+    const ids = getRecentViews();
+    const items = ids.map(id => productById(id)).filter(Boolean);
+    if(items.length < 2){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    row.innerHTML = items.map(p => `
+      <div class="arrival-card" data-id="${p.id}">
+        <div class="arrival-media">${mediaFor(p)}</div>
+        <div class="arrival-body">
+          <h5>${esc(p.name)}</h5>
+          <div class="arrival-price">${fmt(p.price)}</div>
+        </div>
+      </div>
+    `).join('');
+    row.querySelectorAll('.arrival-card').forEach(card => {
+      card.addEventListener('click', () => openProductDetail(Number(card.dataset.id)));
+    });
   }
 
   function renderNewArrivals(){
@@ -3327,6 +3462,7 @@
           </div>
           <div class="card-body">
             <div class="cat-tag">${esc(categoryName(p.cat).toUpperCase())}${p.brand && brandName(p.brand) ? ' · ' + esc(brandName(p.brand)) : ''}</div>
+            ${saleModeTagsHtml(p)}
             <h3>${esc(p.name)}</h3>
             <div class="spec-row">
               <span>PUISS.&nbsp;<b>${p.spec.p}</b></span>
@@ -3341,14 +3477,17 @@
             </div>
             <div class="card-btn-row">
               <button class="view-btn" data-action="card-view" data-id="${p.id}">Voir</button>
-              <button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>
+              ${(p.saleMode === 'location') ?
+                `<button class="add-btn" data-action="card-rent" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : 'Demander la location'}</button>` :
+                `<button class="add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>`
+              }
             </div>
           </div>
         `;
         grid.appendChild(card);
       });
 
-    grid.querySelectorAll('.add-btn:not([disabled])').forEach(btn => {
+    grid.querySelectorAll('.add-btn:not([disabled]):not([data-action="card-rent"])').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const added = await addToCart(Number(btn.dataset.id));
@@ -3361,6 +3500,12 @@
     });
     grid.querySelectorAll('.add-btn[disabled]').forEach(btn => {
       btn.addEventListener('click', (e) => e.stopPropagation());
+    });
+    grid.querySelectorAll('[data-action="card-rent"]:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openRentalRequest(Number(btn.dataset.id));
+      });
     });
     grid.querySelectorAll('[data-action="card-wl"]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -3477,6 +3622,7 @@
   async function openProductDetail(id){
     const p = productById(id);
     if(!p) return;
+    trackRecentView(p.id);
     const images = (Array.isArray(p.images) && p.images.length) ? p.images : (p.image ? [p.image] : []);
 
     document.getElementById('pd-cat').textContent = categoryName(p.cat).toUpperCase() + (p.old ? ' · PROMO' : '');
@@ -3503,10 +3649,36 @@
       ${fmt(p.price)}<br><small>Prix indicatif HT</small>
     `;
     const unavailable = p.status === 'vendu' || p.status === 'reserve';
-    const pdBtn = document.getElementById('pd-add-btn');
-    pdBtn.dataset.id = p.id;
-    pdBtn.disabled = unavailable;
-    pdBtn.textContent = unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart');
+    document.getElementById('pd-sale-mode-tags').innerHTML = saleModeTagsHtml(p);
+
+    const mode = p.saleMode || 'vente';
+    const actionsBox = document.getElementById('pd-actions');
+    let actionsHtml = '';
+    if(mode === 'vente' || mode === 'both'){
+      actionsHtml += `<button class="btn btn-primary btn-block" id="pd-add-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : t('btn_add_to_cart')}</button>`;
+    }
+    if(mode === 'location' || mode === 'both'){
+      actionsHtml += `<button class="btn btn-ghost btn-block" id="pd-rent-btn" data-id="${p.id}" ${unavailable ? 'disabled' : ''}>${unavailable ? (p.status === 'vendu' ? t('btn_sold') : t('btn_reserved')) : 'Demander la location'}</button>`;
+    }
+    actionsBox.innerHTML = actionsHtml;
+    const pdAddBtn = document.getElementById('pd-add-btn');
+    if(pdAddBtn){
+      pdAddBtn.addEventListener('click', async () => {
+        if(pdAddBtn.disabled) return;
+        const added = await addToCart(p.id);
+        if(added){
+          pdAddBtn.textContent = t('btn_added');
+          setTimeout(() => { pdAddBtn.textContent = t('btn_add_to_cart'); }, 1200);
+        }
+      });
+    }
+    const pdRentBtn = document.getElementById('pd-rent-btn');
+    if(pdRentBtn){
+      pdRentBtn.addEventListener('click', () => {
+        if(pdRentBtn.disabled) return;
+        openRentalRequest(p.id);
+      });
+    }
 
     const mainBox = document.getElementById('pd-main-image');
     const thumbsBox = document.getElementById('pd-thumbs');
@@ -3534,9 +3706,15 @@
       showToast(isIn ? 'Ajouté à ta liste de souhaits.' : 'Retiré de ta liste de souhaits.');
     };
 
-    /* Partage du lien direct */
+    /* Partage : natif sur mobile (WhatsApp, SMS, Messages...), copie du lien en repli */
     document.getElementById('pd-share-btn').onclick = async () => {
       const shareUrl = `${location.origin}${location.pathname}?produit=${p.id}`;
+      if(navigator.share){
+        try{
+          await navigator.share({ title: `${p.name} — AgriMarket`, text: `${p.name} — ${fmt(p.price)}`, url: shareUrl });
+        }catch(err){ /* partage annulé par l'utilisateur, rien à faire */ }
+        return;
+      }
       try{
         await navigator.clipboard.writeText(shareUrl);
         showToast('Lien copié dans le presse-papiers.');
@@ -3606,19 +3784,11 @@
       history.pushState({}, '', location.pathname);
     }
     resetPageMeta();
+    renderRecentViews();
   }
   document.getElementById('product-detail-close').addEventListener('click', closeProductDetail);
   document.getElementById('product-detail-overlay').addEventListener('click', (e) => {
     if(e.target.id === 'product-detail-overlay') closeProductDetail();
-  });
-  document.getElementById('pd-add-btn').addEventListener('click', async (e) => {
-    const p = productById(Number(e.target.dataset.id));
-    if(!p || p.status === 'vendu' || p.status === 'reserve') return;
-    const added = await addToCart(Number(e.target.dataset.id));
-    if(added){
-      e.target.textContent = t('btn_added');
-      setTimeout(() => { e.target.textContent = t('btn_add_to_cart'); }, 1200);
-    }
   });
 
   /* ---- Avis clients (vue publique + soumission) ---- */
@@ -4068,6 +4238,69 @@
     if(e.target.id === 'contact-confirm-overlay') e.currentTarget.classList.remove('open');
   });
 
+  /* ---- Reprise de matériel ---- */
+  document.getElementById('tradein-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('tradein-modal-overlay').classList.add('open');
+  });
+  document.getElementById('tradein-modal-close').addEventListener('click', () => {
+    document.getElementById('tradein-modal-overlay').classList.remove('open');
+  });
+  document.getElementById('tradein-modal-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'tradein-modal-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('tradein-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('ti-name').value.trim();
+    const email = document.getElementById('ti-email').value.trim();
+    const phone = document.getElementById('ti-phone').value.trim();
+    const type = document.getElementById('ti-type').value.trim();
+    const brand = document.getElementById('ti-brand').value.trim();
+    const year = document.getElementById('ti-year').value.trim();
+    const state = document.getElementById('ti-state').value;
+    const notes = document.getElementById('ti-notes').value.trim();
+    if(!name || !email || !type) return;
+    const message = `🔄 DEMANDE DE REPRISE\nType : ${type}${brand ? '\nMarque/modèle : ' + brand : ''}${year ? '\nAnnée : ' + year : ''}\nÉtat général : ${state}${phone ? '\nTéléphone : ' + phone : ''}${notes ? '\n\n' + notes : ''}`;
+    const ok = await insertMessage({ id: 'TI-' + Date.now().toString().slice(-8), name, email, message, read: false });
+    if(!ok){ showToast('Impossible d\'envoyer ta demande, réessaie.'); return; }
+    document.getElementById('tradein-form').reset();
+    document.getElementById('tradein-modal-overlay').classList.remove('open');
+    showToast('Demande de reprise envoyée — un conseiller te recontacte rapidement.');
+  });
+
+  /* ---- Demande de location ---- */
+  function openRentalRequest(productId){
+    const p = productById(productId);
+    if(!p) return;
+    document.getElementById('rental-form').reset();
+    document.getElementById('rental-product-id').value = productId;
+    document.getElementById('rental-product-name').textContent = p.name;
+    document.getElementById('rental-modal-overlay').classList.add('open');
+  }
+  document.getElementById('rental-modal-close').addEventListener('click', () => {
+    document.getElementById('rental-modal-overlay').classList.remove('open');
+  });
+  document.getElementById('rental-modal-overlay').addEventListener('click', (e) => {
+    if(e.target.id === 'rental-modal-overlay') e.currentTarget.classList.remove('open');
+  });
+  document.getElementById('rental-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const productId = Number(document.getElementById('rental-product-id').value);
+    const p = productById(productId);
+    const name = document.getElementById('rt-name').value.trim();
+    const email = document.getElementById('rt-email').value.trim();
+    const phone = document.getElementById('rt-phone').value.trim();
+    const duration = document.getElementById('rt-duration').value.trim();
+    const notes = document.getElementById('rt-notes').value.trim();
+    if(!name || !email) return;
+    const message = `🔑 DEMANDE DE LOCATION\nArticle : ${p ? p.name : 'article #' + productId}${duration ? '\nDurée souhaitée : ' + duration : ''}${phone ? '\nTéléphone : ' + phone : ''}${notes ? '\n\n' + notes : ''}`;
+    const ok = await insertMessage({ id: 'RT-' + Date.now().toString().slice(-8), name, email, message, read: false });
+    if(!ok){ showToast('Impossible d\'envoyer ta demande, réessaie.'); return; }
+    document.getElementById('rental-form').reset();
+    document.getElementById('rental-modal-overlay').classList.remove('open');
+    showToast('Demande de location envoyée — un conseiller te recontacte rapidement.');
+  });
+
   /* ---- Messages (admin) ---- */
   async function renderAdminMessages(){
     const list = await loadMessages();
@@ -4077,16 +4310,21 @@
       return;
     }
     table.innerHTML = `<div class="dt-row dt-head" style="grid-template-columns:1.4fr 2fr auto;"><span>De</span><span>Message</span><span></span></div>` +
-      list.map(m => `
+      list.map(m => {
+        const isTradeIn = m.message.startsWith('🔄 DEMANDE DE REPRISE');
+        const isRental = m.message.startsWith('🔑 DEMANDE DE LOCATION');
+        const tagHtml = isTradeIn ? ' <span class="pill on" style="margin-left:6px;">Reprise</span>' : (isRental ? ' <span class="pill on" style="margin-left:6px; background:rgba(143,199,255,0.15); color:#8fc7ff;">Location</span>' : '');
+        return `
         <div class="dt-row" style="grid-template-columns:1.4fr 2fr auto; align-items:flex-start;">
-          <span class="dt-name">${esc(m.name)}<br><span class="dt-sub">${esc(m.email)}</span><br><span class="dt-sub">${new Date(m.createdAt).toLocaleDateString('fr-FR')}</span></span>
-          <span class="dt-sub" style="white-space:normal;">${esc(m.message)}</span>
+          <span class="dt-name">${esc(m.name)}${tagHtml}<br><span class="dt-sub">${esc(m.email)}</span><br><span class="dt-sub">${new Date(m.createdAt).toLocaleDateString('fr-FR')}</span></span>
+          <span class="dt-sub" style="white-space:pre-line;">${esc(m.message)}</span>
           <span class="dt-actions">
             <a class="dt-btn" href="mailto:${encodeURIComponent(m.email)}">Répondre</a>
             <button class="dt-btn danger" data-action="delete-message" data-id="${m.id}">Supprimer</button>
           </span>
         </div>
-      `).join('');
+      `;
+      }).join('');
     table.querySelectorAll('[data-action="delete-message"]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const ok = await deleteMessage(btn.dataset.id);
@@ -5431,6 +5669,7 @@
       document.getElementById('pf-brand').value = p.brand || '';
       document.getElementById('pf-state').value = p.state;
       document.getElementById('pf-status').value = p.status || 'disponible';
+      document.getElementById('pf-sale-mode').value = p.saleMode || 'vente';
       document.getElementById('pf-power').value = p.spec.p;
       document.getElementById('pf-year').value = p.spec.a;
       document.getElementById('pf-usage').value = p.spec.h;
@@ -5441,6 +5680,7 @@
     } else {
       document.getElementById('product-form-title').textContent = 'Nouvel article';
       document.getElementById('pf-id').value = '';
+      document.getElementById('pf-sale-mode').value = 'vente';
       pfImages = [];
     }
     renderPfImagesGrid();
@@ -5517,6 +5757,7 @@
     document.getElementById('bulk-cat').innerHTML = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     document.getElementById('bulk-state').value = 'NEUF';
     document.getElementById('bulk-status').value = 'disponible';
+    document.getElementById('bulk-sale-mode').value = 'vente';
     document.getElementById('bulk-rows').innerHTML = '';
     for(let i = 0; i < 3; i++) addBulkRow();
   }
@@ -5532,6 +5773,7 @@
     const cat = document.getElementById('bulk-cat').value;
     const state = document.getElementById('bulk-state').value;
     const status = document.getElementById('bulk-status').value;
+    const saleMode = document.getElementById('bulk-sale-mode').value;
     const rows = Array.from(document.querySelectorAll('#bulk-rows .bulk-row'));
 
     let nextId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
@@ -5549,7 +5791,7 @@
       const image = preview.style.display !== 'none' && preview.src ? preview.src : '';
       products.push({
         id: nextId++,
-        cat, name, state, status,
+        cat, name, state, status, saleMode,
         spec: { p: power, a: year, h: usage },
         price, old: oldRaw ? Number(oldRaw) : null,
         image, images: image ? [image] : [], description: '',
@@ -5582,6 +5824,7 @@
       name: document.getElementById('pf-name').value.trim(),
       state: document.getElementById('pf-state').value,
       status: document.getElementById('pf-status').value,
+      saleMode: document.getElementById('pf-sale-mode').value,
       spec: {
         p: document.getElementById('pf-power').value.trim() || '—',
         a: document.getElementById('pf-year').value.trim() || '—',
@@ -6519,6 +6762,7 @@
     applySiteConfig();
     applyCategoriesUI();
     renderCatalog('all');
+    renderRecentViews();
     brands = brandsList;
     applyBrandsPublic();
     socialLinks = socialList;
